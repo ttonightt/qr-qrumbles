@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="css/common.css">
+	<link rel="stylesheet" href="css/style.css">
+	<title>QRt [kju:a:(r)t] Editor by @ttonightt</title>
+	<script src="js/libs/flatten-main.umd.js"></script>
+	<!-- К'юарт [кйуарт] -->
+</head>
+<body>
+	<div id="onetitle"><span>Brush radius: 50</span></div>
+
+	<div id="popups">
+		<div class="popup" data-popup="new" id="creator-menu">
+			<h1>New QRt</h1><!-------------------------------------------------------NEW-->
+			<div class="content">
+				<div class="input-wrap">
+					<input type="text" id="blank-name" placeholder="New QRT (1)">
+				</div>
+				<div class="btn">Create</div>
+			</div>
+			<form>
+				<input type="radio" name="version" id="vrs-40">
+				<label for="vrs-40">x177</label>
+				<input type="radio" name="version" id="vrs-34" checked>
+				<label for="vrs-34">x153</label>
+				<input type="radio" name="version" id="vrs-27">
+				<label for="vrs-27">x125</label>
+				<input type="radio" name="version" id="vrs-20">
+				<label for="vrs-20">x97</label>
+			</form>
+			<i id="this-close">x</i>
+		</div>
+
+		<div class="popup" data-popup="save" id="project-saver">
+			<h1>Save Project</h1><!--------------------------------------------------SAVE-->
+			<div class="content">
+				<div class="input-wrap">
+					<input type="text" id="proj-name-to-save" value="New QRt (1)">
+				</div>
+				<div class="btn" id="save-proj-btn">Save</div>
+			</div>
+			<form>
+				<input type="radio" name="format" id="frm-tqrt" checked>
+				<label for="frm-tqrt">.tqrt</label>
+				<input type="radio" name="format" id="frm-svg">
+				<label for="frm-svg">.svg</label>
+				<input type="radio" name="format" id="frm-bmp">
+				<label for="frm-bmp">.bmp</label>
+			</form>
+			<i id="this-close">x</i>
+		</div>
+
+		<div class="popup" data-popup="open" id="project-opener">
+			<h1>Open Project</h1><!--------------------------------------------------OPEN-->
+			<div class="content">
+				<input type="file" id="proj-to-open" accept=".tqrt">
+				<label for="proj-to-open">Select File</label>
+				<p id="open-proj-preview"></p>
+				<div class="btn" id="open-proj-btn">Open</div>
+			</div>
+			<i id="this-close">x</i>
+		</div>
+
+		<div class="popup" data-popup="edit">
+			<h1>Edit</h1><!----------------------------------------------------------EDIT-->
+			<div class="content controls-table">
+
+				<div id="mask" class="radio-btn-container wide" content="Mask pattern">
+					<div class="radio-btn">
+						<input type="radio" name="mask" id="mask-var-0" value="0">
+						<label for="mask-var-0"><img class="red-to-eca99d" src="img/m0.png" alt="0"></label>
+					</div>
+
+					<div class="radio-btn">
+						<input type="radio" name="mask" id="mask-var-1" value="1">
+						<label for="mask-var-1"><img class="red-to-eca99d" src="img/m1.png" alt="1"></label>
+					</div>
+
+					<div class="radio-btn">
+						<input type="radio" name="mask" id="mask-var-2" value="2" checked>
+						<label for="mask-var-2"><img class="red-to-eca99d" src="img/m2.png" alt="2"></label>
+					</div>
+
+					<div class="radio-btn">
+						<input type="radio" name="mask" id="mask-var-3" value="3">
+						<label for="mask-var-3"><img class="red-to-eca99d" src="img/m3.png" alt="3"></label>
+					</div>
+
+					<div class="radio-btn">
+						<input type="radio" name="mask" id="mask-var-4" value="4">
+						<label for="mask-var-4"><img class="red-to-eca99d" src="img/m4.png" alt="4"></label>
+					</div>
+
+					<div class="radio-btn">
+						<input type="radio" name="mask" id="mask-var-5" value="5">
+						<label for="mask-var-5"><img class="red-to-eca99d" src="img/m5.png" alt="5"></label>
+					</div>
+
+					<div class="radio-btn">
+						<input type="radio" name="mask" id="mask-var-6" value="6">
+						<label for="mask-var-6"><img class="red-to-eca99d" src="img/m6.png" alt="6"></label>
+					</div>
+
+					<div class="radio-btn">
+						<input type="radio" name="mask" id="mask-var-7" value="7">
+						<label for="mask-var-7"><img class="red-to-eca99d" src="img/m7.png" alt="7"></label>
+					</div>
+				</div>
+
+				<div id="errcor" class="radio-btn-container" content="Error correction, %">
+					<div class="radio-btn">
+						<input type="radio" name="errcor" id="errcor-0" value="L" checked>
+						<label for="errcor-0">7</label>
+					</div>
+
+					<div class="radio-btn">
+						<input type="radio" name="errcor" id="errcor-1" value="M">
+						<label for="errcor-1">15</label>
+					</div>
+
+					<div class="radio-btn">
+						<input type="radio" name="errcor" id="errcor-2" value="Q">
+						<label for="errcor-2">25</label>
+					</div>
+
+					<div class="radio-btn">
+						<input type="radio" name="errcor" id="errcor-3" value="H">
+						<label for="errcor-3">30</label>
+					</div>
+				</div>
+
+				<div id="datatype" class="radio-btn-container" content="Data type">
+					<div class="radio-btn">
+						<input type="radio" name="dtype" id="dtype-2" value="2">
+						<label for="dtype-2">A</label>
+					</div>
+
+					<div class="radio-btn">
+						<input type="radio" name="dtype" id="dtype-4" value="4" checked>
+						<label for="dtype-4">B</label>
+					</div>
+
+					<div class="radio-btn">
+						<input type="radio" name="dtype" id="dtype-7" value="7" checked>
+						<label for="dtype-7">U</label>
+					</div>
+				</div>
+
+			</div>
+			<i id="this-close">x</i>
+		</div>
+
+		<div class="popup" data-popup="about">
+			<h1>About</h1><!--------------------------------------------------------ABOUT-->
+			<div class="content">
+				This QRt (QR || art) editor was designed and coded by <a href="http://github.com/ttonightt" target="_blank" rel="noopener noreferrer">@ttonightt</a>
+			</div>
+			<i id="this-close">x</i>
+		</div>
+
+		<div class="popup" data-popup="help">
+			<h1>Help</h1><!----------------------------------------------------------HELP-->
+			<div class="content">
+				
+			</div>
+			<i id="this-close">x</i>
+		</div>
+	</div>
+
+	<header>
+		<ul class="actions">
+			<li class="call-popup" data-popup="new">New</li>
+			<li class="call-popup" data-popup="save">Save</li>
+			<li class="call-popup" data-popup="open">Open</li>
+			<li class="call-popup separator" data-popup="edit">Edit</li>
+			<li class="call-popup separator" data-popup="about">About</li>
+			<li class="call-popup" data-popup="help">Help</li>
+			<!-- <li class="call-popup" data-popup="about">Lang</li> -->
+		</ul>
+		<div class="tab-nav-wrap">
+			<ul id="tab-navs">
+				<li class="active" data-tab="1">QRt 11<i id="this-close">x</i></li>
+			</ul>
+		</div>
+	</header>
+
+	<div class="workbench">
+		<div class="workspace">
+			<div class="canvas-wrap">
+				<canvas id="main" width="100" height="100"></canvas>
+				<canvas id="bitovermask" width="100" height="100"></canvas>
+			</div>
+		</div>
+
+		<aside>
+			<form class="tools">
+				<input type="radio" name="tool" id="move-tool">
+				<label for="move-tool"><img class="red-to-150f1a" src="img/move-tool.png"></label>
+				<input type="radio" name="tool" id="brush-tool" checked>
+				<label for="brush-tool"><img class="red-to-150f1a" src="img/brush-tool.png"></label>
+				<input type="radio" name="tool" id="circle-tool">
+				<label for="circle-tool"><img class="red-to-150f1a" src="img/circle-tool.png"></label>
+				<input type="radio" name="tool" id="line-tool">
+				<label for="line-tool"><img class="red-to-150f1a" src="img/line-tool.png"></label>
+				<input type="radio" name="tool" id="select-tool">
+				<label for="select-tool"><img class="red-to-150f1a" src="img/select-tool.png"></label>
+			</form>
+
+			<div class="topbar controls-table">
+				<input type="checkbox" name="tocontrast" id="tocontrast">
+				<label class="btn fl1" for="tocontrast">Contrast</label>
+				<div class="btn square"><img class="red-to-150f1a" src="img/circle-arrow-clockwise.png"></div>
+				<div class="btn square"><img class="red-to-150f1a" src="img/circle-arrow-reversewise.png"></div>
+				<!-- <input type="checkbox" name="toapplymask" id="toapplymask">
+				<label class="btn" for="toapplymask">Mask</label> -->
+
+				<div id="mask-application" class="radio-btn-container switcher" content="Mask appl.">
+					<div class="radio-btn">
+						<input type="radio" name="masap" id="masap-var-0" value="0" checked>
+						<label for="masap-var-0">0</label>
+					</div>
+
+					<div class="radio-btn">
+						<input type="radio" name="masap" id="masap-var-1" value="1">
+						<label for="masap-var-1">A</label>
+					</div>
+
+					<div class="radio-btn">
+						<input type="radio" name="masap" id="masap-var-2" value="2">
+						<label for="masap-var-2">X</label>
+					</div>
+				</div>
+
+				<div id="databitmap-application" class="radio-btn-container switcher" content="Data bitmap appl.">
+					<div class="radio-btn">
+						<input type="radio" name="dtbmap" id="dtbmap-var-0" value="0" checked>
+						<label for="dtbmap-var-0">0</label>
+					</div>
+
+					<div class="radio-btn">
+						<input type="radio" name="dtbmap" id="dtbmap-var-1" value="1">
+						<label for="dtbmap-var-1">V</label>
+					</div>
+
+					<div class="radio-btn">
+						<input type="radio" name="dtbmap" id="dtbmap-var-2" value="2">
+						<label for="dtbmap-var-2">C</label>
+					</div>
+				</div>
+
+				<div class="btn wide">Encode EC bits</div>
+			</div>
+			<div class="bottombar">
+				<div class="decoded-wrap">
+					<!-- <span id="decoded"></span> -->
+				</div>
+
+				<div class="btn vertical">Update</div>
+			</div>
+		</aside>
+	</div>
+
+	<script src="js/tiny-usefuls.js"></script>
+	<script src="js/tables.js"></script>
+	<script src="js/file-saver-reader.js"></script>
+	<script src="js/controls.js"></script>
+	<script src="js/qr.js"></script>
+	<script src="js/source.js"></script>
+</body>
+</html>
