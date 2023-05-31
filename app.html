@@ -7,7 +7,6 @@
 	<link rel="stylesheet" href="css/common.css">
 	<link rel="stylesheet" href="css/style.css">
 	<title>QRt [kju:a:(r)t] Editor by @ttonightt</title>
-	<script src="js/libs/flatten-main.umd.js"></script>
 	<!-- К'юарт [кйуарт] -->
 </head>
 <body>
@@ -183,7 +182,9 @@
 		</ul>
 		<div class="tab-nav-wrap">
 			<ul id="tab-navs">
-				<li class="active" data-tab="1">QRt 11<i id="this-close">x</i></li>
+				<li data-tab="0">New QRt<i id="this-close">x</i></li>
+				<li class="active" data-tab="1">New QRt 1<i id="this-close">x</i></li>
+				<li data-tab="2">New QRt 2<i id="this-close">x</i></li>
 			</ul>
 		</div>
 	</header>
@@ -192,7 +193,8 @@
 		<div class="workspace">
 			<div class="canvas-wrap">
 				<canvas id="main" width="100" height="100"></canvas>
-				<canvas id="bitovermask" width="100" height="100"></canvas>
+				<svg id="overmask" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" stroke="red" stroke-width="0.075">
+				</svg>
 			</div>
 		</div>
 

@@ -12,6 +12,10 @@ Math.binlen = function (bx) {
 	return Math.floor(Math.log2(bx)) + 1;
 }
 
+Number.prototype.interval = function (a, b) {
+	return a <= this && this <= b;
+}
+
 function charToInt45 (char) {
 	switch (char) {
 		case " ":

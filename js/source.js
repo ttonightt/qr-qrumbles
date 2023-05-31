@@ -1,3 +1,4 @@
+
 const popupElements = document.querySelectorAll("#popups .popup");
 let popupBindings = {};
 
@@ -99,11 +100,11 @@ saveProjTrigger.onclick = () => {
 // QRT CREATION vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
 const canvas = document.getElementById("main");
+const overmask = document.getElementById("overmask");
 const cnvP = canvas.parentElement, cnvPP = canvas.parentElement.parentElement;
-const bitovermask = document.getElementById("bitovermask");
-const bctx = bitovermask.getContext("2d");
 
 BASE.ctx = canvas.getContext("2d");
+BASE.ctx.fillStyle = "#000000";
 
 Controls.mask = new Control("radio", "mask", () => {
 	BASE.current.applyFormatOn(Controls.mask.value, Controls.errcor.value, 4).updateCanvas();
@@ -118,70 +119,13 @@ Controls.datatype = new Control("radio", "dtype", () => {
 BASE.arts[0] = new QRT(27, Controls.mask.value, Controls.errcor.value, Controls.datatype.value);
 BASE.current = BASE.arts[0];
 
-window.onload = () => {
-	bctx.imageSmoothing = false;
-	fillBitmask(BASE.current.matrix, 14600, 125);
-};
-
-let {point, segment, Polygon} = Flatten;
-const pol1 = new Polygon();
-
-
-function fillBitmask (refermx, len, modules) {
-	let x = modules - 1, y = modules - 1, v = 1, j = 1;
-	let hue = 0, sat = 80, lit = 40;
-	bctx.fillStyle = `hsl(${hue},${sat}%,${lit}%)`;
-	bctx.fillRect(x--, y, 1, 1);
-	for (let i = 1; i < len; i++) {
-		if (j % 11 == 0 && j != 0) {
-			hue += 32;
-			hue %= 360;
-		}
-		if (x == 10 && y == modules) {
-			y -= 9;
-			x -= 2;
-			v = -v;
-		}
-
-		if (x == 8 && y == 8) {
-			// console.log("jump");
-			x--;
-		}
-
-		if (x == modules - 9 && y == 6) {
-			// console.log("jump2");
-			x -= 2;
-			y -= 6;
-			v = -v;
-		}
-		
-		if (y < 0 || y >= modules || (y == 8 && (refermx[y][x] == 4 || refermx[y][x] == 5)) || (x <= 5 && y == modules - 11)) {
-			y += v;
-			x -= 2;
-			v = -v;
-			bctx.fillStyle = `hsl(${hue},${sat}%,${lit}%)`;
-			bctx.fillRect(x, y, 1, 1);
-			j++;
-		} else if (refermx[y][x] == 0 || refermx[y][x] == 1) {
-			bctx.fillStyle = `hsl(${hue},${sat}%,${lit}%)`;
-			bctx.fillRect(x, y, 1, 1);
-			j++;
-		}
-		if (i % 2) {
-			x++;
-			y -= v;
-		} else {
-			x--;
-		}
-	}
-}
-
 // QRT CREATION ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 let globalCanvasScaleCoef = Math.floor((cnvPP.clientHeight - 40) / BASE.current.modules);
-const gCSCmin = globalCanvasScaleCoef - 2, gCSCmax = globalCanvasScaleCoef + 8;
+const gCSCmin = globalCanvasScaleCoef - 2,
+		gCSCmax = globalCanvasScaleCoef + 8;
 setWorkspaceSize();
-BASE.current.updateCanvasX();
+BASE.current.updateCanvas();
 
 _gCSC = globalCanvasScaleCoef;
 
@@ -197,6 +141,7 @@ cnvPP.onwheel = function (e) {
 
 	cnvP.style.width = BASE.current.modules * globalCanvasScaleCoef + "px";
 	cnvP.style.height = BASE.current.modules * globalCanvasScaleCoef + "px";
+	overmask.setAttribute("stroke-width", 2 / globalCanvasScaleCoef);
 
 	cnvP.style.top = (e.clientY - 100 - ((e.clientY - 100 - parseInt(cnvP.style.top)) * coef)) + "px";
 	cnvP.style.left = (e.clientX - ((e.clientX - parseInt(cnvP.style.left)) * coef)) + "px";
@@ -365,10 +310,121 @@ function setWorkspaceSize () {
 	cnvP.style.height = BASE.current.modules * globalCanvasScaleCoef + "px";
 	cnvP.style.top = Math.floor((cnvPP.clientHeight - (globalCanvasScaleCoef * BASE.current.modules)) / 2) + "px";
 	cnvP.style.left = Math.floor((cnvPP.clientWidth - (globalCanvasScaleCoef * BASE.current.modules)) / 2) + "px";
-	bitovermask.width = BASE.current.modules;
-	bitovermask.height = BASE.current.modules;
+	overmask.setAttribute("viewBox", "0 0 " + BASE.current.modules + " " + BASE.current.modules);
+	overmask.setAttribute("stroke-width", 2 / globalCanvasScaleCoef);
 }
 
 // window.onbeforeunload = e => {
 // 	return e.returnValue;
 // };
+
+function bitmapToPolygons (xs, ys, separated = false) {
+	const _xs = structuredClone(xs).sort((a, b) => a - b);
+	const _ys = structuredClone(ys).sort((a, b) => a - b);
+
+	const 	minx = _xs[0],
+			maxx = _xs[_xs.length - 1],
+			maxy = _ys[_ys.length - 1];
+			miny = _ys[0];
+
+	let map = new Array(maxy - miny + 3);
+	map[0] = 				new Int8Array(maxx - minx + 3);
+	map[map.length - 1] = 	new Int8Array(maxx - minx + 3);
+
+	for (let i = 0; i < xs.length; i++) {
+		if (typeof map[ys[i] - miny + 1] == "undefined") {
+			map[ys[i] - miny + 1] = new Int8Array(maxx - minx + 3);
+		}
+
+		map[ys[i] - miny + 1][xs[i] - minx + 1] = 1;
+
+		switch (ys[i] - miny) {
+			case 0:
+				map[ys[i] - miny][xs[i] - minx + 1] = 2;
+				break;
+			case maxy - miny:
+				map[ys[i] - miny + 2][xs[i] - minx + 1] = 2;
+		}
+
+		switch (xs[i] - minx) {
+			case 0:
+				map[ys[i] - miny + 1][xs[i] - minx] = 2;
+				break;
+			case maxx - minx:
+				map[ys[i] - miny + 1][xs[i] - minx + 2] = 2;
+		}
+	}
+
+	let _map = "";
+
+	for (let i = 0; i < map.length; i++) {
+		_map += map[i].join(" ").replaceAll("1","#").replaceAll("0",".").replaceAll("2","$") + "\n";
+	}
+
+	console.log(_map);
+
+	let polygon = [];
+	let x = 1, y = map.length - 2, vec = [0, -1];
+	let shiftx = 0, shifty = 0;
+	let p = 0;
+
+	const elem = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+	overmask.appendChild(elem);
+
+	do {
+		if (map[y + 1][x + 1] == 0 && map[y][x + 1] == 0) {
+			y--;
+			continue;
+		}
+
+		if (!shiftx && vec[0] == 1 && vec[1] == 0) {
+			shiftx = 1;
+		}
+
+		if (!shifty && vec[0] == 0 && vec[1] == 1) {
+			shifty = 1;
+		}
+
+		// if (shiftx && vec[0] == -1 && vec[1] == 0) {
+		// 	shiftx = 0;
+		// }
+
+		// if (shifty && vec[0] == 0 && vec[1] == -1) {
+		// 	shifty = 0;
+		// }
+
+		if (map[y - vec[0] - shifty][x + vec[1] - shiftx] == 1
+		) {										// TURNING LEFT
+			vec = [vec[1], -vec[0]];
+			console.log("turn left");
+		}
+
+		if (map[y + vec[1] - shifty][x + vec[0] - shiftx] == 1
+		) {										// IF MOVING IS POSSIBLE
+			x += vec[0];
+			y += vec[1];
+			polygon.push(x + minx - 0.5);
+			polygon.push(y + miny - 0.5);
+			console.log("move: " + vec[0] + "," + vec[1] + " ; " + (x - shiftx) + ", " + (y - shifty));
+		} else {								// TURNING RIGHT
+			vec = [-vec[1], vec[0]];
+			x += vec[0];
+			y += vec[1];
+			polygon.push(x + minx - 0.5);
+			polygon.push(y + miny - 0.5);
+			console.log("turn right");
+		}
+
+		console.log([x - shiftx,y - shifty]);
+
+		let str = "";
+		for (let i = 0; i < polygon.length; i += 2) {
+			str += polygon[i] + "," + polygon[i + 1] + " ";
+		}
+		elem.setAttribute("points", str);
+	} while (!(x == xs[0] - minx + 1 && y == ys[0] - miny + 1) && ++p < 200);
+}
+
+window.onload = () => {
+	bitmapToPolygons([100, 101, 100, 99, 101, 100, 99, 98], [100, 99, 99, 99, 98, 98, 98, 98]);
+};

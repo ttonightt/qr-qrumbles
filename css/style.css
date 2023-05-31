@@ -141,7 +141,7 @@ header ul#tab-navs li i#this-close {
 	width: 9px;
 	height: 9px;
 	margin: 5px 0px 0px 3px;
-	padding: 3px 3px 3px 3px;
+	padding: 3px 3px 2px 3px;
 	line-height: 5px;
 	font-style: normal;
 	cursor: pointer;
@@ -182,7 +182,7 @@ html.preview .workspace {
 	height: 117px;
 }
 
-.canvas-wrap canvas#main {
+.canvas-wrap canvas {
 	position: absolute;
 	top: 0px;
 	left: 0px;
@@ -193,9 +193,10 @@ html.preview .workspace {
 	height: 100%;
 	filter: contrast(var(--contrast));
 	image-rendering: crisp-edges;
+	cursor: crosshair;
 }
 
-.canvas-wrap canvas#bitovermask {
+.canvas-wrap svg {
 	position: absolute;
 	top: 0px;
 	left: 0px;
@@ -204,13 +205,20 @@ html.preview .workspace {
 	z-index: 2;
 	width: 100%;
 	height: 100%;
-	image-rendering: crisp-edges;
-	opacity: 0.5;
 }
 
-/* html.preview .canvas-wrap canvas#bitmask {
+html.preview .canvas-wrap svg {
 	display: none;
-} */
+}
+
+.canvas-wrap svg polyline {
+	fill: transparent;
+	cursor: pointer;
+}
+
+.canvas-wrap svg polyline:hover {
+	fill: #ff000081;
+}
 
 aside {
 	width: 300px;
