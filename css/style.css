@@ -211,12 +211,12 @@ html.preview .canvas-wrap svg {
 	display: none;
 }
 
-.canvas-wrap svg polyline {
+.canvas-wrap svg polygon {
 	fill: transparent;
 	cursor: pointer;
 }
 
-.canvas-wrap svg polyline:hover {
+.canvas-wrap svg polygon:hover {
 	fill: #ff000081;
 }
 

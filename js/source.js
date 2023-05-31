@@ -327,104 +327,89 @@ function bitmapToPolygons (xs, ys, separated = false) {
 			maxy = _ys[_ys.length - 1];
 			miny = _ys[0];
 
-	let map = new Array(maxy - miny + 3);
-	map[0] = 				new Int8Array(maxx - minx + 3);
-	map[map.length - 1] = 	new Int8Array(maxx - minx + 3);
+	let map = new Array(maxy - miny + 2);
 
 	for (let i = 0; i < xs.length; i++) {
+		if (typeof map[ys[i] - miny] == "undefined") {
+			map[ys[i] - miny] = new Int8Array(maxx - minx + 2);
+		}
+
 		if (typeof map[ys[i] - miny + 1] == "undefined") {
-			map[ys[i] - miny + 1] = new Int8Array(maxx - minx + 3);
+			map[ys[i] - miny + 1] = new Int8Array(maxx - minx + 2);
 		}
 
+		map[ys[i] - miny][xs[i] - minx] = 1;
+		map[ys[i] - miny + 1][xs[i] - minx] = 1;
+		map[ys[i] - miny][xs[i] - minx + 1] = 1;
 		map[ys[i] - miny + 1][xs[i] - minx + 1] = 1;
-
-		switch (ys[i] - miny) {
-			case 0:
-				map[ys[i] - miny][xs[i] - minx + 1] = 2;
-				break;
-			case maxy - miny:
-				map[ys[i] - miny + 2][xs[i] - minx + 1] = 2;
-		}
-
-		switch (xs[i] - minx) {
-			case 0:
-				map[ys[i] - miny + 1][xs[i] - minx] = 2;
-				break;
-			case maxx - minx:
-				map[ys[i] - miny + 1][xs[i] - minx + 2] = 2;
-		}
+		BASE.current.drawPointOn(xs[i], ys[i], 1);
 	}
 
 	let _map = "";
-
 	for (let i = 0; i < map.length; i++) {
-		_map += map[i].join(" ").replaceAll("1","#").replaceAll("0",".").replaceAll("2","$") + "\n";
+		_map += map[i].join(" ").replaceAll("1","#").replaceAll("0",".") + "\n";
 	}
-
 	console.log(_map);
 
 	let polygon = [];
-	let x = 1, y = map.length - 2, vec = [0, -1];
-	let shiftx = 0, shifty = 0;
-	let p = 0;
+	let x = 0, y = map.length - 1, vec = [0, -1];
+	let _x = 0, _y = 0;
+	let p = 0, _p = p;
+	let rn = 0;
 
-	const elem = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+	const elem = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
 	overmask.appendChild(elem);
 
 	do {
-		if (map[y + 1][x + 1] == 0 && map[y][x + 1] == 0) {
-			y--;
-			continue;
+		if (polygon.length == 0 && map[y][x] == 0) {
+			if (map[y - 1][x] == 1) {
+				_x = x;
+				_y = y - 1;
+				_p = p;
+			} else {
+				y--;
+				continue;
+			}
 		}
 
-		if (!shiftx && vec[0] == 1 && vec[1] == 0) {
-			shiftx = 1;
-		}
-
-		if (!shifty && vec[0] == 0 && vec[1] == 1) {
-			shifty = 1;
-		}
-
-		// if (shiftx && vec[0] == -1 && vec[1] == 0) {
-		// 	shiftx = 0;
-		// }
-
-		// if (shifty && vec[0] == 0 && vec[1] == -1) {
-		// 	shifty = 0;
-		// }
-
-		if (map[y - vec[0] - shifty][x + vec[1] - shiftx] == 1
+		if ((y - vec[0]).interval(0, map.length - 1) &&
+			(x + vec[1]).interval(0, map[0].length - 1) &&
+			map[y - vec[0]][x + vec[1]] == 1
 		) {										// TURNING LEFT
 			vec = [vec[1], -vec[0]];
-			console.log("turn left");
+			rn = 0;
 		}
 
-		if (map[y + vec[1] - shifty][x + vec[0] - shiftx] == 1
+		if ((y + vec[1]).interval(0, map.length - 1) &&
+			(x + vec[0]).interval(0, map[0].length - 1) &&
+			map[y + vec[1]][x + vec[0]] == 1
 		) {										// IF MOVING IS POSSIBLE
 			x += vec[0];
 			y += vec[1];
-			polygon.push(x + minx - 0.5);
-			polygon.push(y + miny - 0.5);
-			console.log("move: " + vec[0] + "," + vec[1] + " ; " + (x - shiftx) + ", " + (y - shifty));
+			if (rn++ > 0) {
+				polygon.pop();
+				polygon.pop();
+			}
+			polygon.push(x + minx);
+			polygon.push(y + miny);
 		} else {								// TURNING RIGHT
 			vec = [-vec[1], vec[0]];
 			x += vec[0];
 			y += vec[1];
-			polygon.push(x + minx - 0.5);
-			polygon.push(y + miny - 0.5);
-			console.log("turn right");
+			polygon.push(x + minx);
+			polygon.push(y + miny);
+			rn++;
 		}
-
-		console.log([x - shiftx,y - shifty]);
 
 		let str = "";
 		for (let i = 0; i < polygon.length; i += 2) {
 			str += polygon[i] + "," + polygon[i + 1] + " ";
 		}
 		elem.setAttribute("points", str);
-	} while (!(x == xs[0] - minx + 1 && y == ys[0] - miny + 1) && ++p < 200);
+	} while (!(x == _x && y == _y && p - _p > 1) && ++p < 200);
 }
 
 window.onload = () => {
+	// bitmapToPolygons([100, 101, 100, 101, 100, 100, 100, 100, 100, 101, 100, 99], [100, 99, 99, 98, 98, 97, 96, 95, 94, 94, 93, 93]);
 	bitmapToPolygons([100, 101, 100, 99, 101, 100, 99, 98], [100, 99, 99, 99, 98, 98, 98, 98]);
 };

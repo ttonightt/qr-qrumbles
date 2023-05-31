@@ -36,14 +36,15 @@ class QRT {
 		this.encodeECBits(this.encdata);
 		// this.applyDataTypeOn(datatype);
 
-		this.matrix[100][100] = 1;
-		this.matrix[99][101] = 1;
-		this.matrix[99][100] = 1;
-		this.matrix[99][99] = 1;
-		this.matrix[98][101] = 1;
-		this.matrix[98][100] = 1;
-		this.matrix[98][99] = 1;
-		this.matrix[98][98] = 1;
+		// this.matrix[100][100] = 1;
+		// this.matrix[99][101] = 1;
+		// this.matrix[99][100] = 1;
+		// this.matrix[99][99] = 1;
+		// this.matrix[98][101] = 1;
+		// this.matrix[98][100] = 1;
+		// this.matrix[98][99] = 1;
+		// this.matrix[99][98] = 1;
+		// this.matrix[97][99] = 1;
 
 		let mx = "";
 
