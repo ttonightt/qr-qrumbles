@@ -509,7 +509,6 @@ class QRT {
 		const maxlen = (QRtable[this.version]["L"].dataBytes + (QRtable[this.version]["L"].ecBytes * (QRtable[this.version]["L"].g1Blocks + QRtable[this.version]["L"].g2Blocks))) * 8;
 		for (let i = 1, j = 0; j < data.length && j < maxlen; i++) {
 			if (x == 10 && y == this.modules) {
-				console.log("jump3");
 				y -= 9;
 				x -= 2;
 				v = -v;
@@ -530,6 +529,7 @@ class QRT {
 				x -= 2;
 				v = -v;
 				this.matrix[y][x] = parseInt(data[j++]);
+				
 			} else if (this.matrix[y][x] == 0 || this.matrix[y][x] == 1) {
 				this.matrix[y][x] = parseInt(data[j++]);
 			}
@@ -539,6 +539,10 @@ class QRT {
 			} else {
 				x--;
 			}
+
+			// if () {
+
+			// }
 		}
 	}
 

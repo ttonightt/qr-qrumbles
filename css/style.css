@@ -165,7 +165,7 @@ header ul#tab-navs li.active i#this-close:hover {
 	width: calc(100% - 300px);
 	height: 100%;
 	flex-grow: 1;
-	background-image: linear-gradient(45deg, #482f5c 25%, transparent 25%), linear-gradient(-45deg, #482f5c 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #482f5c 75%), linear-gradient(-45deg, transparent 75%, #482f5c 75%);
+	background-image: linear-gradient(45deg, #543869 25%, transparent 25%), linear-gradient(-45deg, #543869 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #543869 75%), linear-gradient(-45deg, transparent 75%, #543869 75%);
 	background-size: 6px 6px, 6px 6px, 6px 6px, 6px 6px;
 	background-position: 0px 0px, 0px 3px, 3px -3px, -3px 0px;
 	overflow: hidden;
@@ -228,7 +228,6 @@ aside {
 	flex-wrap: nowrap;
 	flex-direction: column;
 	align-items: stretch;
-	box-shadow: -3px 0px 0px #0d0a1117, -9px 0px 0px #0d0a1117, -18px 0px 0px #0d0a1117, -30px 0px 0px #0d0a1117;
 	float: left;
 }
 
