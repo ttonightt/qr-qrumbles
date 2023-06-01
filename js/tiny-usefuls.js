@@ -16,6 +16,29 @@ Number.prototype.interval = function (a, b) {
 	return a <= this && this <= b;
 }
 
+Int8Array.prototype.x2convert = function (cols) {
+	this.rows = Math.ceil(this.length / cols);
+	this.columns = cols;
+	return this;
+}
+
+Int8Array.prototype.x2get = function (x = 0, y = 0) {
+	return this[(y * this.columns) + x];
+}
+
+Int8Array.prototype.x2getD = function (x = 0, y = 0, wrong) {
+	const adr = (y * this.columns) + x;
+	if (0 <= adr && adr < this.length) {
+		return this[adr];
+	} else {
+		return wrong;
+	}
+}
+
+Int8Array.prototype.x2set = function (x = 0, y = 0, int) {
+	this[(y * this.columns) + x] = int;
+}
+
 function charToInt45 (char) {
 	switch (char) {
 		case " ":

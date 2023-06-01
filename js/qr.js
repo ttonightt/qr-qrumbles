@@ -502,7 +502,7 @@ class QRT {
 
 
 
-	applyDataOn (data = "101010010111101010101111") {
+	applyDataOn (data = "101010010111101010101111", start = 0) {
 		let x = this.modules - 1, y = this.modules - 1, v = 1;
 		this.matrix[y][x--] = parseInt(data[0]);
 		// const maxlen = QRtable[this.version]["L"].dataBytes * 8;
@@ -513,16 +513,13 @@ class QRT {
 				y -= 9;
 				x -= 2;
 				v = -v;
-				// this.matrix[y][x] = parseInt(data[j++]);
 			}
 
 			if (x == 8 && y == 8) {
-				console.log("jump");
 				x--;
 			}
 
 			if (x == this.modules - 9 && y == 6) {
-				console.log("jump2");
 				x -= 2;
 				y -= 6;
 				v = -v;

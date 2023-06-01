@@ -318,98 +318,129 @@ function setWorkspaceSize () {
 // 	return e.returnValue;
 // };
 
-function bitmapToPolygons (xs, ys, separated = false) {
-	const _xs = structuredClone(xs).sort((a, b) => a - b);
-	const _ys = structuredClone(ys).sort((a, b) => a - b);
+// console.logInt8Arrayx2 = function (arr) {
+// 	let _str = "";
+// 	for (let i = 0; i < arr.length; i++) {
+// 		_str += (arr[i] + "").replaceAll("1","#").replaceAll("0",".");
+// 		if ((i + 1) % arr.columns == 0 && i != 0) {
+// 			_str += "\n";
+// 		}
+// 	}
+// 	console.log(_str);
+// }
 
-	const 	minx = _xs[0],
-			maxx = _xs[_xs.length - 1],
-			maxy = _ys[_ys.length - 1];
-			miny = _ys[0];
-
-	let map = new Array(maxy - miny + 2);
-
+function applyBitClusterOn (xs, ys) {
 	for (let i = 0; i < xs.length; i++) {
-		if (typeof map[ys[i] - miny] == "undefined") {
-			map[ys[i] - miny] = new Int8Array(maxx - minx + 2);
-		}
-
-		if (typeof map[ys[i] - miny + 1] == "undefined") {
-			map[ys[i] - miny + 1] = new Int8Array(maxx - minx + 2);
-		}
-
-		map[ys[i] - miny][xs[i] - minx] = 1;
-		map[ys[i] - miny + 1][xs[i] - minx] = 1;
-		map[ys[i] - miny][xs[i] - minx + 1] = 1;
-		map[ys[i] - miny + 1][xs[i] - minx + 1] = 1;
 		BASE.current.drawPointOn(xs[i], ys[i], 1);
 	}
+}
 
-	let _map = "";
-	for (let i = 0; i < map.length; i++) {
-		_map += map[i].join(" ").replaceAll("1","#").replaceAll("0",".") + "\n";
+function createBitmapFromCoords (xs, ys) {
+	const _xs = structuredClone(xs).sort((a, b) => a - b);
+	const _ys = structuredClone(ys).sort((a, b) => a - b);
+	const 	maxx = _xs[_xs.length - 1];
+			maxy = _ys[_ys.length - 1];
+			minx = _xs[0];
+			miny = _ys[0];
+
+	let map = new Int8Array((maxy - miny + 2) * (maxx - minx + 2)).x2convert(maxx - minx + 2);
+
+	for (let i = 0; i < xs.length; i++) {
+		map.x2set(xs[i] - minx, ys[i] - miny, 1);
+
+		map.x2set(xs[i] - minx + 1, ys[i] - miny, 1);
+		map.x2set(xs[i] - minx, 	ys[i] - miny + 1, 1);
+		map.x2set(xs[i] - minx + 1, ys[i] - miny + 1, 1);
 	}
-	console.log(_map);
 
-	let polygon = [];
-	let x = 0, y = map.length - 1, vec = [0, -1];
-	let _x = 0, _y = 0;
-	let p = 0, _p = p;
-	let rn = 0;
+	return {x0: _xs[0], y0: _ys[0], arr: map};
+}
 
-	const elem = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
-	overmask.appendChild(elem);
+function bitmapToPolygons (xs, ys) {
+	applyBitClusterOn(xs, ys);
 
-	do {
-		if (polygon.length == 0 && map[y][x] == 0) {
-			if (map[y - 1][x] == 1) {
-				_x = x;
-				_y = y - 1;
-				_p = p;
-			} else {
-				y--;
-				continue;
+	let map = createBitmapFromCoords(xs, ys);
+	const marginX = map.x0;
+	const marginY = map.y0;
+	map = map.arr;
+	let t = true;
+
+	// console.logInt8Arrayx2(map);
+	for (let i = 0; t && i < 10; i++) {
+		t = false;
+
+		let points = [];
+		let x = 0, y = map.rows - 1, vec = [0, -1];
+		let _x = 0, _y = 0;
+		let p = 0, _p = p;
+		let rn = 0;
+	
+		do {
+			if (points.length == 0) {
+				if (map.x2get(x, y) == 1 && map.x2getD(x + 1, y, 2) != 2 && map.x2getD(x, y - 1, 2) != 2) {
+					t = true;
+					_x = x;
+					_y = y;
+					_p = p;
+				} else {
+					if (y == 1 && x < map.columns - 1) {
+						y = map.rows - 1;
+						x++;
+					} else {
+						y--;
+					}
+					continue;
+				}
 			}
-		}
-
-		if ((y - vec[0]).interval(0, map.length - 1) &&
-			(x + vec[1]).interval(0, map[0].length - 1) &&
-			map[y - vec[0]][x + vec[1]] == 1
-		) {										// TURNING LEFT
-			vec = [vec[1], -vec[0]];
-			rn = 0;
-		}
-
-		if ((y + vec[1]).interval(0, map.length - 1) &&
-			(x + vec[0]).interval(0, map[0].length - 1) &&
-			map[y + vec[1]][x + vec[0]] == 1
-		) {										// IF MOVING IS POSSIBLE
-			x += vec[0];
-			y += vec[1];
-			if (rn++ > 0) {
-				polygon.pop();
-				polygon.pop();
+	
+			if ((y - vec[0]).interval(0, map.rows - 1) &&
+				(x + vec[1]).interval(0, map.columns - 1) &&
+				map.x2get(x + vec[1], y - vec[0]) >= 1
+			) {										// TURNING LEFT
+				vec = [vec[1], -vec[0]];
+				rn = 0;
 			}
-			polygon.push(x + minx);
-			polygon.push(y + miny);
-		} else {								// TURNING RIGHT
-			vec = [-vec[1], vec[0]];
-			x += vec[0];
-			y += vec[1];
-			polygon.push(x + minx);
-			polygon.push(y + miny);
-			rn++;
-		}
-
+	
+			if ((y + vec[1]).interval(0, map.rows - 1) &&
+				(x + vec[0]).interval(0, map.columns - 1) &&
+				map.x2get(x + vec[0], y + vec[1]) >= 1
+			) {										// IF MOVING IS POSSIBLE
+				x += vec[0];
+				y += vec[1];
+				if (rn++ > 0) {
+					points.pop();
+					points.pop();
+				}
+				map.x2set(x, y, 2);
+				points.push(x + marginX);
+				points.push(y + marginY);
+			} else {								// TURNING RIGHT
+				vec = [-vec[1], vec[0]];
+				x += vec[0];
+				y += vec[1];
+				map.x2set(x, y, 2);
+				points.push(x + marginX);
+				points.push(y + marginY);
+				rn++;
+			}
+		} while (!(x == _x && y == _y && p - _p > 1) && ++p < 200);
+	
+		// console.logInt8Arrayx2(map);
+	
+		const elem = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+	
 		let str = "";
-		for (let i = 0; i < polygon.length; i += 2) {
-			str += polygon[i] + "," + polygon[i + 1] + " ";
+		for (let i = 0; i < points.length; i += 2) {
+			str += points[i] + "," + points[i + 1] + " ";
 		}
+	
 		elem.setAttribute("points", str);
-	} while (!(x == _x && y == _y && p - _p > 1) && ++p < 200);
+		overmask.appendChild(elem);
+	}
 }
 
 window.onload = () => {
-	// bitmapToPolygons([100, 101, 100, 101, 100, 100, 100, 100, 100, 101, 100, 99], [100, 99, 99, 98, 98, 97, 96, 95, 94, 94, 93, 93]);
-	bitmapToPolygons([100, 101, 100, 99, 101, 100, 99, 98], [100, 99, 99, 99, 98, 98, 98, 98]);
+	bitmapToPolygons([100, 101, 100, 101, 100, 100, 100, 100, 100, 101, 100, 99], [100, 99, 99, 98, 98, 97, 96, 95, 94, 94, 93, 93]);
+	// bitmapToPolygons([100, 101, 100, 99, 101, 100, 99, 98], [100, 99, 99, 99, 98, 98, 98, 98]);
+	// bitmapToPolygons([101,101,100,101,100,101,100,97,97,97,97,97],[100,99,99,98,98,97,97,95,94,100,99,98]);
 };
