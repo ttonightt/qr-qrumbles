@@ -329,31 +329,39 @@ function setWorkspaceSize () {
 // 	console.log(_str);
 // }
 
-function applyBitClusterOn (coords) {
-	for (let i = 0; i < coords.length; i += 2) {
-		BASE.current.drawPointOn(coords[i], coords[i + 1], 1);
+// function applyBitClusterOn (coords) {
+// 	for (let i = 0; i < coords.length; i += 2) {
+// 		BASE.current.drawPointOn(coords[i], coords[i + 1], 1);
+// 	}
+// }
+
+function createPolygon (points, parent) {
+	const elem = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+
+	let str = "";
+	for (let i = 0; i < points.length; i += 2) {
+		str += points[i] + "," + points[i + 1] + " ";
 	}
+
+	elem.setAttribute("points", str);
+	parent.appendChild(elem);
 }
 
 function bitmapToPolygons (coords) {
-	let i = 0, t = false;
+	let i = 0, t;
 	let _coords = structuredClone(coords);
 
-	applyBitClusterOn(coords);
-
 	for (i = 0; i < 2000; i++) {
-		if (_coords[i] < _coords[i + 2]) {
-			_coords[i] += _coords[i + 2];
-			_coords[i + 2] = _coords[i] - _coords[i + 2];
-			_coords[i] -= _coords[i + 2];
-			t = true;
+		t = true;
+		for (let j = 0; j < _coords.length - 2; j++) {
+			if (_coords[j] < _coords[j + 2]) {
+				_coords[j] += _coords[j + 2];
+				_coords[j + 2] = _coords[j] - _coords[j + 2];
+				_coords[j] -= _coords[j + 2];
+				t = false;
+			}
 		}
-
-		if (i >= _coords.length - 2) {
-			i %= _coords.length - 2;
-			if (!t) break;
-			t = false;
-		}
+		if (t) break;
 	}
 
 	const 	minx = _coords[_coords.length - 2];
@@ -370,7 +378,8 @@ function bitmapToPolygons (coords) {
 		map.x2set(coords[i] - minx + 1, coords[i + 1] - miny + 1, 	1);
 	}
 
-	t = true; // НЕОБОВ'ЯЗКОВА ДІЯ
+	let polygons = [];
+	t = true;
 
 	for (i = 0; t && i < 10; i++) {
 		t = false;
@@ -383,7 +392,7 @@ function bitmapToPolygons (coords) {
 	
 		do {
 			if (points.length == 0) {
-				if (map.x2get(x, y) == 1 && map.x2getD(x + 1, y, 2) != 2 && map.x2getD(x, y - 1, 2) != 2) {
+				if (map.x2get(x, y) == 1 && map.x2getDF(x + 1, y, 2) != 2 && map.x2getDF(x, y - 1, 2) != 2) {
 					t = true;
 					_x = x;
 					_y = y;
@@ -399,28 +408,23 @@ function bitmapToPolygons (coords) {
 				}
 			}
 	
-			if ((y - vec[0]).interval(0, map.rows - 1) &&
-				(x + vec[1]).interval(0, map.columns - 1) &&
-				map.x2get(x + vec[1], y - vec[0]) >= 1
-			) {										// TURNING LEFT
+			if (map.x2getD(x + vec[1], y - vec[0]) >= 1) {	// TURNING LEFT
 				vec = [vec[1], -vec[0]];
 				rn = 0;
 			}
 	
-			if ((y + vec[1]).interval(0, map.rows - 1) &&
-				(x + vec[0]).interval(0, map.columns - 1) &&
-				map.x2get(x + vec[0], y + vec[1]) >= 1
-			) {										// IF MOVING IS POSSIBLE
+			if (map.x2getD(x + vec[0], y + vec[1]) >= 1) {	// IF MOVING IS POSSIBLE
 				x += vec[0];
 				y += vec[1];
-				if (rn++ > 0) {
-					points.pop();
-					points.pop();
-				}
 				map.x2set(x, y, 2);
-				points.push(x + minx);
-				points.push(y + miny);
-			} else {								// TURNING RIGHT
+				if (rn++ > 0) {
+					points[points.length - 2] = x + minx;
+					points[points.length - 1] = y + miny;
+				} else {
+					points.push(x + minx);
+					points.push(y + miny);
+				}
+			} else {										// TURNING RIGHT
 				vec = [-vec[1], vec[0]];
 				x += vec[0];
 				y += vec[1];
@@ -430,21 +434,27 @@ function bitmapToPolygons (coords) {
 				rn++;
 			}
 		} while (!(x == _x && y == _y && p - _p > 1) && ++p < 200);
-	
-		const elem = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
-	
-		let str = "";
-		for (let i = 0; i < points.length; i += 2) {
-			str += points[i] + "," + points[i + 1] + " ";
+
+		if (points.length > 1) {
+			polygons.push(points);
 		}
+	}
 	
-		elem.setAttribute("points", str);
+	if (polygons.length > 1) {
+		const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
 		overmask.appendChild(elem);
+		
+		for (i = polygons.length - 1; i >= 0; i--) {
+			createPolygon(polygons[i], elem);
+		}
+	} else {
+		createPolygon(polygons[0], overmask);
 	}
 }
 
 window.onload = () => {
-	bitmapToPolygons([100, 100, 101, 99, 100, 99, 101, 98, 100, 98, 100, 97, 100, 96, 100, 95, 100, 94, 101, 94, 100, 93, 99, 93]);
+	bitmapToPolygons([101,99,100,99,101,98,100,98,101,97,100,97,101,95,100,94,97,100,97,99,101,94,101,96,102,96,97,96]);
+	// bitmapToPolygons([100, 100, 101, 99, 100, 99, 101, 98, 100, 98, 100, 97, 100, 96, 100, 95, 100, 94, 101, 94, 100, 93, 99, 93]);
 	// bitmapToPolygons([100, 100, 101, 99, 100, 99, 99, 99, 101, 98, 100, 98, 99, 98, 98, 98]);
 	// bitmapToPolygons([101,99,100,99,101,98,100,98,101,97,100,97,101,95,100,94,97,100,97,99]);
 };

@@ -220,6 +220,10 @@ html.preview .canvas-wrap svg {
 	fill: #ff000081;
 }
 
+.canvas-wrap svg g:hover polygon {
+	fill: #ff000081;
+}
+
 aside {
 	width: 300px;
 	height: 100%;

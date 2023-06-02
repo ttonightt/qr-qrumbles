@@ -26,10 +26,18 @@ Int8Array.prototype.x2get = function (x = 0, y = 0) {
 	return this[(y * this.columns) + x];
 }
 
-Int8Array.prototype.x2getD = function (x = 0, y = 0, wrong) {
+Int8Array.prototype.x2getDF = function (x = 0, y = 0, wrong) {
 	const adr = (y * this.columns) + x;
 	if (0 <= adr && adr < this.length) {
 		return this[adr];
+	} else {
+		return wrong;
+	}
+}
+
+Int8Array.prototype.x2getD = function (x = 0, y = 0, wrong) {
+	if (0 <= x && x < this.columns && 0 <= y && y < this.rows) {
+		return this[(y * this.columns) + x];
 	} else {
 		return wrong;
 	}
