@@ -9,6 +9,9 @@ body {
 	--background: #74548d;
 	--sidebar-bcg: #543869;
 	--contrast: 0.6;
+
+	--svg-upgoing-color: red;
+	--svg-downgoing-color: blue;
 }
 
 html.preview:root {
@@ -444,11 +447,11 @@ input[type=file].selected + label:after {
 
 #onetitle span {
 	width: max-content;
-	left: -50%;
+	left: 0px;
 	margin: 3px 6px;
 	padding: 9px 12px;
 	color: #e6d2cf;
-	background-color: #1a1138;
+	background-color: #1f153f;
 	background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, repeat, repeat, repeat, repeat;
 	background-image: linear-gradient(0deg, #eca99d, #eca99d), linear-gradient(0deg, #eca99d, #eca99d), linear-gradient(0deg, #eca99d, #eca99d), linear-gradient(0deg, #eca99d, #eca99d), radial-gradient(ellipse at 50% 50%, #140d2c00 50%, #140d2c 80%), linear-gradient(45deg, #140d2c 25%, transparent 25%), linear-gradient(-45deg, #140d2c 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #140d2c 75%), linear-gradient(-45deg, transparent 75%, #140d2c 75%);
 	background-size: 3px 3px, 3px 3px, 3px 3px, 3px 3px, 100% 100%, 6px 6px, 6px 6px, 6px 6px, 6px 6px;
@@ -486,7 +489,7 @@ input[type=file].selected + label:after {
 	display: block;
 }
 
-#onetitle[data-anim="right-switch"] span {
+#onetitle[data-anim="right-switch"] span { /* НЕ ПРАЦЮЄ!!! */
 	animation: 0.25s steps(10, end) 0s reverse both right-switch;
 }
 

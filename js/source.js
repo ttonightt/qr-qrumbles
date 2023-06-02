@@ -1,4 +1,6 @@
 
+// POPUPS vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+
 const popupElements = document.querySelectorAll("#popups .popup");
 let popupBindings = {};
 
@@ -25,7 +27,9 @@ for (let i = 0; i < popupCallers.length; i++) {
 	});
 }
 
+// POPUPS ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+// ONETITLE vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
 const OneTitle = {
 	elem: document.getElementById("onetitle"),
@@ -54,7 +58,7 @@ const OneTitle = {
 	},
 };
 
-
+// ONETITLE ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 const contrastSwitcher = document.getElementById("tocontrast");
 
@@ -97,6 +101,7 @@ saveProjTrigger.onclick = () => {
 };
 
 // PROJECT SAVER ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 // QRT CREATION vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
 const canvas = document.getElementById("main");
@@ -105,6 +110,13 @@ const cnvP = canvas.parentElement, cnvPP = canvas.parentElement.parentElement;
 
 BASE.ctx = canvas.getContext("2d");
 BASE.ctx.fillStyle = "#000000";
+
+BASE.arts[0] = new QRT(27, Controls.mask.value, Controls.errcor.value, Controls.datatype.value);
+BASE.current = BASE.arts[0];
+
+// QRT CREATION ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+// CONTROLS CONNECTING vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
 Controls.mask = new Control("radio", "mask", () => {
 	BASE.current.applyFormatOn(Controls.mask.value, Controls.errcor.value, 4).updateCanvas();
@@ -116,10 +128,7 @@ Controls.datatype = new Control("radio", "dtype", () => {
 	BASE.current.applyDataTypeOn(Controls.datatype.value).updateCanvas();
 });
 
-BASE.arts[0] = new QRT(27, Controls.mask.value, Controls.errcor.value, Controls.datatype.value);
-BASE.current = BASE.arts[0];
-
-// QRT CREATION ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// CONTROLS CONNECTING ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 let globalCanvasScaleCoef = Math.floor((cnvPP.clientHeight - 40) / BASE.current.modules);
 const gCSCmin = globalCanvasScaleCoef - 2,
@@ -203,7 +212,7 @@ cnvP.onmousemove = e => {
 
 cnvPP.onmouseup = e => {
 	if (mouseDown == 2) {
-		cnvPP.style.cursor = "inherit";
+		cnvPP.style.cursor = "";
 		BASE.current.drawPointOn(_phantomX, _phantomY, 0);
 	}
 	if (mouseDown != 0) {
@@ -248,7 +257,7 @@ let wasWheeled = false;
 
 Tools.brush.elem.addEventListener("wheel", e => {
 	if (!wasWheeled) {
-		OneTitle.show("Brush radius: " + Tools.brush.radius, "right-switch", Tools.brush._elemBoundingRect.x + Tools.brush._elemBoundingRect.width + 9, Tools.brush._elemBoundingRect.y + (Tools.brush._elemBoundingRect.height / 2), 1);
+		OneTitle.show("Brush radius: " + Tools.brush.radius, "blink", Tools.brush._elemBoundingRect.x + Tools.brush._elemBoundingRect.width + 9, Tools.brush._elemBoundingRect.y + (Tools.brush._elemBoundingRect.height / 2), 1);
 		wasWheeled = true;
 	} else {
 		OneTitle.log("Brush radius: " + Tools.brush.radius);
@@ -270,39 +279,6 @@ Tools.brush.elem.addEventListener("mouseleave", () => {
 
 
 
-class InputFromCluster {
-	constructor (value) {
-		this.elem = document.createElement("input");
-		this.elem.type = "text";
-		this.elem.maxLength = 1;
-		this.elem.name = "decoded";
-		this.elem.value = value;
-		this.value = value;
-
-		this.elem.addEventListener("keydown", e => {
-			if (e.keyCode == 39 && (this.elem.selectionEnd == 1 || (this.elem.selectionStart == 0 && this.elem.value.length == 0)) && this.elem.nextElementSibling != null) {
-				this.elem.nextElementSibling.focus();
-			} else if (e.keyCode == 37 && this.elem.selectionStart == 0 && this.elem.previousElementSibling != null) {
-				this.elem.previousElementSibling.focus();
-			}
-		});
-
-		document.querySelector(".decoded-wrap").appendChild(this.elem);
-	}
-}
-
-let DCD = {
-	charios: [],
-	scanCharIOs: () => {
-		this.charios = [];
-		for (let i = 0; i < 12; i++) {
-			charios[i] = new InputFromCluster("h");
-		}
-	},
-};
-
-DCD.scanCharIOs();
-
 function setWorkspaceSize () {
 	canvas.width = BASE.current.modules;
 	canvas.height = BASE.current.modules;
@@ -318,23 +294,6 @@ function setWorkspaceSize () {
 // 	return e.returnValue;
 // };
 
-// console.logInt8Arrayx2 = function (arr) {
-// 	let _str = "";
-// 	for (let i = 0; i < arr.length; i++) {
-// 		_str += (arr[i] + "").replaceAll("1","#").replaceAll("0",".");
-// 		if ((i + 1) % arr.columns == 0 && i != 0) {
-// 			_str += "\n";
-// 		}
-// 	}
-// 	console.log(_str);
-// }
-
-// function applyBitClusterOn (coords) {
-// 	for (let i = 0; i < coords.length; i += 2) {
-// 		BASE.current.drawPointOn(coords[i], coords[i + 1], 1);
-// 	}
-// }
-
 function createPolygon (points, parent) {
 	const elem = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
 
@@ -345,9 +304,11 @@ function createPolygon (points, parent) {
 
 	elem.setAttribute("points", str);
 	parent.appendChild(elem);
+
+	return elem;
 }
 
-function bitmapToPolygons (coords) {
+function bitmapToPolygons (coords, cssClass) {
 	let i = 0, t;
 	let _coords = structuredClone(coords);
 
@@ -392,7 +353,7 @@ function bitmapToPolygons (coords) {
 	
 		do {
 			if (points.length == 0) {
-				if (map.x2get(x, y) == 1 && map.x2getDF(x + 1, y, 2) != 2 && map.x2getDF(x, y - 1, 2) != 2) {
+				if (map.x2get(x, y) == 1 && map.x2getD(x + 1, y, 0) != 2 && map.x2getD(x, y + 1, 0) != 2 && map.x2getD(x - 1, y, 0) != 2 && map.x2getD(x, y - 1, 0) != 2) {
 					t = true;
 					_x = x;
 					_y = y;
@@ -442,19 +403,76 @@ function bitmapToPolygons (coords) {
 	
 	if (polygons.length > 1) {
 		const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
+		elem.classList.add(cssClass);
 		overmask.appendChild(elem);
 		
 		for (i = polygons.length - 1; i >= 0; i--) {
 			createPolygon(polygons[i], elem);
 		}
 	} else {
-		createPolygon(polygons[0], overmask);
+		createPolygon(polygons[0], overmask).classList.add(cssClass);
+	}
+}
+
+function createOvermaskDatablocks (separator, qr) {
+	let coords = [];
+	const maxlen = QRtable[qr.version][qr.ecdepth].dataBytes * 8;
+
+	let x = qr.modules - 1, y = qr.modules - 1, v = 1;
+	coords.push(x--);
+	coords.push(y);
+	for (let i = 1, j = 0; j < maxlen; i++) {
+		if (x == 10 && y == qr.modules) {
+			y -= 9;
+			x -= 2;
+			v = -v;
+		}
+
+		if (x == 8 && y == 8) {
+			x--;
+		}
+
+		if (x == qr.modules - 9 && y == 6) {
+			x -= 2;
+			y -= 6;
+			v = -v;
+		}
+		
+		if (y < 0 || y >= qr.modules || (y == 8 && (qr.matrix[y][x] == 4 || qr.matrix[y][x] == 5)) || (x <= 5 && y == qr.modules - 11)) {
+			y += v;
+			x -= 2;
+			v = -v;
+			if (coords.length >= separator * 2) {
+				bitmapToPolygons(coords, ["upgoing", "downgoing"][(v + 1) / 2]);
+				coords = [];
+			}
+			coords.push(x);
+			coords.push(y);
+			j++;
+		} else if (qr.matrix[y][x] == 0 || qr.matrix[y][x] == 1) {
+			if (coords.length >= separator * 2) {
+				bitmapToPolygons(coords, ["downgoing", "upgoing"][(v + 1) / 2]);
+				coords = [];
+			}
+			coords.push(x);
+			coords.push(y);
+			j++;
+		}
+		if (i % 2) {
+			x++;
+			y -= v;
+		} else {
+			x--;
+		}
+	}
+
+	if (coords.length >= 0) {
+		coords.pop();
+		coords.pop();
+		bitmapToPolygons(coords, ["upgoing", "downgoing"][(-v + 1) / 2]);
 	}
 }
 
 window.onload = () => {
-	bitmapToPolygons([101,99,100,99,101,98,100,98,101,97,100,97,101,95,100,94,97,100,97,99,101,94,101,96,102,96,97,96]);
-	// bitmapToPolygons([100, 100, 101, 99, 100, 99, 101, 98, 100, 98, 100, 97, 100, 96, 100, 95, 100, 94, 101, 94, 100, 93, 99, 93]);
-	// bitmapToPolygons([100, 100, 101, 99, 100, 99, 99, 99, 101, 98, 100, 98, 99, 98, 98, 98]);
-	// bitmapToPolygons([101,99,100,99,101,98,100,98,101,97,100,97,101,95,100,94,97,100,97,99]);
+	createOvermaskDatablocks(11, BASE.current);
 };

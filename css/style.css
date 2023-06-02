@@ -170,6 +170,7 @@ header ul#tab-navs li.active i#this-close:hover {
 	background-position: 0px 0px, 0px 3px, 3px -3px, -3px 0px;
 	overflow: hidden;
 	float: left;
+	cursor: crosshair;
 }
 
 html.preview .workspace {
@@ -193,7 +194,6 @@ html.preview .workspace {
 	height: 100%;
 	filter: contrast(var(--contrast));
 	image-rendering: crisp-edges;
-	cursor: crosshair;
 }
 
 .canvas-wrap svg {
@@ -209,19 +209,6 @@ html.preview .workspace {
 
 html.preview .canvas-wrap svg {
 	display: none;
-}
-
-.canvas-wrap svg polygon {
-	fill: transparent;
-	cursor: pointer;
-}
-
-.canvas-wrap svg polygon:hover {
-	fill: #ff000081;
-}
-
-.canvas-wrap svg g:hover polygon {
-	fill: #ff000081;
 }
 
 aside {
@@ -259,11 +246,11 @@ aside .tools label {
 	background-color: #3a2649;
 	box-shadow: inset 0px 3px 0px #2d1f38, inset -3px 0px 0px #0d0a1117, inset -9px 0px 0px #0d0a1117, inset -18px 0px 0px #0d0a1117, inset -30px 0px 0px #0d0a1117;
 	float: left;
-	cursor: pointer;
 }
 
-aside .tools label:hover {
+aside .tools input:not(:disabled) + label:hover {
 	background-color: #482f5c;
+	cursor: pointer;
 }
 
 aside .tools input:first-child + label {
@@ -289,7 +276,7 @@ aside .tools label:before {
 	box-shadow: 0px 6px 0px #25192e;
 }
 
-aside .tools label:hover:before {
+aside .tools input:not(:disabled) + label:hover:before {
 	background-color: #482f5c;
 }
 

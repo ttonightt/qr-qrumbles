@@ -20,6 +20,7 @@ class QRT {
 		this.modules = 17 + (this.version * 4);
 		this.ecdepth = ecdepth.toUpperCase();
 		this.masktype = masktype;
+		this.datatype = parseInt(datatype, 10);
 
 		this.formatb = new Int8Array(15);
 		this.data = data;
@@ -34,17 +35,6 @@ class QRT {
 		this.applyFormatOn(this.masktype, this.ecdepth);
 		this.applyVersionOn();
 		this.encodeECBits(this.encdata);
-		// this.applyDataTypeOn(datatype);
-
-		// this.matrix[100][100] = 1;
-		// this.matrix[99][101] = 1;
-		// this.matrix[99][100] = 1;
-		// this.matrix[99][99] = 1;
-		// this.matrix[98][101] = 1;
-		// this.matrix[98][100] = 1;
-		// this.matrix[98][99] = 1;
-		// this.matrix[99][98] = 1;
-		// this.matrix[97][99] = 1;
 
 		let mx = "";
 
@@ -544,17 +534,6 @@ class QRT {
 
 			// }
 		}
-	}
-
-	applyDataTypeOn (n, c = 5) {
-		n = parseInt(n);
-		this.matrix[this.modules - 2][this.modules - 2] = c - 1;
-		this.matrix[this.modules - 2][this.modules - 1] = c - 1;
-		this.matrix[this.modules - 1][this.modules - 1] = c - 1;
-		this.matrix[this.modules - 1][this.modules - 2] = c - 1;
-		this.matrix[(this.modules - 2) + Math.floor(n / 2)][(this.modules - 2) + (n % 2)] = c;
-
-		return this;
 	}
 	
 	// building - building - building - building - building - building - building
