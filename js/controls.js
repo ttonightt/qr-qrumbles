@@ -47,6 +47,47 @@ document.onkeydown = e => {
             case "e":
                 popupBindings["edit"].popen();
                 e.preventDefault();
+				break;
+			case "1":
+				setWorkspaceSize();
+				break;
         }
     }
 };
+
+// TOOLS vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+
+let Tools = new Control("radio", "tool");
+Tools.settings = {
+	brush: {
+		radius: 1,
+	}
+};
+
+let wasWheeled = false;
+
+Tools.elems[0].nextElementSibling.addEventListener("wheel", e => {
+	if (!wasWheeled) {
+		OneTitle.show(	"Brush radius: " + Tools.settings.brush.radius,
+						"blink",
+						e.clientX + 6,
+						e.clientY - 6,
+						2);
+		wasWheeled = true;
+	} else {
+		OneTitle.log("Brush radius: " + Tools.settings.brush.radius);
+	}
+
+	if (e.deltaY > 0 && Tools.settings.brush.radius > 1) {
+		Tools.settings.brush.radius--;
+	} else if (e.deltaY < 0 && Tools.settings.brush.radius < 10) {
+		Tools.settings.brush.radius++;
+	}
+});
+
+Tools.elems[0].nextElementSibling.addEventListener("mouseleave", () => {
+	if (wasWheeled) {
+		wasWheeled = false;
+		OneTitle.hide();
+	}
+});

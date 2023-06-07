@@ -1,23 +1,26 @@
-.canvas-wrap svg #upgoing-pattern * {
+.canvas-wrap svg pattern * {
 	fill: none;
+}
+
+.canvas-wrap svg pattern > rect {
+	fill-opacity: 0.7;
+	stroke: none !important;
+}
+
+.canvas-wrap svg #upgoing-pattern * {
 	stroke: var(--svg-upgoing-color);
 }
 
 .canvas-wrap svg #upgoing-pattern > rect {
 	fill: var(--svg-upgoing-color);
-	fill-opacity: 0.5;
-	stroke: none !important;
 }
 
 .canvas-wrap svg #downgoing-pattern * {
-	fill: none;
 	stroke: var(--svg-downgoing-color);
 }
 
 .canvas-wrap svg #downgoing-pattern > rect {
 	fill: var(--svg-downgoing-color);
-	fill-opacity: 0.5;
-	stroke: none !important;
 }
 
 
@@ -25,10 +28,6 @@
 .canvas-wrap svg polygon, .canvas-wrap svg g polygon {
 	fill-opacity: 0.3;
 	cursor: pointer;
-}
-
-.canvas-wrap svg.disabled {
-	pointer-events: none;
 }
 
 .canvas-wrap svg polygon.upgoing, .canvas-wrap svg g.upgoing polygon {
@@ -42,5 +41,5 @@
 }
 
 .canvas-wrap svg polygon:hover, .canvas-wrap svg g:hover polygon {
-	fill-opacity: 0.6;
+	fill-opacity: 0.7;
 }

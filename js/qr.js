@@ -1,7 +1,11 @@
 
 BASE = {
 	ctx: 0,
-	arts: [0, 0]
+	arts: [0],
+	eci: 0,
+	current: () => {
+		return BASE.arts[BASE.eci];
+	}
 };
 
 let mxcolors = ["white", "black", "tomato", "red", "cyan", "blue"];
@@ -42,7 +46,7 @@ class QRT {
 			mx += Math.round(Math.random());
 		}
 
-		this.applyDataOn();
+		// this.applyDataOn();
 
 		// this.fillMatrixWithData(mx);
 
@@ -371,39 +375,63 @@ class QRT {
 		}
 	}
 
-	applyLineOn (x0, y0, x, y, c1 = 1) {
-		if (x - x0 == 0) {
-			const dy = y - y0;
-			for (y = 0; Math.abs(y) < Math.abs(dy); y++) {
-				this.matrix[-y + y0][x] = c1;
-			}
-			return;
-		}
+	applyLineOn (x0, y0, x, y, c = 1) {
+		let dx = (x - x0), dy = (y - y0);
 
-		x0 = Math.fitinter(0, x0, this.modules);
-		y0 = Math.fitinter(0, y0, this.modules);
-		x = Math.fitinter(0, x, this.modules);
-		y = Math.fitinter(0, y, this.modules);
-
-		if (y - y0 > x - x0) {
-			const k = (x - x0) / (y - y0), b = ((x0 * y) - (y0 * x)) / (y - y0);
-			const dy = y - y0;
-			for (y = 0; y < dy; y++) {
-				x = Math.round((k * y) + b);
-				this.matrix[y + y0][x + x0] = c1;
+		if (Math.abs(dx) < Math.abs(dy)) {
+			if (dy < 0) {
+				x = -dx;
+				y = -dy;
+				x0 += dx;
+				y0 += dy;
+				dx = -dx;
+				dy = -dy;
 			}
-		} else {
-			const k = (y - y0) / (x - x0), b = ((y0 * x) - (x0 * y)) / (x - x0);
-			const dx = x - x0;
-			for (x = 0; x < dx; x++) {
-				y = Math.round((k * x) + b);
-				this.matrix[y][x + x0] = c1;
+
+			const k = dx / dy;
+			for (y = 0; y <= dy; y++) {
+				this.matrix[y + y0][Math.round(y * k) + x0] = c;
+			}
+		} else if (Math.abs(dx) >= Math.abs(dy)) {
+			if (dx < 0) {
+				x = -dx;
+				y = -dy;
+				x0 += dx;
+				y0 += dy;
+				dx = -dx;
+				dy = -dy;
+			}
+
+			const k = dy / dx;
+			for (x = 0; x <= dx; x++) {
+				this.matrix[Math.round(x * k) + y0][x + x0] = c;
 			}
 		}
 	}
 
-	applyCircleOn (x0, y0, r, c = 1) {
-		
+	applyEllipseOn (x0, y0, a, b, center = false, c = 1, vx = -1, vy = -1) {
+		let x, y;
+		a = (a - 1) / 2;
+		b = (b - 1) / 2;
+		const da = vx * (a % 1);
+		const db = vy * (b % 1);
+
+		if (!center) {
+			x0 += a - da;
+			y0 += b - db;
+		}
+
+		for (y = -b; y <= b; y++) {
+			x = Math.sqrt((a ** 2) - ((a * y / b) ** 2));
+			this.matrix[y + db + y0][Math.round(x + da) + x0] = c;
+			this.matrix[y + db + y0][-Math.round(x - da) + x0] = c;
+		}
+
+		for (x = -a; x <= a; x++) {
+			y = Math.sqrt((b ** 2) - ((b * x / a) ** 2));
+			this.matrix[Math.round(y + db) + y0][x + da + x0] = c;
+			this.matrix[-Math.round(y - db) + y0][x + da + x0] = c;
+		}
 	}
 
 	applySmallBaseSquareOn (x0, y0, c0 = 2, c1 = 3) {

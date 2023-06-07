@@ -117,7 +117,82 @@ Uint16Array.prototype.inject = function (_i, arr) {
 	return this;
 }
 
-function getGeneratorPolynomial (len) {
-	// let apows = ;
-	// return 
+function setCSSvar (name, value) {
+	console.log("setting");
+	document.documentElement.style.setProperty(name, value);
+}
+
+function getCSSvar (name) {
+	return document.documentElement.style.getPropertyValue(name);
+}
+
+function createPolygon (points, parent) {
+	const elem = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+
+	let str = "";
+	for (let i = 0; i < points.length; i += 2) {
+		str += points[i] + "," + points[i + 1] + " ";
+	}
+
+	elem.setAttribute("points", str);
+	parent.appendChild(elem);
+
+	return elem;
+}
+
+// ONETITLE vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+
+const OneTitle = {
+	elem: document.getElementById("onetitle"),
+	content: document.querySelector("#onetitle > span"),
+	_pivot: 0,
+	show: (message, anim, x, y, pivot = OneTitle._pivot) => {
+		OneTitle.elem.setAttribute("data-anim", anim);
+		OneTitle.content.textContent = message;
+		OneTitle.elem.classList.add("visible");
+
+		OneTitle._pivot = pivot;
+		if (typeof x == "number" && typeof y == "number") {
+			OneTitle.elem.style.left = x + "px";
+			OneTitle.elem.style.top = parseInt(y - ((pivot % 3) * OneTitle.elem.clientHeight / 2)) + "px";
+		}
+	},
+	move: (x, y) => {
+		OneTitle.elem.style.left = x + "px";
+		OneTitle.elem.style.top = parseInt(y - ((pivot % 3) * OneTitle.elem.clientHeight / 2)) + "px";
+	},
+	log: message => {
+		OneTitle.content.textContent = message;
+	},
+	hide: () => {
+		OneTitle.elem.classList.remove("visible");
+	},
+};
+
+// POPUPS vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+
+const popupElements = document.querySelectorAll("#popups .popup");
+let popupBindings = {};
+
+const popupCallers = document.querySelectorAll(".call-popup");
+
+for (let i = 0; i < popupElements.length; i++) {
+	popupElements[i].popen = () => {
+		popupElements[i].classList.add("active");
+		popupElements[0].parentElement.classList.add("visible");
+	};
+
+	popupBindings[popupElements[i].getAttribute("data-popup").replaceAll("-", "")] = popupElements[i];
+	popupElements[i].querySelector("i#this-close").addEventListener("click", () => {
+		popupElements[i].classList.remove("active");
+		popupElements[0].parentElement.classList.remove("visible");
+	});
+}
+
+for (let i = 0; i < popupCallers.length; i++) {
+	const caller = popupCallers[i];
+	caller.addEventListener("click", () => {
+		popupBindings[caller.getAttribute("data-popup").replaceAll("-", "")].classList.add("active");
+		popupElements[0].parentElement.classList.add("visible");
+	});
 }

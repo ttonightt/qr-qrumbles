@@ -8,14 +8,20 @@ body {
 :root {
 	--background: #74548d;
 	--sidebar-bcg: #543869;
-	--contrast: 0.6;
 
-	--svg-upgoing-color: red;
-	--svg-downgoing-color: blue;
+	--contrast: 0.6;
+	--invertion: 0;
+
+	--svg-upgoing-color: #4220a0;
+	--svg-downgoing-color: #d81355;
 }
 
 html.preview:root {
 	--contrast: 1;
+}
+
+html.invertion:root {
+	--invertion: 1;
 }
 
 /* #main {

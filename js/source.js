@@ -1,140 +1,69 @@
-
-// POPUPS vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-
-const popupElements = document.querySelectorAll("#popups .popup");
-let popupBindings = {};
-
-const popupCallers = document.querySelectorAll(".call-popup");
-
-for (let i = 0; i < popupElements.length; i++) {
-	popupElements[i].popen = () => {
-		popupElements[i].classList.add("active");
-		popupElements[0].parentElement.classList.add("visible");
-	};
-
-	popupBindings[popupElements[i].getAttribute("data-popup").replaceAll("-", "")] = popupElements[i];
-	popupElements[i].querySelector("i#this-close").addEventListener("click", () => {
-		popupElements[i].classList.remove("active");
-		popupElements[0].parentElement.classList.remove("visible");
-	});
-}
-
-for (let i = 0; i < popupCallers.length; i++) {
-	const caller = popupCallers[i];
-	caller.addEventListener("click", () => {
-		popupBindings[caller.getAttribute("data-popup").replaceAll("-", "")].classList.add("active");
-		popupElements[0].parentElement.classList.add("visible");
-	});
-}
-
-// POPUPS ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-// ONETITLE vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-
-const OneTitle = {
-	elem: document.getElementById("onetitle"),
-	content: document.querySelector("#onetitle > span"),
-	_pivot: 0,
-	show: (message, anim, x, y, pivot = OneTitle._pivot) => {
-		OneTitle.elem.setAttribute("data-anim", anim);
-		OneTitle.content.textContent = message;
-		OneTitle.elem.classList.add("visible");
-
-		OneTitle._pivot = pivot;
-		if (typeof x == "number" && typeof y == "number") {
-			OneTitle.elem.style.left = x + "px";
-			OneTitle.elem.style.top = parseInt(y - ((pivot % 3) * OneTitle.elem.clientHeight / 2)) + "px";
-		}
-	},
-	move: (x, y) => {
-		OneTitle.elem.style.left = x + "px";
-		OneTitle.elem.style.top = parseInt(y - ((pivot % 3) * OneTitle.elem.clientHeight / 2)) + "px";
-	},
-	log: message => {
-		OneTitle.content.textContent = message;
-	},
-	hide: () => {
-		OneTitle.elem.classList.remove("visible");
-	},
-};
-
-// ONETITLE ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-const contrastSwitcher = document.getElementById("tocontrast");
-
-contrastSwitcher.onchange = () => {
-	if (contrastSwitcher.checked) {
-		document.documentElement.classList.add("preview");
-	} else {
-		document.documentElement.classList.remove("preview");
-	}
-};
-
-const projPortal = document.getElementById("proj-to-open");
-const projPreview = document.getElementById("open-proj-preview");
-const openProjTrigger = document.getElementById("open-proj-btn");
-
-projPortal.onchange = (e) => {
-	globalFileBuffer = e.target.files[0];
-	projPreview.innerHTML = globalFileBuffer.name;
-	projPortal.classList.add("selected");
-};
-
-openProjTrigger.onclick = () => {
-	readTQRT(globalFileBuffer);
-
-	openProjTrigger.parentElement.parentElement.classList.remove("active");
-	openProjTrigger.parentElement.parentElement.parentElement.classList.remove("visible");
-
-	projPortal.classList.remove("selected");
-	projPreview.innerHTML = "";
-	globalFileBuffer = 0;
-};
-
-const saveProjTrigger = document.getElementById("save-proj-btn");
-const projName = document.getElementById("proj-name-to-save");
-
-//  PROJECT SAVER vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-
-saveProjTrigger.onclick = () => {
-	saveTQRT(globalDataBuffer);
-};
-
-// PROJECT SAVER ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-// QRT CREATION vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-
 const canvas = document.getElementById("main");
-const overmask = document.getElementById("overmask");
+const dbmapPolygonsContainer = document.getElementById("dbmap-polygons-container");
 const cnvP = canvas.parentElement, cnvPP = canvas.parentElement.parentElement;
 
 BASE.ctx = canvas.getContext("2d");
 BASE.ctx.fillStyle = "#000000";
 
-BASE.arts[0] = new QRT(27, Controls.mask.value, Controls.errcor.value, Controls.datatype.value);
-BASE.current = BASE.arts[0];
-
-// QRT CREATION ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+const infocorner = document.getElementById("infocorner");
 
 // CONTROLS CONNECTING vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
 Controls.mask = new Control("radio", "mask", () => {
-	BASE.current.applyFormatOn(Controls.mask.value, Controls.errcor.value, 4).updateCanvas();
+	BASE.current().applyFormatOn(Controls.mask.value, Controls.errcor.value, 4).updateCanvas();
 });
+
 Controls.errcor = new Control("radio", "errcor", () => {
-	BASE.current.applyFormatOn(Controls.mask.value, Controls.errcor.value, 4).updateCanvas();
+	BASE.current().applyFormatOn(Controls.mask.value, Controls.errcor.value, 4).updateCanvas();
 });
+
 Controls.datatype = new Control("radio", "dtype", () => {
-	BASE.current.applyDataTypeOn(Controls.datatype.value).updateCanvas();
+	BASE.current().applyDataTypeOn(Controls.datatype.value).updateCanvas();
 });
 
-// CONTROLS CONNECTING ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Controls.datablockMapOverlay = new Control("radio", "dtbmapover", () => {
+	switch (Controls.datablockMapOverlay.value) {
+		case "0":
+			dbmapPolygonsContainer.classList.remove("disabled");
+			dbmapPolygonsContainer.classList.remove("active");
+			break;
+		case "1":
+			dbmapPolygonsContainer.classList.remove("active");
+			dbmapPolygonsContainer.classList.add("disabled");
+			break;
+		case "2":
+			dbmapPolygonsContainer.classList.remove("disabled");
+			dbmapPolygonsContainer.classList.add("active");
+			Tools
+			break;
+	}
+});
 
-let globalCanvasScaleCoef = Math.floor((cnvPP.clientHeight - 40) / BASE.current.modules);
+Controls.toPreview = new Control("checkbox", "topreview", () => {
+	if (Controls.toPreview.value) {
+		document.documentElement.classList.add("preview");
+	} else {
+		document.documentElement.classList.remove("preview");
+	}
+});
+
+Controls.toInvert = new Control("checkbox", "toinvert", () => {
+	if (Controls.toInvert.value) {
+		document.documentElement.classList.add("invertion");
+	} else {
+		document.documentElement.classList.remove("invertion");
+	}
+});
+
+// QRT CREATION vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+
+BASE.arts[0] = new QRT(27, Controls.mask.value, Controls.errcor.value, Controls.datatype.value);
+BASE.eci = 0;
+
+let globalCanvasScaleCoef = Math.floor((cnvPP.clientHeight - 40) / BASE.current().modules);
 const gCSCmin = globalCanvasScaleCoef - 2,
 		gCSCmax = globalCanvasScaleCoef + 8;
 setWorkspaceSize();
-BASE.current.updateCanvas();
 
 _gCSC = globalCanvasScaleCoef;
 
@@ -148,35 +77,35 @@ cnvPP.onwheel = function (e) {
 	const coef = globalCanvasScaleCoef / _gCSC;
 	_gCSC = globalCanvasScaleCoef;
 
-	cnvP.style.width = BASE.current.modules * globalCanvasScaleCoef + "px";
-	cnvP.style.height = BASE.current.modules * globalCanvasScaleCoef + "px";
-	overmask.setAttribute("stroke-width", 2 / globalCanvasScaleCoef);
+	cnvP.style.width = BASE.current().modules * globalCanvasScaleCoef + "px";
+	cnvP.style.height = BASE.current().modules * globalCanvasScaleCoef + "px";
+	dbmapPolygonsContainer.setAttribute("stroke-width", 2 / globalCanvasScaleCoef);
 
 	cnvP.style.top = (e.clientY - 100 - ((e.clientY - 100 - parseInt(cnvP.style.top)) * coef)) + "px";
 	cnvP.style.left = (e.clientX - ((e.clientX - parseInt(cnvP.style.left)) * coef)) + "px";
 
-	// BASE.current.updateCanvas();
-	// BASE.current.drawPointOn(e.offsetX, e.offsetY, globalCanvasScaleCoef);
+	// BASE.current().updateCanvas();
+	// BASE.current().drawPointOn(e.offsetX, e.offsetY, globalCanvasScaleCoef);
 };
 
 let mouseDown = 0;
 let _offsetX, _offsetY;
 let _phantomX = 1, _phantomY = 1;
 
-cnvP.onmousedown = e => {
+canvas.onmousedown = e => {
 	mouseDown = e.button + 1;
+	_offsetX = e.offsetX;
+	_offsetY = e.offsetY;
 	if (mouseDown == 1) {
 		const _x = Math.floor(e.offsetX / globalCanvasScaleCoef), _y = Math.floor(e.offsetY / globalCanvasScaleCoef);
-		BASE.current.drawPointOn(_x, _y, 1);
-		BASE.current.applyPointOn(_x, _y, 1);
+		BASE.current().drawPointOn(_x, _y, 1);
+		BASE.current().applyPointOn(_x, _y, 1);
 	} else if (mouseDown == 3) {
 		const _x = Math.floor(e.offsetX / globalCanvasScaleCoef), _y = Math.floor(e.offsetY / globalCanvasScaleCoef);
-		BASE.current.drawPointOn(_x, _y, 0);
-		BASE.current.applyPointOn(_x, _y, 0);
+		BASE.current().drawPointOn(_x, _y, 0);
+		BASE.current().applyPointOn(_x, _y, 0);
 	} else if (mouseDown == 2) {
 		cnvPP.style.cursor = "move";
-		_offsetX = e.offsetX;
-		_offsetY = e.offsetY;
 	}
 };
 
@@ -187,23 +116,24 @@ cnvPP.onmousemove = e => {
 	}
 };
 
-cnvP.onmousemove = e => {
+canvas.onmousemove = e => {
 	if (mouseDown == 3) {
 		const _x = Math.floor(e.offsetX / globalCanvasScaleCoef), _y = Math.floor(e.offsetY / globalCanvasScaleCoef);
-		BASE.current.drawPointOn(_x, _y, 0);
-		BASE.current.applyPointOn(_x, _y, 0);
+		BASE.current().drawPointOn(_x, _y, 0);
+		BASE.current().applyPointOn(_x, _y, 0);
 	} else {
 		const _x = Math.floor(e.offsetX / globalCanvasScaleCoef), _y = Math.floor(e.offsetY / globalCanvasScaleCoef);
 		if (mouseDown == 1) {
-			BASE.current.drawPointOn(_x, _y, 1);
-			BASE.current.applyPointOn(_x, _y, 1);
-		} else if (BASE.current.matrix[_y][_x] == 1) {
-			BASE.current.drawPointOn(_phantomX, _phantomY, 0);
+			BASE.current().drawPointOn(_x, _y, 1);
+			BASE.current().applyPointOn(_x, _y, 1);
+			infocorner.textContent = _x + "," + _y + " : " + Math.floor((e.offsetX - _offsetX) / globalCanvasScaleCoef) + "," + Math.floor((e.offsetY - _offsetY) / globalCanvasScaleCoef);
+		} else if (BASE.current().matrix[_y][_x] == 1) {
+			BASE.current().drawPointOn(_phantomX, _phantomY, 0);
 			_phantomX = 1;
 			_phantomY = 1;
 		} else {
-			BASE.current.drawPointOn(_phantomX, _phantomY, 0);
-			BASE.current.drawPointOn(_x, _y, 1);
+			BASE.current().drawPointOn(_phantomX, _phantomY, 0);
+			BASE.current().drawPointOn(_x, _y, 1);
 			_phantomX = _x;
 			_phantomY = _y;
 		}
@@ -213,7 +143,7 @@ cnvP.onmousemove = e => {
 cnvPP.onmouseup = e => {
 	if (mouseDown == 2) {
 		cnvPP.style.cursor = "";
-		BASE.current.drawPointOn(_phantomX, _phantomY, 0);
+		BASE.current().drawPointOn(_phantomX, _phantomY, 0);
 	}
 	if (mouseDown != 0) {
 		_phantomX = 1;
@@ -223,7 +153,7 @@ cnvPP.onmouseup = e => {
 };
 
 cnvP.onmouseout = e => {
-	BASE.current.drawPointOn(_phantomX, _phantomY, 0);
+	BASE.current().drawPointOn(_phantomX, _phantomY, 0);
 	_phantomX = 1;
 	_phantomY = 1;
 };
@@ -232,247 +162,25 @@ cnvPP.oncontextmenu = e => {
 	e.preventDefault();
 };
 
-const Tools = {
-	move: {
-		elem: document.getElementById("move-tool").nextElementSibling,
-	},
-	brush: {
-		elem: document.getElementById("brush-tool").nextElementSibling,
-		radius: 1,
-	},
-	circle: {
-		elem: document.getElementById("circle-tool").nextElementSibling,
-	},
-	line: {
-		elem: document.getElementById("line-tool").nextElementSibling,
-	},
-	select: {
-		elem: document.getElementById("select-tool").nextElementSibling,
-	},
-};
-
-Tools.brush._elemBoundingRect = Tools.brush.elem.getBoundingClientRect();
-
-let wasWheeled = false;
-
-Tools.brush.elem.addEventListener("wheel", e => {
-	if (!wasWheeled) {
-		OneTitle.show("Brush radius: " + Tools.brush.radius, "blink", Tools.brush._elemBoundingRect.x + Tools.brush._elemBoundingRect.width + 9, Tools.brush._elemBoundingRect.y + (Tools.brush._elemBoundingRect.height / 2), 1);
-		wasWheeled = true;
-	} else {
-		OneTitle.log("Brush radius: " + Tools.brush.radius);
-	}
-
-	if (e.deltaY > 0 && Tools.brush.radius > 1) {
-		Tools.brush.radius--;
-	} else if (e.deltaY < 0 && Tools.brush.radius < 10) {
-		Tools.brush.radius++;
-	}
-});
-
-Tools.brush.elem.addEventListener("mouseleave", () => {
-	if (wasWheeled) {
-		wasWheeled = false;
-		OneTitle.hide();
-	}
-});
-
 
 
 function setWorkspaceSize () {
-	canvas.width = BASE.current.modules;
-	canvas.height = BASE.current.modules;
-	cnvP.style.width = BASE.current.modules * globalCanvasScaleCoef + "px";
-	cnvP.style.height = BASE.current.modules * globalCanvasScaleCoef + "px";
-	cnvP.style.top = Math.floor((cnvPP.clientHeight - (globalCanvasScaleCoef * BASE.current.modules)) / 2) + "px";
-	cnvP.style.left = Math.floor((cnvPP.clientWidth - (globalCanvasScaleCoef * BASE.current.modules)) / 2) + "px";
-	overmask.setAttribute("viewBox", "0 0 " + BASE.current.modules + " " + BASE.current.modules);
-	overmask.setAttribute("stroke-width", 2 / globalCanvasScaleCoef);
+	globalCanvasScaleCoef = Math.floor((cnvPP.clientHeight - 40) / BASE.current().modules);
+	canvas.width = BASE.current().modules;
+	canvas.height = BASE.current().modules;
+	cnvP.style.width = BASE.current().modules * globalCanvasScaleCoef + "px";
+	cnvP.style.height = BASE.current().modules * globalCanvasScaleCoef + "px";
+	cnvP.style.top = Math.floor((cnvPP.clientHeight - (globalCanvasScaleCoef * BASE.current().modules)) / 2) + "px";
+	cnvP.style.left = Math.floor((cnvPP.clientWidth - (globalCanvasScaleCoef * BASE.current().modules)) / 2) + "px";
+	dbmapPolygonsContainer.setAttribute("viewBox", "0 0 " + BASE.current().modules + " " + BASE.current().modules);
+	dbmapPolygonsContainer.setAttribute("stroke-width", 2 / globalCanvasScaleCoef);
+	BASE.current().updateCanvas();
 }
+
+window.onload = () => {
+	const datablocksmap = new DatablockMap(BASE.current(), dbmapPolygonsContainer);
+};
 
 // window.onbeforeunload = e => {
 // 	return e.returnValue;
 // };
-
-function createPolygon (points, parent) {
-	const elem = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
-
-	let str = "";
-	for (let i = 0; i < points.length; i += 2) {
-		str += points[i] + "," + points[i + 1] + " ";
-	}
-
-	elem.setAttribute("points", str);
-	parent.appendChild(elem);
-
-	return elem;
-}
-
-function bitmapToPolygons (coords, cssClass) {
-	let i = 0, t;
-	let _coords = structuredClone(coords);
-
-	for (i = 0; i < 2000; i++) {
-		t = true;
-		for (let j = 0; j < _coords.length - 2; j++) {
-			if (_coords[j] < _coords[j + 2]) {
-				_coords[j] += _coords[j + 2];
-				_coords[j + 2] = _coords[j] - _coords[j + 2];
-				_coords[j] -= _coords[j + 2];
-				t = false;
-			}
-		}
-		if (t) break;
-	}
-
-	const 	minx = _coords[_coords.length - 2];
-			miny = _coords[_coords.length - 1];
-			maxx = _coords[0];
-			maxy = _coords[1];
-
-	let map = new Int8Array((maxy - miny + 2) * (maxx - minx + 2)).x2convert(maxx - minx + 2);
-
-	for (i = 0; i < coords.length; i += 2) {
-		map.x2set(coords[i] - minx, 	coords[i + 1] - miny, 		1);
-		map.x2set(coords[i] - minx + 1, coords[i + 1] - miny, 		1);
-		map.x2set(coords[i] - minx, 	coords[i + 1] - miny + 1, 	1);
-		map.x2set(coords[i] - minx + 1, coords[i + 1] - miny + 1, 	1);
-	}
-
-	let polygons = [];
-	t = true;
-
-	for (i = 0; t && i < 10; i++) {
-		t = false;
-
-		let points = [];
-		let x = 0, y = map.rows - 1, vec = [0, -1];
-		let _x = 0, _y = 0;
-		let p = 0, _p = p;
-		let rn = 0;
-	
-		do {
-			if (points.length == 0) {
-				if (map.x2get(x, y) == 1 && map.x2getD(x + 1, y, 0) != 2 && map.x2getD(x, y + 1, 0) != 2 && map.x2getD(x - 1, y, 0) != 2 && map.x2getD(x, y - 1, 0) != 2) {
-					t = true;
-					_x = x;
-					_y = y;
-					_p = p;
-				} else {
-					if (y == 1 && x < map.columns - 1) {
-						y = map.rows - 1;
-						x++;
-					} else {
-						y--;
-					}
-					continue;
-				}
-			}
-	
-			if (map.x2getD(x + vec[1], y - vec[0]) >= 1) {	// TURNING LEFT
-				vec = [vec[1], -vec[0]];
-				rn = 0;
-			}
-	
-			if (map.x2getD(x + vec[0], y + vec[1]) >= 1) {	// IF MOVING IS POSSIBLE
-				x += vec[0];
-				y += vec[1];
-				map.x2set(x, y, 2);
-				if (rn++ > 0) {
-					points[points.length - 2] = x + minx;
-					points[points.length - 1] = y + miny;
-				} else {
-					points.push(x + minx);
-					points.push(y + miny);
-				}
-			} else {										// TURNING RIGHT
-				vec = [-vec[1], vec[0]];
-				x += vec[0];
-				y += vec[1];
-				map.x2set(x, y, 2);
-				points.push(x + minx);
-				points.push(y + miny);
-				rn++;
-			}
-		} while (!(x == _x && y == _y && p - _p > 1) && ++p < 200);
-
-		if (points.length > 1) {
-			polygons.push(points);
-		}
-	}
-	
-	if (polygons.length > 1) {
-		const elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
-		elem.classList.add(cssClass);
-		overmask.appendChild(elem);
-		
-		for (i = polygons.length - 1; i >= 0; i--) {
-			createPolygon(polygons[i], elem);
-		}
-	} else {
-		createPolygon(polygons[0], overmask).classList.add(cssClass);
-	}
-}
-
-function createOvermaskDatablocks (separator, qr) {
-	let coords = [];
-	const maxlen = QRtable[qr.version][qr.ecdepth].dataBytes * 8;
-
-	let x = qr.modules - 1, y = qr.modules - 1, v = 1;
-	coords.push(x--);
-	coords.push(y);
-	for (let i = 1, j = 0; j < maxlen; i++) {
-		if (x == 10 && y == qr.modules) {
-			y -= 9;
-			x -= 2;
-			v = -v;
-		}
-
-		if (x == 8 && y == 8) {
-			x--;
-		}
-
-		if (x == qr.modules - 9 && y == 6) {
-			x -= 2;
-			y -= 6;
-			v = -v;
-		}
-		
-		if (y < 0 || y >= qr.modules || (y == 8 && (qr.matrix[y][x] == 4 || qr.matrix[y][x] == 5)) || (x <= 5 && y == qr.modules - 11)) {
-			y += v;
-			x -= 2;
-			v = -v;
-			if (coords.length >= separator * 2) {
-				bitmapToPolygons(coords, ["upgoing", "downgoing"][(v + 1) / 2]);
-				coords = [];
-			}
-			coords.push(x);
-			coords.push(y);
-			j++;
-		} else if (qr.matrix[y][x] == 0 || qr.matrix[y][x] == 1) {
-			if (coords.length >= separator * 2) {
-				bitmapToPolygons(coords, ["downgoing", "upgoing"][(v + 1) / 2]);
-				coords = [];
-			}
-			coords.push(x);
-			coords.push(y);
-			j++;
-		}
-		if (i % 2) {
-			x++;
-			y -= v;
-		} else {
-			x--;
-		}
-	}
-
-	if (coords.length >= 0) {
-		coords.pop();
-		coords.pop();
-		bitmapToPolygons(coords, ["upgoing", "downgoing"][(-v + 1) / 2]);
-	}
-}
-
-window.onload = () => {
-	createOvermaskDatablocks(11, BASE.current);
-};

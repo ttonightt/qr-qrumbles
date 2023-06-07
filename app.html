@@ -46,8 +46,6 @@
 			<form>
 				<input type="radio" name="format" id="frm-tqrt" checked>
 				<label for="frm-tqrt">.tqrt</label>
-				<input type="radio" name="format" id="frm-svg">
-				<label for="frm-svg">.svg</label>
 				<input type="radio" name="format" id="frm-bmp">
 				<label for="frm-bmp">.bmp</label>
 			</form>
@@ -154,16 +152,16 @@
 			<i id="this-close">x</i>
 		</div>
 
-		<div class="popup" data-popup="about">
-			<h1>About</h1><!--------------------------------------------------------ABOUT-->
+		<div class="popup" data-popup="about"><!---------------------------------------ABOUT-->
+			<h1>About</h1>
 			<div class="content">
 				This QRt (QR || art) editor was designed and coded by <a href="http://github.com/ttonightt" target="_blank" rel="noopener noreferrer">@ttonightt</a>
 			</div>
 			<i id="this-close">x</i>
 		</div>
 
-		<div class="popup" data-popup="help">
-			<h1>Help</h1><!----------------------------------------------------------HELP-->
+		<div class="popup" data-popup="help"><!-----------------------------------------HELP-->
+			<h1>Help</h1>
 			<div class="content">
 				
 			</div>
@@ -189,10 +187,11 @@
 	</header>
 
 	<div class="workbench">
+
 		<div class="workspace">
 			<div class="canvas-wrap">
 				<canvas id="main" width="100" height="100"></canvas>
-				<svg id="overmask" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" stroke-width="0.075">
+				<svg id="dbmap-polygons-container" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" stroke-width="0.075">
 					<pattern id="upgoing-pattern" x="0" y="0" width="1" height="1" patternUnits="userSpaceOnUse">
 						<line x1="0.5" y1="0.25" x2="0.5" y2="0.75"/>
 						<polyline points="0.25,0.5 0.5,0.25 0.75,0.5"/>
@@ -206,64 +205,71 @@
 					</pattern>
 				</svg>
 			</div>
+
+			<div id="infocorner">0,0</div>
 		</div>
 
 		<aside>
 			<form class="tools">
-				<input type="radio" name="tool" id="move-tool">
-				<label for="move-tool"><img class="red-to-150f1a" src="img/move-tool.png"></label>
+				<!-- <input type="radio" name="tool" id="move-tool">
+				<label for="move-tool"><img class="red-to-150f1a" src="img/move-tool.png"></label> -->
 				<input type="radio" name="tool" id="brush-tool" checked>
 				<label for="brush-tool"><img class="red-to-150f1a" src="img/brush-tool.png"></label>
 				<input type="radio" name="tool" id="circle-tool">
 				<label for="circle-tool"><img class="red-to-150f1a" src="img/circle-tool.png"></label>
 				<input type="radio" name="tool" id="line-tool">
 				<label for="line-tool"><img class="red-to-150f1a" src="img/line-tool.png"></label>
-				<input type="radio" name="tool" id="select-tool">
-				<label for="select-tool"><img class="red-to-150f1a" src="img/select-tool.png"></label>
+				<!-- <input type="radio" name="tool" id="select-tool">
+				<label for="select-tool"><img class="red-to-150f1a" src="img/select-tool.png"></label> -->
 			</form>
 
 			<div class="topbar controls-table">
-				<input type="checkbox" name="tocontrast" id="tocontrast">
-				<label class="btn fl1" for="tocontrast">Contrast</label>
+				<input type="checkbox" name="toinvert" id="toinvert">
+				<label class="btn square" for="toinvert">I</label>
+
+				<input type="checkbox" name="topreview" id="topreview">
+				<label class="btn fl1" for="topreview">Prev</label>
+
 				<div class="btn square"><img class="red-to-150f1a" src="img/circle-arrow-clockwise.png"></div>
 				<div class="btn square"><img class="red-to-150f1a" src="img/circle-arrow-reversewise.png"></div>
 				<!-- <input type="checkbox" name="toapplymask" id="toapplymask">
 				<label class="btn" for="toapplymask">Mask</label> -->
 
-				<div id="mask-application" class="radio-btn-container switcher" content="Mask appl.">
+				<div id="mask-overlay" class="radio-btn-container switcher" content="Mask overlay">
 					<div class="radio-btn">
-						<input type="radio" name="masap" id="masap-var-0" value="0" checked>
-						<label for="masap-var-0">0</label>
+						<input type="radio" name="mskover" id="mskover-var-0" value="0">
+						<label for="mskover-var-0">0</label>
 					</div>
 
 					<div class="radio-btn">
-						<input type="radio" name="masap" id="masap-var-1" value="1">
-						<label for="masap-var-1">A</label>
+						<input type="radio" name="mskover" id="mskover-var-1" value="1">
+						<label for="mskover-var-1">A</label>
 					</div>
 
 					<div class="radio-btn">
-						<input type="radio" name="masap" id="masap-var-2" value="2">
-						<label for="masap-var-2">X</label>
-					</div>
-				</div>
-
-				<div id="databitmap-application" class="radio-btn-container switcher" content="Data bitmap appl.">
-					<div class="radio-btn">
-						<input type="radio" name="dtbmap" id="dtbmap-var-0" value="0" checked>
-						<label for="dtbmap-var-0">0</label>
-					</div>
-
-					<div class="radio-btn">
-						<input type="radio" name="dtbmap" id="dtbmap-var-1" value="1">
-						<label for="dtbmap-var-1">V</label>
-					</div>
-
-					<div class="radio-btn">
-						<input type="radio" name="dtbmap" id="dtbmap-var-2" value="2">
-						<label for="dtbmap-var-2">C</label>
+						<input type="radio" name="mskover" id="mskover-var-2" value="2" checked>
+						<label for="mskover-var-2">X</label>
 					</div>
 				</div>
 
+				<div id="datablock-overlay" class="radio-btn-container switcher" content="Db map overlay.">
+					<div class="radio-btn">
+						<input type="radio" name="dtbmapover" id="dtbmapover-var-0" value="0" checked>
+						<label for="dtbmapover-var-0">0</label>
+					</div>
+
+					<div class="radio-btn">
+						<input type="radio" name="dtbmapover" id="dtbmapover-var-1" value="1">
+						<label for="dtbmapover-var-1">V</label>
+					</div>
+
+					<div class="radio-btn">
+						<input type="radio" name="dtbmapover" id="dtbmapover-var-2" value="2">
+						<label for="dtbmapover-var-2">C</label>
+					</div>
+				</div>
+
+				<div class="btn wide" disabled>Apply mask on mx.</div>
 				<div class="btn wide">Encode EC bits</div>
 			</div>
 			<div class="bottombar">
