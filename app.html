@@ -142,10 +142,10 @@
 						<label for="dtype-4">B</label>
 					</div>
 
-					<div class="radio-btn">
+					<!-- <div class="radio-btn">
 						<input type="radio" name="dtype" id="dtype-7" value="7" checked>
 						<label for="dtype-7">U</label>
-					</div>
+					</div> -->
 				</div>
 
 			</div>
@@ -171,19 +171,18 @@
 
 	<header>
 		<ul class="actions">
-			<li class="call-popup" data-popup="new">New</li>
+			<!-- <li class="call-popup" data-popup="new">New</li> -->
 			<li class="call-popup" data-popup="save">Save</li>
 			<li class="call-popup" data-popup="open">Open</li>
 			<li class="call-popup separator" data-popup="edit">Edit</li>
-			<li class="call-popup separator" data-popup="about">About</li>
-			<li class="call-popup" data-popup="help">Help</li>
-			<!-- <li class="call-popup" data-popup="about">Lang</li> -->
+			<!-- <li class="call-popup separator" data-popup="about">About</li>
+			<li class="call-popup" data-popup="help">Help</li> -->
 		</ul>
-		<div class="tab-nav-wrap">
+		<!-- <div class="tab-nav-wrap">
 			<ul id="tab-navs">
 				<li class="active" data-tab="1">QRt 1<i id="this-close">x</i></li>
 			</ul>
-		</div>
+		</div> -->
 	</header>
 
 	<div class="workbench">
@@ -213,11 +212,11 @@
 			<form class="tools">
 				<!-- <input type="radio" name="tool" id="move-tool">
 				<label for="move-tool"><img class="red-to-150f1a" src="img/move-tool.png"></label> -->
-				<input type="radio" name="tool" id="brush-tool" checked>
+				<input type="radio" value="brush" name="tool" id="brush-tool" checked>
 				<label for="brush-tool"><img class="red-to-150f1a" src="img/brush-tool.png"></label>
-				<input type="radio" name="tool" id="circle-tool">
+				<input type="radio" value="circle" name="tool" id="circle-tool">
 				<label for="circle-tool"><img class="red-to-150f1a" src="img/circle-tool.png"></label>
-				<input type="radio" name="tool" id="line-tool">
+				<input type="radio" value="line" name="tool" id="line-tool">
 				<label for="line-tool"><img class="red-to-150f1a" src="img/line-tool.png"></label>
 				<!-- <input type="radio" name="tool" id="select-tool">
 				<label for="select-tool"><img class="red-to-150f1a" src="img/select-tool.png"></label> -->
@@ -269,8 +268,7 @@
 					</div>
 				</div>
 
-				<div class="btn wide" disabled>Apply mask on mx.</div>
-				<div class="btn wide">Encode EC bits</div>
+				<button class="btn wide">Apply mask on mx.</button>
 			</div>
 			<div class="bottombar">
 				<div class="decoded-wrap">

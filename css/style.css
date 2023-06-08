@@ -341,6 +341,10 @@ aside input[type=checkbox]:checked + label:before {
 	box-shadow: 0px 0px 0px #25192e, inset 0px 3px 0px #25192e;
 }
 
+aside input[type=checkbox]:checked + label:after {
+	box-shadow: 0px 0px 0px #25192e, inset 0px 3px 0px #25192e;
+}
+
 aside .topbar {
 	padding: 20px;
 	border-bottom: 3px dotted #74548d;

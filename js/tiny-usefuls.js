@@ -145,6 +145,7 @@ function createPolygon (points, parent) {
 const OneTitle = {
 	elem: document.getElementById("onetitle"),
 	content: document.querySelector("#onetitle > span"),
+	shown: 0,
 	_pivot: 0,
 	show: (message, anim, x, y, pivot = OneTitle._pivot) => {
 		OneTitle.elem.setAttribute("data-anim", anim);
@@ -156,6 +157,7 @@ const OneTitle = {
 			OneTitle.elem.style.left = x + "px";
 			OneTitle.elem.style.top = parseInt(y - ((pivot % 3) * OneTitle.elem.clientHeight / 2)) + "px";
 		}
+		OneTitle.shown = 1;
 	},
 	move: (x, y) => {
 		OneTitle.elem.style.left = x + "px";
@@ -166,6 +168,7 @@ const OneTitle = {
 	},
 	hide: () => {
 		OneTitle.elem.classList.remove("visible");
+		OneTitle.shown = 0;
 	},
 };
 

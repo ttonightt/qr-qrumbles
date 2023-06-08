@@ -60,74 +60,88 @@ Controls.toInvert = new Control("checkbox", "toinvert", () => {
 BASE.arts[0] = new QRT(27, Controls.mask.value, Controls.errcor.value, Controls.datatype.value);
 BASE.eci = 0;
 
-let globalCanvasScaleCoef = Math.floor((cnvPP.clientHeight - 40) / BASE.current().modules);
-const gCSCmin = globalCanvasScaleCoef - 2,
-		gCSCmax = globalCanvasScaleCoef + 8;
+let canvasScale = Math.floor((cnvPP.clientHeight - 40) / BASE.current().modules);
+const 	csMIN = canvasScale - 2,
+		csMAX = canvasScale + 8;
 setWorkspaceSize();
 
-_gCSC = globalCanvasScaleCoef;
+let _canvasScale = canvasScale;
 
 cnvPP.onwheel = function (e) {
-	if (e.deltaY > 0 && globalCanvasScaleCoef > gCSCmin) {
-		globalCanvasScaleCoef--;
+	if (e.shiftKey && Tools.value == "brush") {
+		Tools.events.changeRadiusOnWheel(e);
+	} else {
+		if (e.deltaY > 0 && canvasScale > csMIN) {
+			canvasScale--;
+		}
+		if (e.deltaY < 0 && canvasScale < csMAX) {
+			canvasScale++;
+		}
+		const coef = canvasScale / _canvasScale;
+		_canvasScale = canvasScale;
+	
+		cnvP.style.width = BASE.current().modules * canvasScale + "px";
+		cnvP.style.height = BASE.current().modules * canvasScale + "px";
+		dbmapPolygonsContainer.setAttribute("stroke-width", 2 / canvasScale);
+	
+		cnvP.style.top = (e.clientY - 100 - ((e.clientY - 100 - parseInt(cnvP.style.top)) * coef)) + "px";
+		cnvP.style.left = (e.clientX - ((e.clientX - parseInt(cnvP.style.left)) * coef)) + "px";
+	
+		// BASE.current().updateCanvas();
+		// BASE.current().drawPointOn(e.offsetX, e.offsetY, canvasScale);
 	}
-	if (e.deltaY < 0 && globalCanvasScaleCoef < gCSCmax) {
-		globalCanvasScaleCoef++;
-	}
-	const coef = globalCanvasScaleCoef / _gCSC;
-	_gCSC = globalCanvasScaleCoef;
-
-	cnvP.style.width = BASE.current().modules * globalCanvasScaleCoef + "px";
-	cnvP.style.height = BASE.current().modules * globalCanvasScaleCoef + "px";
-	dbmapPolygonsContainer.setAttribute("stroke-width", 2 / globalCanvasScaleCoef);
-
-	cnvP.style.top = (e.clientY - 100 - ((e.clientY - 100 - parseInt(cnvP.style.top)) * coef)) + "px";
-	cnvP.style.left = (e.clientX - ((e.clientX - parseInt(cnvP.style.left)) * coef)) + "px";
-
-	// BASE.current().updateCanvas();
-	// BASE.current().drawPointOn(e.offsetX, e.offsetY, globalCanvasScaleCoef);
 };
 
 let mouseDown = 0;
 let _offsetX, _offsetY;
 let _phantomX = 1, _phantomY = 1;
 
-canvas.onmousedown = e => {
+cnvPP.onmousedown = e => {
+
 	mouseDown = e.button + 1;
 	_offsetX = e.offsetX;
 	_offsetY = e.offsetY;
-	if (mouseDown == 1) {
-		const _x = Math.floor(e.offsetX / globalCanvasScaleCoef), _y = Math.floor(e.offsetY / globalCanvasScaleCoef);
-		BASE.current().drawPointOn(_x, _y, 1);
-		BASE.current().applyPointOn(_x, _y, 1);
-	} else if (mouseDown == 3) {
-		const _x = Math.floor(e.offsetX / globalCanvasScaleCoef), _y = Math.floor(e.offsetY / globalCanvasScaleCoef);
-		BASE.current().drawPointOn(_x, _y, 0);
-		BASE.current().applyPointOn(_x, _y, 0);
-	} else if (mouseDown == 2) {
+
+	if (mouseDown == 2) {
 		cnvPP.style.cursor = "move";
+	} else if (e.target == canvas) {
+		_offsetX = Math.floor(_offsetX / canvasScale);
+		_offsetY = Math.floor(_offsetY / canvasScale);
+		const _x = Math.floor(_offsetX / canvasScale), _y = Math.floor(_offsetY / canvasScale);
+		BASE.current().drawPointOn(_x, _y, (mouseDown - 3) / -2);
+		BASE.current().applyPointOn(_x, _y, (mouseDown - 3) / -2);
 	}
 };
 
 cnvPP.onmousemove = e => {
-	if (mouseDown == 2) {
-		cnvP.style.top = (e.clientY - 100 - _offsetY) + "px";
-		cnvP.style.left = (e.clientX - _offsetX) + "px";
-	}
-};
+	const _x = Math.floor(e.offsetX / canvasScale), _y = Math.floor(e.offsetY / canvasScale);
 
-canvas.onmousemove = e => {
 	if (mouseDown == 3) {
-		const _x = Math.floor(e.offsetX / globalCanvasScaleCoef), _y = Math.floor(e.offsetY / globalCanvasScaleCoef);
 		BASE.current().drawPointOn(_x, _y, 0);
 		BASE.current().applyPointOn(_x, _y, 0);
-	} else {
-		const _x = Math.floor(e.offsetX / globalCanvasScaleCoef), _y = Math.floor(e.offsetY / globalCanvasScaleCoef);
+	} else if (mouseDown == 2) {
+		cnvP.style.top = (e.clientY - 100 - _offsetY) + "px";
+		cnvP.style.left = (e.clientX - _offsetX) + "px";
+	} else if (e.target == canvas) {
 		if (mouseDown == 1) {
-			BASE.current().drawPointOn(_x, _y, 1);
-			BASE.current().applyPointOn(_x, _y, 1);
-			infocorner.textContent = _x + "," + _y + " : " + Math.floor((e.offsetX - _offsetX) / globalCanvasScaleCoef) + "," + Math.floor((e.offsetY - _offsetY) / globalCanvasScaleCoef);
-		} else if (BASE.current().matrix[_y][_x] == 1) {
+			switch (Tools.value) {
+				case "brush":
+					BASE.current().drawLineOn(_offsetX, _offsetY, _x, _y, 1);
+					_offsetX = _x;
+					_offsetY = _y;
+					break;
+				case "line":
+					BASE.current().drawLineOn(	Math.floor(_offsetX),
+												Math.floor(_offsetY),
+												_x, _y, 1);
+					break;
+				case "circle":
+					BASE.current().drawEllipseOn(	Math.floor(_offsetX),
+													Math.floor(_offsetY),
+													_x, _y, false, 1);
+			}
+			infocorner.textContent = _x + "," + _y + " : " + Math.floor((e.offsetX - _offsetX) / canvasScale) + "," + Math.floor((e.offsetY - _offsetY) / canvasScale);
+		} else if (BASE.current().matrix.x2get(_x, _y) == 1) {
 			BASE.current().drawPointOn(_phantomX, _phantomY, 0);
 			_phantomX = 1;
 			_phantomY = 1;
@@ -137,6 +151,10 @@ canvas.onmousemove = e => {
 			_phantomX = _x;
 			_phantomY = _y;
 		}
+	}
+
+	if (OneTitle.shown) {
+		OneTitle.hide();
 	}
 };
 
@@ -165,16 +183,16 @@ cnvPP.oncontextmenu = e => {
 
 
 function setWorkspaceSize () {
-	globalCanvasScaleCoef = Math.floor((cnvPP.clientHeight - 40) / BASE.current().modules);
+	canvasScale = Math.floor((cnvPP.clientHeight - 40) / BASE.current().modules);
 	canvas.width = BASE.current().modules;
 	canvas.height = BASE.current().modules;
-	cnvP.style.width = BASE.current().modules * globalCanvasScaleCoef + "px";
-	cnvP.style.height = BASE.current().modules * globalCanvasScaleCoef + "px";
-	cnvP.style.top = Math.floor((cnvPP.clientHeight - (globalCanvasScaleCoef * BASE.current().modules)) / 2) + "px";
-	cnvP.style.left = Math.floor((cnvPP.clientWidth - (globalCanvasScaleCoef * BASE.current().modules)) / 2) + "px";
+	cnvP.style.width = BASE.current().modules * canvasScale + "px";
+	cnvP.style.height = BASE.current().modules * canvasScale + "px";
+	cnvP.style.top = Math.floor((cnvPP.clientHeight - (canvasScale * BASE.current().modules)) / 2) + "px";
+	cnvP.style.left = Math.floor((cnvPP.clientWidth - (canvasScale * BASE.current().modules)) / 2) + "px";
 	dbmapPolygonsContainer.setAttribute("viewBox", "0 0 " + BASE.current().modules + " " + BASE.current().modules);
-	dbmapPolygonsContainer.setAttribute("stroke-width", 2 / globalCanvasScaleCoef);
-	BASE.current().updateCanvas();
+	dbmapPolygonsContainer.setAttribute("stroke-width", 2 / canvasScale);
+	BASE.current().updateCanvasX();
 }
 
 window.onload = () => {

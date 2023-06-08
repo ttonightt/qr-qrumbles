@@ -161,7 +161,7 @@ function createDatablocksPolygons (separator, qr, parent) {
 			v = -v;
 		}
 		
-		if (y < 0 || y >= qr.modules || (y == 8 && (qr.matrix[y][x] == 4 || qr.matrix[y][x] == 5)) || (x <= 5 && y == qr.modules - 11)) {
+		if (y < 0 || y >= qr.modules || (y == 8 && (qr.matrix.x2get(x, y) == 4 || qr.matrix.x2get(x, y) == 5)) || (x <= 5 && y == qr.modules - 11)) {
 			y += v;
 			x -= 2;
 			v = -v;
@@ -172,7 +172,7 @@ function createDatablocksPolygons (separator, qr, parent) {
 			coords.push(x);
 			coords.push(y);
 			j++;
-		} else if (qr.matrix[y][x] == 0 || qr.matrix[y][x] == 1) {
+		} else if (qr.matrix.x2get(x, y) == 0 || qr.matrix.x2get(x, y) == 1) {
 			if (coords.length >= separator * 2) {
 				polygons.push(bitCoordsToPolygons(coords, ["upgoing", "downgoing"][(-v + 1) / 2], parent));
 				coords = [];

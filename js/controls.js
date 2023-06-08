@@ -1,5 +1,6 @@
 class Control {
 	constructor (type, sw, trigger = 0) {
+		this.value = 0;
 		switch (type) {
 			case "radio":
 				this.elems = document.getElementsByName(sw);
@@ -63,31 +64,32 @@ Tools.settings = {
 		radius: 1,
 	}
 };
-
-let wasWheeled = false;
+Tools.events = {
+	changeRadiusOnWheel: (e) => {
+		if (!OneTitle.shown) {
+			OneTitle.show(	"Brush radius: " + Tools.settings.brush.radius,
+							"blink",
+							e.clientX + 6,
+							e.clientY - 6,
+							2);
+		} else {
+			OneTitle.log("Brush radius: " + Tools.settings.brush.radius);
+		}
+	
+		if (e.deltaY > 0 && Tools.settings.brush.radius > 1) {
+			Tools.settings.brush.radius--;
+		} else if (e.deltaY < 0 && Tools.settings.brush.radius < 10) {
+			Tools.settings.brush.radius++;
+		}
+	}
+};
 
 Tools.elems[0].nextElementSibling.addEventListener("wheel", e => {
-	if (!wasWheeled) {
-		OneTitle.show(	"Brush radius: " + Tools.settings.brush.radius,
-						"blink",
-						e.clientX + 6,
-						e.clientY - 6,
-						2);
-		wasWheeled = true;
-	} else {
-		OneTitle.log("Brush radius: " + Tools.settings.brush.radius);
-	}
-
-	if (e.deltaY > 0 && Tools.settings.brush.radius > 1) {
-		Tools.settings.brush.radius--;
-	} else if (e.deltaY < 0 && Tools.settings.brush.radius < 10) {
-		Tools.settings.brush.radius++;
-	}
+	Tools.events.changeRadiusOnWheel(e);
 });
 
 Tools.elems[0].nextElementSibling.addEventListener("mouseleave", () => {
-	if (wasWheeled) {
-		wasWheeled = false;
+	if (OneTitle.shown) {
 		OneTitle.hide();
 	}
 });

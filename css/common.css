@@ -75,8 +75,13 @@ canvas {
 	text-align: center;
 	color: #150f1a;
 	box-shadow: 0px 6px 0px #25192e;
+	border: none;
 	float: left;
-	cursor: pointer;
+}
+
+.btn:disabled {
+	pointer-events: none;
+	opacity: 0.8;
 }
 
 .btn.vertical {
@@ -93,6 +98,7 @@ canvas {
 
 .btn:hover {
 	background-color: #482f5c;
+	cursor: pointer;
 }
 
 .btn:before {
