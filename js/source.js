@@ -107,9 +107,7 @@ cnvPP.onmousedown = e => {
 	} else if (e.target == canvas) {
 		_offsetX = Math.floor(_offsetX / canvasScale);
 		_offsetY = Math.floor(_offsetY / canvasScale);
-		const _x = Math.floor(_offsetX / canvasScale), _y = Math.floor(_offsetY / canvasScale);
-		BASE.current().drawPointOn(_x, _y, (mouseDown - 3) / -2);
-		BASE.current().applyPointOn(_x, _y, (mouseDown - 3) / -2);
+		if (Tools.value == "brush") BASE.current().applyPointOn(_offsetX, _offsetY, (mouseDown - 3) / -2);
 	}
 };
 
@@ -123,22 +121,25 @@ cnvPP.onmousemove = e => {
 		cnvP.style.top = (e.clientY - 100 - _offsetY) + "px";
 		cnvP.style.left = (e.clientX - _offsetX) + "px";
 	} else if (e.target == canvas) {
-		if (mouseDown == 1) {
+		if (mouseDown % 2) {
 			switch (Tools.value) {
 				case "brush":
-					BASE.current().drawLineOn(_offsetX, _offsetY, _x, _y, 1);
+					BASE.current().drawLineOn(_offsetX, _offsetY, _x, _y, (mouseDown - 3) / -2);
+					BASE.current().applyLineOn(_offsetX, _offsetY, _x, _y, (mouseDown - 3) / -2);
 					_offsetX = _x;
 					_offsetY = _y;
 					break;
 				case "line":
+					BASE.current().updateCanvasX();
 					BASE.current().drawLineOn(	Math.floor(_offsetX),
 												Math.floor(_offsetY),
-												_x, _y, 1);
+												_x, _y, (mouseDown - 3) / -2);
 					break;
 				case "circle":
+					BASE.current().updateCanvasX();
 					BASE.current().drawEllipseOn(	Math.floor(_offsetX),
 													Math.floor(_offsetY),
-													_x, _y, false, 1);
+													_x, _y, e.ctrlKey, (mouseDown - 3) / -2);
 			}
 			infocorner.textContent = _x + "," + _y + " : " + Math.floor((e.offsetX - _offsetX) / canvasScale) + "," + Math.floor((e.offsetY - _offsetY) / canvasScale);
 		} else if (BASE.current().matrix.x2get(_x, _y) == 1) {
@@ -162,6 +163,24 @@ cnvPP.onmouseup = e => {
 	if (mouseDown == 2) {
 		cnvPP.style.cursor = "";
 		BASE.current().drawPointOn(_phantomX, _phantomY, 0);
+	} else {
+		switch (Tools.value) {
+			case "line":
+				BASE.current().applyLineOn(	Math.floor(_offsetX),
+											Math.floor(_offsetY),
+											Math.floor(e.offsetX / canvasScale),
+											Math.floor(e.offsetY / canvasScale),
+											1);
+				break;
+			case "circle":
+				BASE.current().applyEllipseOn(	Math.floor(_offsetX),
+												Math.floor(_offsetY),
+												Math.floor(e.offsetX / canvasScale),
+												Math.floor(e.offsetY / canvasScale),
+												e.ctrlKey, 1);
+				break;
+		}
+		BASE.current().updateCanvasX();
 	}
 	if (mouseDown != 0) {
 		_phantomX = 1;
@@ -195,8 +214,10 @@ function setWorkspaceSize () {
 	BASE.current().updateCanvasX();
 }
 
+let datablocksmap;
+
 window.onload = () => {
-	const datablocksmap = new DatablockMap(BASE.current(), dbmapPolygonsContainer);
+	datablocksmap = new DatablockMap(BASE.current(), dbmapPolygonsContainer);
 };
 
 // window.onbeforeunload = e => {

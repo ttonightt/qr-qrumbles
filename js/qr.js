@@ -8,7 +8,7 @@ BASE = {
 	}
 };
 
-let mxcolors = ["white", "black", "tomato", "red", "cyan", "blue"];
+let PALETTE = ["white", "black", "tomato", "red", "cyan", "blue"];
 
 class QRT {
 	constructor (version, masktype, ecdepth, datatype, data = "hello world") {
@@ -320,7 +320,7 @@ class QRT {
 	updateCanvas (mx = this.matrix) {
 		for (let y = 0; y < this.modules; y++) {
 			for (let x = 0; x < this.modules; x++) {
-				this.ctx.fillStyle = mxcolors[mx.x2get(x, y) % 2];
+				this.ctx.fillStyle = PALETTE[mx.x2get(x, y) % 2];
 				this.ctx.fillRect(x, y, 1, 1);
 			}
 		}
@@ -331,7 +331,7 @@ class QRT {
 	updateCanvasX (mx = this.matrix) {
 		for (let y = 0; y < this.modules; y++) {
 			for (let x = 0; x < this.modules; x++) {
-				this.ctx.fillStyle = mxcolors[mx.x2get(x, y)];
+				this.ctx.fillStyle = PALETTE[mx.x2get(x, y)];
 				this.ctx.fillRect(x, y, 1, 1);
 			}
 		}
@@ -347,7 +347,7 @@ class QRT {
 
 	drawPointOn (x, y, c = 1) {
 		if (this.matrix.x2get(x, y) < 2) {
-			this.ctx.fillStyle = mxcolors[c];
+			this.ctx.fillStyle = PALETTE[c];
 			this.ctx.fillRect(x, y, 1, 1);
 		}
 	}
@@ -363,7 +363,7 @@ class QRT {
 	}
 
 	drawLineOn (x0, y0, x, y, c = 1) {
-		this.ctx.fillStyle = mxcolors[c];
+		this.ctx.fillStyle = PALETTE[c];
 		let dx = (x - x0), dy = (y - y0);
 
 		if (Math.abs(dx) < Math.abs(dy)) {
@@ -378,7 +378,8 @@ class QRT {
 
 			const k = dx / dy;
 			for (y = 0; y <= dy; y++) {
-				this.ctx.fillRect(Math.round(y * k) + x0, y + y0, 1, 1);
+				const _x = Math.round(y * k) + x0, _y = y + y0;
+				if (this.matrix.x2getD(_x, _y, 2) < 2) this.ctx.fillRect(_x, _y, 1, 1);
 			}
 		} else if (Math.abs(dx) >= Math.abs(dy)) {
 			if (dx < 0) {
@@ -392,7 +393,8 @@ class QRT {
 
 			const k = dy / dx;
 			for (x = 0; x <= dx; x++) {
-				this.ctx.fillRect(x + x0, Math.round(x * k) + y0, 1, 1);
+				const _x = x + x0, _y = Math.round(x * k) + y0;
+				if (this.matrix.x2getD(_x, _y, 2) < 2) this.ctx.fillRect(_x, _y, 1, 1);
 			}
 		}
 	}
@@ -412,7 +414,8 @@ class QRT {
 
 			const k = dx / dy;
 			for (y = 0; y <= dy; y++) {
-				this.matrix[y + y0][Math.round(y * k) + x0] = c;
+				const _x = Math.round(y * k) + x0, _y = y + y0;
+				if (this.matrix.x2getD(_x, _y, 2) < 2) this.matrix.x2set(_x, _y, c);
 			}
 		} else if (Math.abs(dx) >= Math.abs(dy)) {
 			if (dx < 0) {
@@ -426,22 +429,26 @@ class QRT {
 
 			const k = dy / dx;
 			for (x = 0; x <= dx; x++) {
-				this.matrix[Math.round(x * k) + y0][x + x0] = c;
+				const _x = x + x0, _y = Math.round(x * k) + y0;
+				if (this.matrix.x2getD(_x, _y, 2) < 2) this.matrix.x2set(_x, _y, c);
 			}
 		}
 	}
 //						   v  v
 	drawEllipseOn (x0, y0, x, y, center = false, c = 1, vx = -1, vy = -1) {
+		this.ctx.fillStyle = PALETTE[c];
+
 		let _x, _y;
 		let a = Math.abs(x - x0),
 			b = Math.abs(y - y0);
-		this.ctx.fillStyle = mxcolors[c];
-		a = (a - 1) / 2;
-		b = (b - 1) / 2;
-		const da = vx * (a % 1);
-		const db = vy * (b % 1);
+		let da = 0,
+			db = 0;
 
 		if (!center) {
+			a = (a - 1) / 2;
+			b = (b - 1) / 2;
+			da = vx * (a % 1);
+			db = vy * (b % 1);
 			x0 += -vx * (a - da);
 			y0 += -vy * (b - db);
 		}
@@ -452,11 +459,11 @@ class QRT {
 			x = Math.round(x + da) + x0;
 			_y = y + db + y0;
 
-			if (this.matrix[_y][x] <= 1) {
+			if (this.matrix.x2getD(x, _y, 2) < 2) {
 				this.ctx.fillRect(x, _y, 1, 1);
 			}
 
-			if (this.matrix[_y][_x] <= 1) {
+			if (this.matrix.x2getD(_x, _y, 2) < 2) {
 				this.ctx.fillRect(_x, _y, 1, 1);
 			}
 		}
@@ -467,38 +474,60 @@ class QRT {
 			y = Math.round(y + db) + y0;
 			_x = x + da + x0;
 
-			if (this.matrix[y][_x] <= 1) {
+			if (this.matrix.x2getD(_x, y, 2) < 2) {
 				this.ctx.fillRect(_x, y, 1, 1);
 			}
 
-			if (this.matrix[_y][_x] <= 1) {
+			if (this.matrix.x2getD(_x, _y, 2) < 2) {
 				this.ctx.fillRect(_x, _y, 1, 1);
 			}
 		}
 	}
 //							v  v
-	applyEllipseOn (x0, y0, a, b, center = false, c = 1, vx = -1, vy = -1) {
-		let x, y;
-		a = (a - 1) / 2;
-		b = (b - 1) / 2;
-		const da = vx * (a % 1);
-		const db = vy * (b % 1);
+	applyEllipseOn (x0, y0, x, y, center = false, c = 1, vx = -1, vy = -1) {
+		let _x, _y;
+		let a = Math.abs(x - x0),
+			b = Math.abs(y - y0);
+		let da = 0,
+			db = 0;
 
 		if (!center) {
-			x0 += a - da;
-			y0 += b - db;
+			a = (a - 1) / 2;
+			b = (b - 1) / 2;
+			da = vx * (a % 1);
+			db = vy * (b % 1);
+			x0 += -vx * (a - da);
+			y0 += -vy * (b - db);
 		}
 
 		for (y = -b; y <= b; y++) {
 			x = Math.sqrt((a ** 2) - ((a * y / b) ** 2));
-			this.matrix[y + db + y0][Math.round(x + da) + x0] = c;
-			this.matrix[y + db + y0][-Math.round(x - da) + x0] = c;
+			_x = -Math.round(x - da) + x0;
+			x = Math.round(x + da) + x0;
+			_y = y + db + y0;
+
+			if (this.matrix.x2getD(x, _y, 2) < 2) {
+				this.matrix.x2set(x, _y, c);
+			}
+
+			if (this.matrix.x2getD(_x, _y, 2) < 2) {
+				this.matrix.x2set(_x, _y, c);
+			}
 		}
 
 		for (x = -a; x <= a; x++) {
 			y = Math.sqrt((b ** 2) - ((b * x / a) ** 2));
-			this.matrix[Math.round(y + db) + y0][x + da + x0] = c;
-			this.matrix[-Math.round(y - db) + y0][x + da + x0] = c;
+			_y = -Math.round(y - db) + y0;
+			y = Math.round(y + db) + y0;
+			_x = x + da + x0;
+
+			if (this.matrix.x2getD(_x, y, 2) < 2) {
+				this.matrix.x2set(_x, y, c);
+			}
+
+			if (this.matrix.x2getD(_x, _y, 2) < 2) {
+				this.matrix.x2set(_x, _y, c);
+			}
 		}
 	}
 

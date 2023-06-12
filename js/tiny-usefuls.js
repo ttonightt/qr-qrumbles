@@ -16,37 +16,6 @@ Number.prototype.interval = function (a, b) {
 	return a <= this && this <= b;
 }
 
-Int8Array.prototype.x2convert = function (cols) {
-	this.rows = Math.ceil(this.length / cols);
-	this.columns = cols;
-	return this;
-}
-
-Int8Array.prototype.x2get = function (x = 0, y = 0) {
-	return this[(y * this.columns) + x];
-}
-
-Int8Array.prototype.x2getDF = function (x = 0, y = 0, wrong) {
-	const adr = (y * this.columns) + x;
-	if (0 <= adr && adr < this.length) {
-		return this[adr];
-	} else {
-		return wrong;
-	}
-}
-
-Int8Array.prototype.x2getD = function (x = 0, y = 0, wrong) {
-	if (0 <= x && x < this.columns && 0 <= y && y < this.rows) {
-		return this[(y * this.columns) + x];
-	} else {
-		return wrong;
-	}
-}
-
-Int8Array.prototype.x2set = function (x = 0, y = 0, int) {
-	this[(y * this.columns) + x] = int;
-}
-
 function charToInt45 (char) {
 	switch (char) {
 		case " ":
@@ -109,6 +78,49 @@ String.prototype.decodeAsASCII2 = function () {
 
 	return res;
 }
+
+// ARRAYS vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+
+Int8Array.prototype.x2convert = function (cols) {
+	this.rows = Math.ceil(this.length / cols);
+	this.columns = cols;
+	return this;
+}
+
+Uint16Array.prototype.x2convert = Int8Array.prototype.x2convert;
+
+Int8Array.prototype.x2get = function (x = 0, y = 0) {
+	return this[(y * this.columns) + x];
+}
+
+Uint16Array.prototype.x2get = Int8Array.prototype.x2get;
+
+Int8Array.prototype.x2getDF = function (x = 0, y = 0, wrong) {
+	const adr = (y * this.columns) + x;
+	if (0 <= adr && adr < this.length) {
+		return this[adr];
+	} else {
+		return wrong;
+	}
+}
+
+Uint16Array.prototype.x2getDF = Int8Array.prototype.x2getDF;
+
+Int8Array.prototype.x2getD = function (x = 0, y = 0, wrong) {
+	if (0 <= x && x < this.columns && 0 <= y && y < this.rows) {
+		return this[(y * this.columns) + x];
+	} else {
+		return wrong;
+	}
+}
+
+Uint16Array.prototype.x2getD = Int8Array.prototype.x2getD;
+
+Int8Array.prototype.x2set = function (x = 0, y = 0, int) {
+	this[(y * this.columns) + x] = int;
+}
+
+Uint16Array.prototype.x2set = Int8Array.prototype.x2set;
 
 Uint16Array.prototype.inject = function (_i, arr) {
 	for (let i = 0; i < arr.length; i++) {
@@ -199,3 +211,10 @@ for (let i = 0; i < popupCallers.length; i++) {
 		popupElements[0].parentElement.classList.add("visible");
 	});
 }
+
+String.fromCharCodeS = code => {
+	if ((0 <= code && code <= 0x1f) || (0x7f <= code && code <= 0x9f)) {
+		code = 0xfffd;
+	}
+	return String.fromCharCode(code);
+};

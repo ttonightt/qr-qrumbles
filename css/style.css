@@ -540,71 +540,43 @@ aside .bottombar {
 } */
 
 aside .decoded-wrap {
-	flex-grow: 100;
-	flex-basis: 100px;
-	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(1ch, 1fr));
+	flex: 0;
+	margin: -3px;
+	padding: 6px;
+	background-image: linear-gradient(#3a2649 100%, #3a2649 100%), linear-gradient(45deg, #3a2649 25%, transparent 25%), linear-gradient(-45deg, #3a2649 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #3a2649 75%), linear-gradient(-45deg, transparent 75%, #3a2649 75%);
+	background-repeat: no-repeat, repeat, repeat, repeat, repeat;
+	background-size: calc(100% - 12px) calc(100% - 12px), 6px 6px, 6px 6px, 6px 6px, 6px 6px;
+	background-position: 6px 6px, 0px 0px, 0px 3px, 3px -3px, -3px 0px;
+	cursor: default;
 }
 
 aside .decoded-wrap ~ .btn.vertical {
-	margin-top: -3px;
-}
-
-aside .decoded-wrap:before {
-	content: "";
-	position: absolute;
-	top: -3px;
-	left: -3px;
-	right: -3px;
-	bottom: -3px;
-	background-image: linear-gradient(45deg, #3a2649 25%, transparent 25%), linear-gradient(-45deg, #3a2649 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #3a2649 75%), linear-gradient(-45deg, transparent 75%, #3a2649 75%);
-	background-size: 6px 6px;
-	background-position: 0 0, 0 3px, 3px -3px, -3px 0px;
-}
-
-aside .decoded-wrap input {
-	width: 1ch;
-	padding: 2px;
-	box-shadow: 0px 0px 0px #25192e, 0px 0px 0px #25192e88;
-	float: left;
-	/* transition: transform 0.15s steps(2, end), box-shadow 0.15s steps(2, end); */
-	cursor: pointer;
-}
-
-aside .decoded-wrap input:last-child {
-	flex: 0 0 1ch;
-	margin-right: auto;
-}
-
-aside .decoded-wrap input:hover {
-	color: #150f1a;
-	background-color: #eca99d;
-}
-
-aside .decoded-wrap input:focus {
-	z-index: 1;
-	transform: translateY(-6px);
-	box-shadow: 0px 6px 0px #25192e, 4px 6px 0px #25192e88;
-}
-
-aside .decoded-wrap input:focus:hover {
-	box-shadow: 0px 6px 0px #b37e74, 4px 6px 0px #25192e88;
-}
-
-aside .decoded-wrap + input + .btn {
 	position: sticky;
-	top: -3px;
+	top: 0px;
 	right: 0px;
 }
 
-aside .input-wrap {
+aside .decoded-wrap #decoded {
 	width: 100%;
+	font-size: 18px;
+	font-weight: 600;
+	color: #150f1a;
+	font-family: "Ubuntu Mono", "Courier New", monospace;
+	line-height: 27px;
+	word-break: break-all;
+	float: left;
 }
 
-aside #encoded {
-	width: 117px;
-	height: 117px;
-	padding: 20px;
-	background-color: #ffffff;
-	filter: contrast(var(--contrast));
+aside #decoded input {
+	display: inline-block;
+	width: auto;
+	padding: 0px;
+	box-shadow: none;
+	text-decoration: none;
+	float: none;
+}
+
+aside #decoded input::selection {
+	background-color: #eca99d;
+	color: #150f1a;
 }

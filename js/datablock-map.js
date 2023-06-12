@@ -1,13 +1,103 @@
 
+class InterCharMap {
+	constructor (container, data) {
+		this.len = data.length;
+
+		this.container = container;
+
+		this.letterSize = [
+			this.container.clientWidth,
+			this.container.clientHeight
+		];
+
+		this.container.parentElement.style.flex = "1";
+
+		this.charCodes = new Uint16Array(this.len);
+		this.updateData(data);
+		this.logData();
+		this.charCodes.x2convert(Math.floor(this.container.clientWidth / this.letterSize[0]));
+
+		this.container.onclick = e => {
+			if (e.target == this.input) return;
+
+			const 	x = Math.min(Math.floor(e.offsetX / this.letterSize[0]), this.charCodes.columns - 1),
+					y = Math.floor(e.offsetY / this.letterSize[1]);
+			if (this.charCodes.x2getDF(x, y, 0) != 0) {
+				this.pasteInput(x, y);
+			}
+		};
+
+		this.input = document.createElement("input");
+		this.input.type = "text";
+		this.input.maxLength = 1;
+		this.input.size = 1;
+		this.input.value = "";
+		// this.input.style.display = "none";
+
+		this.eci = 0;
+
+		this.input.onkeydown = e => {
+			if (e.keyCode == 39 && this.eci < this.len && this.input.selectionEnd == this.input.size) {
+				this.pasteInput(this.eci + 1, false);
+			} else if (e.keyCode == 37 && this.eci > 0 && this.input.selectionStart == 0) {
+				this.pasteInput(this.eci - 1, false);
+			} else if (e.keyCode == 38 && this.eci >= this.charCodes.columns) {
+				this.pasteInput(this.eci - this.charCodes.columns, false);
+			} else if (e.keyCode == 40 && this.eci < this.charCodes.length - (this.charCodes.length % this.charCodes.columns)) {
+				this.pasteInput(this.eci + this.charCodes.columns, false);
+			}
+		};
+	}
+
+	pasteInput (x, y = 0, focus = true) {
+		const i = Math.min((y * this.charCodes.columns) + x, this.charCodes.length - 1);
+		const _textContent = this.container.textContent.slice(0, this.eci) + this.input.value + this.container.textContent.slice(this.eci, this.len);
+		this.container.innerHTML = "";
+
+		this.container.append(	_textContent.slice(0, i),
+								this.input,
+								_textContent.slice(i + 1, this.len));
+
+		this.input.value = _textContent[i] || "";
+		if (focus) {
+			this.input.focus();
+			this.input.selectionStart = 0;
+			this.input.selectionEnd = 1;
+		}
+
+		this.eci = i;
+	}
+
+	updateData (data) {
+		if (data instanceof Uint16Array) {
+			for (let i = 0; i < this.len; i++) {
+				this.charCodes[i] = data[i];
+			}
+		} else if (typeof data == "string") {
+			for (let i = 0; i < this.len; i++) {
+				this.charCodes[i] = data[i].charCodeAt(0);
+			}
+		}
+	}
+
+	logData () {
+		let str = "";
+		for (let i = 0; i < this.len; i++) {
+			str += String.fromCharCodeS(this.charCodes[i]);
+		}
+		this.container.textContent = str;
+	}
+}
+
 class DatablockMap {
 	constructor (qr, polygonsContainer) {
 		switch (qr.datatype) {
-			case 7:
-				this.dbs = QRtable[qr.version][qr.ecdepth].dataBytes * 8;
-				this.dblen = 8;
-				break;
+			// case 7:
+			// 	this.dbs = QRtable[qr.version][qr.ecdepth].dataBytes * 8;
+			// 	this.dblen = 8;
+			// 	break;
 			case 4:
-				this.dbs = QRtable[qr.version][qr.ecdepth].dataBytes * 8;
+				this.dbs = QRtable[qr.version][qr.ecdepth].dataBytes;
 				this.dblen = 8;
 				break;
 			case 2:
@@ -20,8 +110,11 @@ class DatablockMap {
 				}
 		}
 
-		this.polygons = createDatablocksPolygons(11, qr, polygonsContainer);
-		this.charcells = [];
+		this.polygons = createDatablocksPolygons(this.dblen, qr, polygonsContainer);
+		let str = "";
+		for (let i = 0; i < 100; i++) str += String.fromCharCode(i + 33);
+		this.chars = new InterCharMap(document.getElementById("decoded"), str);
+		console.log(this.chars);
 	}
 }
 
@@ -197,36 +290,3 @@ function createDatablocksPolygons (separator, qr, parent) {
 
 	return polygons;
 }
-
-class InputFromCluster {
-	constructor (value) {
-		this.elem = document.createElement("input");
-		this.elem.type = "text";
-		this.elem.maxLength = 1;
-		this.elem.name = "decoded";
-		this.elem.value = value;
-		this.value = value;
-
-		this.elem.addEventListener("keydown", e => {
-			if (e.keyCode == 39 && (this.elem.selectionEnd == 1 || (this.elem.selectionStart == 0 && this.elem.value.length == 0)) && this.elem.nextElementSibling != null) {
-				this.elem.nextElementSibling.focus();
-			} else if (e.keyCode == 37 && this.elem.selectionStart == 0 && this.elem.previousElementSibling != null) {
-				this.elem.previousElementSibling.focus();
-			}
-		});
-
-		document.querySelector(".decoded-wrap").appendChild(this.elem);
-	}
-}
-
-let DCD = {
-	charios: [],
-	scanCharIOs: () => {
-		this.charios = [];
-		for (let i = 0; i < 12; i++) {
-			charios[i] = new InputFromCluster("h");
-		}
-	},
-};
-
-DCD.scanCharIOs();
