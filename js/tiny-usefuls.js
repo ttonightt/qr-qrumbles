@@ -152,6 +152,10 @@ function createPolygon (points, parent) {
 	return elem;
 }
 
+function lineWidthCompensator (w, angle) {
+	return w * (1 + Math.abs(0.33 * Math.sin(angle * 2)));
+}
+
 // ONETITLE vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
 const OneTitle = {
@@ -166,14 +170,14 @@ const OneTitle = {
 
 		OneTitle._pivot = pivot;
 		if (typeof x == "number" && typeof y == "number") {
-			OneTitle.elem.style.left = x + "px";
-			OneTitle.elem.style.top = parseInt(y - ((pivot % 3) * OneTitle.elem.clientHeight / 2)) + "px";
+			OneTitle.elem.style.left = +(x - (Math.floor(pivot / 3) * OneTitle.elem.clientWidth / 2)) + "px";
+			OneTitle.elem.style.top = +(y - ((pivot % 3) * OneTitle.elem.clientHeight / 2)) + "px";
 		}
 		OneTitle.shown = 1;
 	},
 	move: (x, y) => {
-		OneTitle.elem.style.left = x + "px";
-		OneTitle.elem.style.top = parseInt(y - ((pivot % 3) * OneTitle.elem.clientHeight / 2)) + "px";
+		OneTitle.elem.style.left = +(x - (Math.floor(pivot / 3) * OneTitle.elem.clientWidth / 2)) + "px";
+		OneTitle.elem.style.top = +(y - ((pivot % 3) * OneTitle.elem.clientHeight / 2)) + "px";
 	},
 	log: message => {
 		OneTitle.content.textContent = message;

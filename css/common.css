@@ -14,6 +14,10 @@ body {
 
 	--svg-upgoing-color: #4220a0;
 	--svg-downgoing-color: #d81355;
+
+	--decoded-str: "!";
+	--decoded-x: 0ch;
+	--decoded-y: 0em;
 }
 
 html.preview:root {

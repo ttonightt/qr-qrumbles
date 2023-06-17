@@ -362,8 +362,19 @@ class QRT {
 		}
 	}
 
-	drawLineOn (x0, y0, x, y, c = 1) {
+	drawLineOn (x0, y0, x, y, c, w = 1, wcomp = true, roundcap = true) {
+		if (wcomp) {
+			w = Math.floor(lineWidthCompensator(w, Math.atan((y - y0) / (x - x0))));
+		}
+
+		const _w = Math.floor(w / 2);
 		this.ctx.fillStyle = PALETTE[c];
+
+		// if (roundcap) {
+		// 	this.drawEllipseOn(x0, y0, x0 + _w, y0 + _w, true, true, c);
+		// 	this.drawEllipseOn(x, y, x + _w, y + _w, true, true, c);
+		// }
+
 		let dx = (x - x0), dy = (y - y0);
 
 		if (Math.abs(dx) < Math.abs(dy)) {
@@ -379,7 +390,9 @@ class QRT {
 			const k = dx / dy;
 			for (y = 0; y <= dy; y++) {
 				const _x = Math.round(y * k) + x0, _y = y + y0;
-				if (this.matrix.x2getD(_x, _y, 2) < 2) this.ctx.fillRect(_x, _y, 1, 1);
+				for (let i = -_w; i < w - _w; i++) {
+					if (this.matrix.x2getD(_x + i, _y, 2) < 2) this.ctx.fillRect(_x + i, _y, 1, 1);
+				}
 			}
 		} else if (Math.abs(dx) >= Math.abs(dy)) {
 			if (dx < 0) {
@@ -394,12 +407,21 @@ class QRT {
 			const k = dy / dx;
 			for (x = 0; x <= dx; x++) {
 				const _x = x + x0, _y = Math.round(x * k) + y0;
-				if (this.matrix.x2getD(_x, _y, 2) < 2) this.ctx.fillRect(_x, _y, 1, 1);
+				for (let i = -_w; i < w - _w; i++) {
+					if (this.matrix.x2getD(_x, _y + i, 2) < 2) this.ctx.fillRect(_x, _y + i, 1, 1);
+				}
 			}
 		}
 	}
 
-	applyLineOn (x0, y0, x, y, c = 1) {
+	applyLineOn (x0, y0, x, y, c, w = 1, wcomp = true, roundcap = true) {
+		if (wcomp) {
+			w = Math.floor(lineWidthCompensator(w, Math.atan((y - y0) / (x - x0))));
+		}
+
+		console.log(w);
+
+		const _w = Math.floor(w / 2);
 		let dx = (x - x0), dy = (y - y0);
 
 		if (Math.abs(dx) < Math.abs(dy)) {
@@ -415,7 +437,9 @@ class QRT {
 			const k = dx / dy;
 			for (y = 0; y <= dy; y++) {
 				const _x = Math.round(y * k) + x0, _y = y + y0;
-				if (this.matrix.x2getD(_x, _y, 2) < 2) this.matrix.x2set(_x, _y, c);
+				for (let i = -_w; i < w - _w; i++) {
+					if (this.matrix.x2getD(_x + i, _y, 2) < 2) this.matrix.x2set(_x + i, _y, c);
+				}
 			}
 		} else if (Math.abs(dx) >= Math.abs(dy)) {
 			if (dx < 0) {
@@ -430,27 +454,51 @@ class QRT {
 			const k = dy / dx;
 			for (x = 0; x <= dx; x++) {
 				const _x = x + x0, _y = Math.round(x * k) + y0;
-				if (this.matrix.x2getD(_x, _y, 2) < 2) this.matrix.x2set(_x, _y, c);
+				for (let i = -_w; i < w - _w; i++) {
+					if (this.matrix.x2getD(_x, _y + i, 2) < 2) this.matrix.x2set(_x, _y + i, c);
+				}
 			}
 		}
 	}
-//						   v  v
-	drawEllipseOn (x0, y0, x, y, center = false, c = 1, vx = -1, vy = -1) {
+
+	drawEllipseOn (x0, y0, x, y, center = false, circle = false, c = 1) {
 		this.ctx.fillStyle = PALETTE[c];
 
 		let _x, _y;
 		let a = Math.abs(x - x0),
 			b = Math.abs(y - y0);
+
+		if (!center && a == 0 || b == 0) return;
+
+		if (circle) {
+			a = Math.max(a, b);
+			b = a;
+		}
+
+		if (!center && x0 > x) {
+			x0 -= a;
+			x = x0 + a;
+			x++;
+			x0++;
+		}
+
+		if (!center && y0 > y) {
+			y0 -= b;
+			y = y0 + b;
+			y++;
+			y0++;
+		}
+
 		let da = 0,
 			db = 0;
 
 		if (!center) {
 			a = (a - 1) / 2;
 			b = (b - 1) / 2;
-			da = vx * (a % 1);
-			db = vy * (b % 1);
-			x0 += -vx * (a - da);
-			y0 += -vy * (b - db);
+			da = -(a % 1);
+			db = -(b % 1);
+			x0 += a - da;
+			y0 += b - db;
 		}
 
 		for (y = -b; y <= b; y++) {
@@ -483,21 +531,44 @@ class QRT {
 			}
 		}
 	}
-//							v  v
-	applyEllipseOn (x0, y0, x, y, center = false, c = 1, vx = -1, vy = -1) {
+
+	applyEllipseOn (x0, y0, x, y, center = false, circle = false, c = 1) {
 		let _x, _y;
+		
 		let a = Math.abs(x - x0),
 			b = Math.abs(y - y0);
+
+		if (!center && a == 0 || b == 0) return;
+
+		if (circle) {
+			a = Math.max(a, b);
+			b = a;
+		}
+
+		if (!center && x0 > x) {
+			x0 -= a;
+			x = x0 + a;
+			x++;
+			x0++;
+		}
+
+		if (!center && y0 > y) {
+			y0 -= b;
+			y = y0 + b;
+			y++;
+			y0++;
+		}
+
 		let da = 0,
 			db = 0;
 
 		if (!center) {
 			a = (a - 1) / 2;
 			b = (b - 1) / 2;
-			da = vx * (a % 1);
-			db = vy * (b % 1);
-			x0 += -vx * (a - da);
-			y0 += -vy * (b - db);
+			da = -(a % 1);
+			db = -(b % 1);
+			x0 += a - da;
+			y0 += b - db;
 		}
 
 		for (y = -b; y <= b; y++) {

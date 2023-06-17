@@ -9,19 +9,19 @@ const infocorner = document.getElementById("infocorner");
 
 // CONTROLS CONNECTING vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
-Controls.mask = new Control("radio", "mask", () => {
+Controls.mask = new RadioBox("mask", () => {
 	BASE.current().applyFormatOn(Controls.mask.value, Controls.errcor.value, 4).updateCanvas();
 });
 
-Controls.errcor = new Control("radio", "errcor", () => {
+Controls.errcor = new RadioBox("errcor", () => {
 	BASE.current().applyFormatOn(Controls.mask.value, Controls.errcor.value, 4).updateCanvas();
 });
 
-Controls.datatype = new Control("radio", "dtype", () => {
+Controls.datatype = new RadioBox("dtype", () => {
 	BASE.current().applyDataTypeOn(Controls.datatype.value).updateCanvas();
 });
 
-Controls.datablockMapOverlay = new Control("radio", "dtbmapover", () => {
+Controls.datablockMapOverlay = new RadioBox("dtbmapover", () => {
 	switch (Controls.datablockMapOverlay.value) {
 		case "0":
 			dbmapPolygonsContainer.classList.remove("disabled");
@@ -34,12 +34,11 @@ Controls.datablockMapOverlay = new Control("radio", "dtbmapover", () => {
 		case "2":
 			dbmapPolygonsContainer.classList.remove("disabled");
 			dbmapPolygonsContainer.classList.add("active");
-			Tools
 			break;
 	}
 });
 
-Controls.toPreview = new Control("checkbox", "topreview", () => {
+Controls.toPreview = new CheckBox("topreview", () => {
 	if (Controls.toPreview.value) {
 		document.documentElement.classList.add("preview");
 	} else {
@@ -47,7 +46,7 @@ Controls.toPreview = new Control("checkbox", "topreview", () => {
 	}
 });
 
-Controls.toInvert = new Control("checkbox", "toinvert", () => {
+Controls.toInvert = new CheckBox("toinvert", () => {
 	if (Controls.toInvert.value) {
 		document.documentElement.classList.add("invertion");
 	} else {
@@ -83,7 +82,7 @@ cnvPP.onwheel = function (e) {
 		cnvP.style.width = BASE.current().modules * canvasScale + "px";
 		cnvP.style.height = BASE.current().modules * canvasScale + "px";
 		dbmapPolygonsContainer.setAttribute("stroke-width", 2 / canvasScale);
-	
+
 		cnvP.style.top = (e.clientY - 100 - ((e.clientY - 100 - parseInt(cnvP.style.top)) * coef)) + "px";
 		cnvP.style.left = (e.clientX - ((e.clientX - parseInt(cnvP.style.left)) * coef)) + "px";
 	
@@ -112,20 +111,17 @@ cnvPP.onmousedown = e => {
 };
 
 cnvPP.onmousemove = e => {
-	const _x = Math.floor(e.offsetX / canvasScale), _y = Math.floor(e.offsetY / canvasScale);
+	let _x = Math.floor(e.offsetX / canvasScale), _y = Math.floor(e.offsetY / canvasScale);
 
-	if (mouseDown == 3) {
-		BASE.current().drawPointOn(_x, _y, 0);
-		BASE.current().applyPointOn(_x, _y, 0);
-	} else if (mouseDown == 2) {
+	if (mouseDown == 2) {
 		cnvP.style.top = (e.clientY - 100 - _offsetY) + "px";
 		cnvP.style.left = (e.clientX - _offsetX) + "px";
 	} else if (e.target == canvas) {
 		if (mouseDown % 2) {
 			switch (Tools.value) {
 				case "brush":
-					BASE.current().drawLineOn(_offsetX, _offsetY, _x, _y, (mouseDown - 3) / -2);
-					BASE.current().applyLineOn(_offsetX, _offsetY, _x, _y, (mouseDown - 3) / -2);
+					BASE.current().drawLineOn(_offsetX, _offsetY, _x, _y, (mouseDown - 3) / -2, Tools.brush.radius);
+					BASE.current().applyLineOn(_offsetX, _offsetY, _x, _y, (mouseDown - 3) / -2, Tools.brush.radius);
 					_offsetX = _x;
 					_offsetY = _y;
 					break;
@@ -133,15 +129,15 @@ cnvPP.onmousemove = e => {
 					BASE.current().updateCanvasX();
 					BASE.current().drawLineOn(	Math.floor(_offsetX),
 												Math.floor(_offsetY),
-												_x, _y, (mouseDown - 3) / -2);
+												_x, _y, (mouseDown - 3) / -2, Tools.line.width);
 					break;
 				case "circle":
 					BASE.current().updateCanvasX();
 					BASE.current().drawEllipseOn(	Math.floor(_offsetX),
 													Math.floor(_offsetY),
-													_x, _y, e.ctrlKey, (mouseDown - 3) / -2);
+													_x, _y, e.ctrlKey, e.shiftKey, (mouseDown - 3) / -2);
 			}
-			infocorner.textContent = _x + "," + _y + " : " + Math.floor((e.offsetX - _offsetX) / canvasScale) + "," + Math.floor((e.offsetY - _offsetY) / canvasScale);
+			// infocorner.textContent = _x + "," + _y + " : " + Math.floor((e.offsetX - _offsetX) / canvasScale) + "," + Math.floor((e.offsetY - _offsetY) / canvasScale);
 		} else if (BASE.current().matrix.x2get(_x, _y) == 1) {
 			BASE.current().drawPointOn(_phantomX, _phantomY, 0);
 			_phantomX = 1;
@@ -170,14 +166,14 @@ cnvPP.onmouseup = e => {
 											Math.floor(_offsetY),
 											Math.floor(e.offsetX / canvasScale),
 											Math.floor(e.offsetY / canvasScale),
-											1);
+											(mouseDown - 3) / -2, Tools.line.width);
 				break;
 			case "circle":
 				BASE.current().applyEllipseOn(	Math.floor(_offsetX),
 												Math.floor(_offsetY),
 												Math.floor(e.offsetX / canvasScale),
 												Math.floor(e.offsetY / canvasScale),
-												e.ctrlKey, 1);
+												e.ctrlKey, e.shiftKey, (mouseDown - 3) / -2);
 				break;
 		}
 		BASE.current().updateCanvasX();

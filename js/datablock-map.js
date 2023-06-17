@@ -1,5 +1,12 @@
 
 class InterCharMap {
+	static typingMode = 0;
+	static container = document.getElementById("decoded");
+
+	static changeTypingMode () {
+		this.typingMode ^= 1;
+	}
+
 	constructor (container, data) {
 		this.len = data.length;
 
@@ -17,6 +24,15 @@ class InterCharMap {
 		this.logData();
 		this.charCodes.x2convert(Math.floor(this.container.clientWidth / this.letterSize[0]));
 
+		// this.container.onmousemove = e => {
+		// 	const 	x = Math.min(Math.floor(e.offsetX / this.letterSize[0]), this.charCodes.columns - 1),
+		// 			y = Math.floor(e.offsetY / this.letterSize[1]);
+
+		// 	if ((y * this.charCodes.columns) + x == this.mi) return;
+
+		// 	window.getComputedStyle(document.documentElement).setProperty("--decoded-str", "80px");
+		// };
+
 		this.container.onclick = e => {
 			if (e.target == this.input) return;
 
@@ -32,26 +48,44 @@ class InterCharMap {
 		this.input.maxLength = 1;
 		this.input.size = 1;
 		this.input.value = "";
-		// this.input.style.display = "none";
 
-		this.eci = 0;
+		this.ci = 0;
+		// this.mi = 0;
 
 		this.input.onkeydown = e => {
-			if (e.keyCode == 39 && this.eci < this.len && this.input.selectionEnd == this.input.size) {
-				this.pasteInput(this.eci + 1, false);
-			} else if (e.keyCode == 37 && this.eci > 0 && this.input.selectionStart == 0) {
-				this.pasteInput(this.eci - 1, false);
-			} else if (e.keyCode == 38 && this.eci >= this.charCodes.columns) {
-				this.pasteInput(this.eci - this.charCodes.columns, false);
-			} else if (e.keyCode == 40 && this.eci < this.charCodes.length - (this.charCodes.length % this.charCodes.columns)) {
-				this.pasteInput(this.eci + this.charCodes.columns, false);
+			if (e.keyCode == 39 && this.ci < this.len && this.input.selectionEnd == this.input.size) {
+				this.pasteInput(this.ci + 1, false);
+			} else if (e.keyCode == 37 && this.ci > 0 && this.input.selectionStart == 0) {
+				this.pasteInput(this.ci - 1, false);
+			} else if (e.keyCode == 38 && this.ci >= this.charCodes.columns) {
+				this.pasteInput(this.ci - this.charCodes.columns, false);
+			} else if (e.keyCode == 40 && this.ci < this.charCodes.length - (this.charCodes.length % this.charCodes.columns)) {
+				this.pasteInput(this.ci + this.charCodes.columns, false);
+			} else if ((e.keyCode == 8 || e.keyCode == 46) && InterCharMap.typingMode) {
+				e.preventDefault();
 			}
+		};
+
+		this.input.onkeyup = () => {
+			if (InterCharMap.typingMode) {
+				this.input.selectionStart = 0;
+				this.input.selectionEnd = 1;
+			}
+		};
+
+		this.input.oninput = () => {
+			if (InterCharMap.typingMode) this.pasteInput(this.ci + 1);
 		};
 	}
 
 	pasteInput (x, y = 0, focus = true) {
 		const i = Math.min((y * this.charCodes.columns) + x, this.charCodes.length - 1);
-		const _textContent = this.container.textContent.slice(0, this.eci) + this.input.value + this.container.textContent.slice(this.eci, this.len);
+		let _textContent;
+		if (this.input.value == "") {
+			_textContent = this.container.textContent.slice(0, this.ci) + this.container.textContent.slice(this.ci, this.len) + "0";
+		} else {
+			_textContent = this.container.textContent.slice(0, this.ci) + this.input.value + this.container.textContent.slice(this.ci, this.len);
+		}
 		this.container.innerHTML = "";
 
 		this.container.append(	_textContent.slice(0, i),
@@ -65,7 +99,7 @@ class InterCharMap {
 			this.input.selectionEnd = 1;
 		}
 
-		this.eci = i;
+		this.ci = i;
 	}
 
 	updateData (data) {
@@ -111,10 +145,10 @@ class DatablockMap {
 		}
 
 		this.polygons = createDatablocksPolygons(this.dblen, qr, polygonsContainer);
+
 		let str = "";
 		for (let i = 0; i < 100; i++) str += String.fromCharCode(i + 33);
-		this.chars = new InterCharMap(document.getElementById("decoded"), str);
-		console.log(this.chars);
+		this.chars = new InterCharMap(InterCharMap.container, str);
 	}
 }
 
