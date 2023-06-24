@@ -1,5 +1,43 @@
 
 
+.popup[data-popup=open] .content > * {
+	width: calc(100% - 23px);
+	min-width: 180px;
+}
+
+.popup[data-popup=open] p {
+	max-width: 300px;
+	width: max-content !important;
+	padding-right: 10px;
+	margin-right: 20px;
+	word-break: keep-all;
+	color: #150f1a;
+}
+
+.popup[data-popup=open] p:empty {
+	display: none;
+}
+
+.popup[data-popup=open] p:after {
+	display: block;
+	position: absolute;
+	left: 100%;
+	bottom: 3px;
+	overflow: hidden;
+	content: ">>";
+	animation: arrows 1s step-start infinite;
+}
+
+@keyframes arrows {
+	50% {width: 1ch}
+}
+
+.popup[data-popup=edit] .controls-table {
+	width: 260px;
+}
+
+
+
 header {
 	width: 100%;
 	height: 97px;
@@ -348,11 +386,6 @@ aside input[type=checkbox]:checked + label:after {
 aside .topbar {
 	padding: 20px;
 	border-bottom: 3px dotted #74548d;
-	display: flex;
-	flex-direction: row;
-	flex-wrap: wrap;
-	align-items: stretch;
-	gap: 24px;
 }
 
 aside .bottombar {
@@ -366,171 +399,6 @@ aside .bottombar {
 	gap: 20px;
 }
 
-.controls-table > .radio-btn-container {
-	flex: 1;
-	display: flex;
-	flex-direction: row;
-	align-items: stretch;
-}
-
-.controls-table > .radio-btn-container:before {
-	content: attr(content);
-	position: absolute;
-	top: 0px;
-	left: 0px;
-	width: max-content;
-	height: 0px;
-	font-size: 16px;
-	line-height: 14px;
-	color: #25192e;
-	overflow: hidden;
-	transition: 0.16s steps(4, end);
-	pointer-events: none;
-}
-
-.controls-table > .radio-btn-container:hover:before {
-	height: 16px;
-	top: -16px;
-}
-
-.controls-table > .radio-btn-container.switcher {
-	box-shadow: 0px 6px 0px 3px #eca99d;
-}
-
-.controls-table > .btn.fl1 {
-	flex-grow: 1;
-}
-
-.controls-table > .btn.square {
-	flex-grow: 0;
-	padding: 8px 10px;
-	width: 17px;
-}
-
-.controls-table > .btn img {
-	height: 15px;
-	image-rendering: pixelated;
-}
-
-.controls-table > .btn.lesspad {
-	flex-basis: 23px;
-	line-height: 30px;
-	padding: 0px 0px 0px 3px;
-}
-
-.controls-table > .radio-btn-container.wide, .controls-table > .btn.wide {
-	flex-basis: 100%;
-}
-
-.controls-table > .radio-btn-container#errcor {
-	flex-grow: 2;
-}
-
-/* .controls-table > .radio-btn-container#errcor + * {
-	flex-grow: 2;
-} */
-
-.controls-table > .btn + .radio-btn-container{
-	align-self: flex-end;
-}
-
-.controls-table .btn.vertical {
-	width: 23px;
-}
-
-.controls-table .radio-btn {
-	float: left;
-	flex-grow: 1;
-}
-
-.controls-table .radio-btn input {
-	display: none;
-}
-
-.controls-table .radio-btn label {
-	display: block;
-	background-color: #3a2649;
-	box-shadow: 0px 6px 0px #25192e;
-	text-align: center;
-	color: #150f1a;
-	line-height: 30px;
-	cursor: pointer;
-}
-
-.controls-table .radio-btn label:hover {
-	background-color: #482f5c;
-}
-
-.controls-table .radio-btn label:hover:after, .controls-table .radio-btn label:hover:before {
-	background-color: #482f5c !important;
-}
-
-.controls-table .radio-btn:first-child label:before {
-	content: "";
-	position: absolute;
-	top: 3px;
-	left: -3px;
-	width: 3px;
-	height: calc(100% - 6px);
-	background-color: #3a2649;
-	box-shadow: 0px 6px 0px #25192e;
-}
-
-.controls-table .radio-btn:last-child label:after {
-	content: "";
-	position: absolute;
-	top: 3px;
-	right: -3px;
-	width: 3px;
-	height: calc(100% - 6px);
-	background-color: #3a2649;
-	box-shadow: 0px 6px 0px #25192e;
-}
-
-.controls-table .switcher .radio-btn:first-child label:before {
-	box-shadow: 0px 6px 0px #25192e, -3px 3px 0px #eca99d, -3px 9px 0px #eca99d;
-}
-
-.controls-table .switcher .radio-btn:last-child label:after {
-	box-shadow: 0px 6px 0px #25192e, 3px 3px 0px #eca99d, 3px 9px 0px #eca99d;
-}
-
-.controls-table .radio-btn label img {
-	display: block;
-	width: calc(100% - 12px);
-	padding: 6px;
-	image-rendering: pixelated;
-}
-
-.controls-table .radio-btn input:checked + label {
-	top: 6px;
-	box-shadow: 0px 0px 0px #25192e, inset 4px 3px 0px #2d1f38;
-}
-
-.controls-table .switcher .radio-btn input:checked + label {
-	box-shadow: 0px 0px 0px #25192e, inset 4px 3px 0px #2d1f38, 0px -3px 0px #eca99d;
-}
-
-.controls-table .radio-btn:first-child input:checked + label {
-	box-shadow: 0px 0px 0px #25192e, inset 0px 3px 0px #2d1f38;
-}
-
-.controls-table .switcher .radio-btn:first-child input:checked + label {
-	box-shadow: 0px 0px 0px #25192e, inset 0px 3px 0px #2d1f38, 0px -3px 0px #eca99d;
-}
-
-.controls-table .radio-btn input:checked + label:before, .controls-table .radio-btn input:checked + label:after {
-	box-shadow: 0px 0px 0px #25192e, inset 0px 3px 0px #2d1f38;
-}
-
-.controls-table .switcher .radio-btn:first-child input:checked + label:before {
-	box-shadow: 0px 0px 0px #25192e, inset 0px 3px 0px #2d1f38, -3px -3px 0px #eca99d, -3px 3px 0px #eca99d;
-}
-
-.controls-table .switcher .radio-btn:last-child input:checked + label:after {
-	box-shadow: 0px 0px 0px #25192e, inset 0px 3px 0px #2d1f38, 3px -3px 0px #eca99d, 3px 3px 0px #eca99d;
-}
-
 /* aside #format-data-5b {
 	width: 150px !important;
 	height: 22px;
@@ -540,7 +408,7 @@ aside .bottombar {
 } */
 
 aside .decoded-wrap {
-	flex: 0;
+	flex: 1;
 	margin: -3px;
 	padding: 6px;
 	background-image: linear-gradient(#3a2649 100%, #3a2649 100%), linear-gradient(45deg, #3a2649 25%, transparent 25%), linear-gradient(-45deg, #3a2649 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #3a2649 75%), linear-gradient(-45deg, transparent 75%, #3a2649 75%);
@@ -557,13 +425,16 @@ aside .decoded-wrap ~ .btn.vertical {
 }
 
 aside .decoded-wrap #decoded {
-	width: 100%;
+	max-width: 100%;
+	padding: 0px;
+	border: none;
+	border-radius: 0px;
 	font-size: 18px;
 	font-weight: 600;
 	color: #150f1a;
-	font-family: "Ubuntu Mono", "Courier New", monospace;
+	font-family: "Ubuntu Mono";
 	line-height: 27px;
-	word-break: break-all;
+	/* word-break: break-all; */
 	float: left;
 }
 

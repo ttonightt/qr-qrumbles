@@ -1,5 +1,5 @@
 const canvas = document.getElementById("main");
-const dbmapPolygonsContainer = document.getElementById("dbmap-polygons-container");
+const dbPolygonMap = document.getElementById("dbmap-polygons-container");
 const cnvP = canvas.parentElement, cnvPP = canvas.parentElement.parentElement;
 
 BASE.ctx = canvas.getContext("2d");
@@ -24,16 +24,16 @@ Controls.datatype = new RadioBox("dtype", () => {
 Controls.datablockMapOverlay = new RadioBox("dtbmapover", () => {
 	switch (Controls.datablockMapOverlay.value) {
 		case "0":
-			dbmapPolygonsContainer.classList.remove("disabled");
-			dbmapPolygonsContainer.classList.remove("active");
+			dbPolygonMap.classList.remove("disabled");
+			dbPolygonMap.classList.remove("active");
 			break;
 		case "1":
-			dbmapPolygonsContainer.classList.remove("active");
-			dbmapPolygonsContainer.classList.add("disabled");
+			dbPolygonMap.classList.remove("active");
+			dbPolygonMap.classList.add("disabled");
 			break;
 		case "2":
-			dbmapPolygonsContainer.classList.remove("disabled");
-			dbmapPolygonsContainer.classList.add("active");
+			dbPolygonMap.classList.remove("disabled");
+			dbPolygonMap.classList.add("active");
 			break;
 	}
 });
@@ -56,8 +56,7 @@ Controls.toInvert = new CheckBox("toinvert", () => {
 
 // QRT CREATION vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
-BASE.arts[0] = new QRT(27, Controls.mask.value, Controls.errcor.value, Controls.datatype.value);
-BASE.eci = 0;
+BASE.add(new QRT(27, Controls.mask.value, Controls.errcor.value, Controls.datatype.value));
 
 let canvasScale = Math.floor((cnvPP.clientHeight - 40) / BASE.current().modules);
 const 	csMIN = canvasScale - 2,
@@ -81,7 +80,7 @@ cnvPP.onwheel = function (e) {
 	
 		cnvP.style.width = BASE.current().modules * canvasScale + "px";
 		cnvP.style.height = BASE.current().modules * canvasScale + "px";
-		dbmapPolygonsContainer.setAttribute("stroke-width", 2 / canvasScale);
+		dbPolygonMap.setAttribute("stroke-width", 2 / canvasScale);
 
 		cnvP.style.top = (e.clientY - 100 - ((e.clientY - 100 - parseInt(cnvP.style.top)) * coef)) + "px";
 		cnvP.style.left = (e.clientX - ((e.clientX - parseInt(cnvP.style.left)) * coef)) + "px";
@@ -120,8 +119,8 @@ cnvPP.onmousemove = e => {
 		if (mouseDown % 2) {
 			switch (Tools.value) {
 				case "brush":
-					BASE.current().drawLineOn(_offsetX, _offsetY, _x, _y, (mouseDown - 3) / -2, Tools.brush.radius);
-					BASE.current().applyLineOn(_offsetX, _offsetY, _x, _y, (mouseDown - 3) / -2, Tools.brush.radius);
+					BASE.current().drawLineOn(_offsetX, _offsetY, _x, _y, (mouseDown - 3) / -2, Tools.brush.radius, false);
+					BASE.current().applyLineOn(_offsetX, _offsetY, _x, _y, (mouseDown - 3) / -2, Tools.brush.radius, false);
 					_offsetX = _x;
 					_offsetY = _y;
 					break;
@@ -205,15 +204,15 @@ function setWorkspaceSize () {
 	cnvP.style.height = BASE.current().modules * canvasScale + "px";
 	cnvP.style.top = Math.floor((cnvPP.clientHeight - (canvasScale * BASE.current().modules)) / 2) + "px";
 	cnvP.style.left = Math.floor((cnvPP.clientWidth - (canvasScale * BASE.current().modules)) / 2) + "px";
-	dbmapPolygonsContainer.setAttribute("viewBox", "0 0 " + BASE.current().modules + " " + BASE.current().modules);
-	dbmapPolygonsContainer.setAttribute("stroke-width", 2 / canvasScale);
+	dbPolygonMap.setAttribute("viewBox", "0 0 " + BASE.current().modules + " " + BASE.current().modules);
+	dbPolygonMap.setAttribute("stroke-width", 2 / canvasScale);
 	BASE.current().updateCanvasX();
 }
 
 let datablocksmap;
 
 window.onload = () => {
-	datablocksmap = new DatablockMap(BASE.current(), dbmapPolygonsContainer);
+	datablocksmap = new DatablockMap(BASE.current(), dbPolygonMap);
 };
 
 // window.onbeforeunload = e => {

@@ -123,6 +123,12 @@ class InterCharMap {
 	}
 }
 
+class bitmapPolygon {
+	constructor () {
+
+	}
+}
+
 class DatablockMap {
 	constructor (qr, polygonsContainer) {
 		switch (qr.datatype) {
@@ -144,11 +150,34 @@ class DatablockMap {
 				}
 		}
 
-		this.polygons = createDatablocksPolygons(this.dblen, qr, polygonsContainer);
+		// POLYGONS
+
+		this.polygons = [];
+		let coords = [];
+		let _v;
+	
+		BASE.current().goThroughDataModules((x, y, j, v) => {
+			_v = -v;
+			if (coords.length >= this.dblen * 2) {
+				this.polygons.push(bitCoordsToPolygons(coords, ["upgoing", "downgoing"][(_v + 1) / 2], polygonsContainer));
+				coords = [];
+			}
+			coords.push(x);
+			coords.push(y);
+		}, {
+			maxb: QRtable[BASE.current().version][BASE.current().ecdepth].dataBytes * 8,
+		});
+	
+		if (coords.length > 2) {
+			this.polygons.push(bitCoordsToPolygons(coords, ["upgoing", "downgoing"][(_v + 1) / 2], polygonsContainer));
+			coords = [];
+		}
+
+		// CHARS
 
 		let str = "";
 		for (let i = 0; i < 100; i++) str += String.fromCharCode(i + 33);
-		this.chars = new InterCharMap(InterCharMap.container, str);
+		// this.chars = new InterCharMap(InterCharMap.container, str);
 	}
 }
 
@@ -261,66 +290,4 @@ function bitCoordsToPolygons (coords, cssClass, parent) {
 	elem.classList.add(cssClass);
 
 	return elem;
-}
-
-function createDatablocksPolygons (separator, qr, parent) {
-	let polygons = [];
-	let coords = [];
-	const maxlen = QRtable[qr.version][qr.ecdepth].dataBytes * 8;
-
-	let x = qr.modules - 1, y = qr.modules - 1, v = 1;
-	coords.push(x--);
-	coords.push(y);
-	for (let i = 1, j = 0; j < maxlen; i++) {
-		if (x == 10 && y == qr.modules) {
-			y -= 9;
-			x -= 2;
-			v = -v;
-		}
-
-		if (x == 8 && y == 8) {
-			x--;
-		}
-
-		if (x == qr.modules - 9 && y == 6) {
-			x -= 2;
-			y -= 6;
-			v = -v;
-		}
-		
-		if (y < 0 || y >= qr.modules || (y == 8 && (qr.matrix.x2get(x, y) == 4 || qr.matrix.x2get(x, y) == 5)) || (x <= 5 && y == qr.modules - 11)) {
-			y += v;
-			x -= 2;
-			v = -v;
-			if (coords.length >= separator * 2) {
-				polygons.push(bitCoordsToPolygons(coords, ["upgoing", "downgoing"][(-v + 1) / 2], parent));
-				coords = [];
-			}
-			coords.push(x);
-			coords.push(y);
-			j++;
-		} else if (qr.matrix.x2get(x, y) == 0 || qr.matrix.x2get(x, y) == 1) {
-			if (coords.length >= separator * 2) {
-				polygons.push(bitCoordsToPolygons(coords, ["upgoing", "downgoing"][(-v + 1) / 2], parent));
-				coords = [];
-			}
-			coords.push(x);
-			coords.push(y);
-			j++;
-		}
-		if (i % 2) {
-			x++;
-			y -= v;
-		} else {
-			x--;
-		}
-	}
-
-	if (coords.length > 2) {
-		coords.pop();
-		coords.pop();
-		polygons.push(bitCoordsToPolygons(coords, ["upgoing", "downgoing"][(-v + 1) / 2], parent));
-	}
-
-	return polygons;
 }
