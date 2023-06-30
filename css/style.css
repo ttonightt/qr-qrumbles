@@ -75,8 +75,12 @@ header ul.actions li {
 	cursor: pointer;
 }
 
-header ul.actions li.separator {
+header ul.actions li.rseparator {
 	margin-left: auto;
+}
+
+header ul.actions li.aseparator {
+	margin-left: 20px;
 }
 
 header ul.actions li:hover {
@@ -347,12 +351,7 @@ aside .tools input:not(:disabled) + label:hover:before {
 }
 
 aside .tools label img {
-	position: absolute;
-	top: 6px;
-	left: 6px;
-	right: 6px;
-	bottom: 6px;
-	height: calc(100% - 12px);
+	height: 100%;
 	image-rendering: crisp-edges;
 }
 
@@ -366,49 +365,55 @@ aside .tools input:checked + label:before {
 	background-color: #543869;
 }
 
-aside input[type=checkbox] {
-	display: none;
-}
-
-aside input[type=checkbox]:checked + label {
-	top: 6px;
-	box-shadow: 0px 0px 0px #25192e, inset 0px 3px 0px #25192e, 6px 0px 0px #eca99d, -6px 0px 0px #eca99d, 0px 0px 0px 3px #eca99d;
-}
-
 aside input[type=checkbox]:checked + label:before {
-	box-shadow: 0px 0px 0px #25192e, inset 0px 3px 0px #25192e;
+	box-shadow: inset 0px 3px 0px #25192e;
 }
 
 aside input[type=checkbox]:checked + label:after {
-	box-shadow: 0px 0px 0px #25192e, inset 0px 3px 0px #25192e;
+	box-shadow: inset 0px 3px 0px #25192e;
 }
 
 aside .topbar {
 	padding: 20px;
 	border-bottom: 3px dotted #74548d;
+	justify-content: start;
+}
+
+aside #rotate-canvas-right img,
+aside #rotate-canvas-left img {
+	width: 15px;
+	image-rendering: crisp-edges;
+}
+
+aside .topbar input[type=checkbox]:checked + label {
+	top: 6px;
+	box-shadow: inset 0px 3px 0px #25192e, 6px 0px 0px #eca99d, -6px 0px 0px #eca99d, 0px 0px 0px 3px #eca99d;
 }
 
 aside .bottombar {
 	padding: 20px;
 	flex-grow: 1;
-	display: flex;
-	flex-direction: row;
-	flex-wrap: wrap;
-	align-items: start;
-	overflow: auto;
-	gap: 20px;
+	align-content: start;
+	/* overflow: auto; */
 }
 
-/* aside #format-data-5b {
-	width: 150px !important;
-	height: 22px;
-	padding: 5px;
-	filter: contrast(var(--contrast));
-	background-image: linear-gradient(90deg, white 20%, black 20%, black 40%, white 40%, white 60%, black 60%, black 80%, white 80%, white 100%);
-} */
+aside #update-controller label {
+	vertical-align: middle;
+}
+
+aside #update-controller input[type=button] + label {
+	flex-grow: 0;
+}
+
+aside #update-controller label img {
+	width: 21px;
+	image-rendering: crisp-edges;
+}
 
 aside .decoded-wrap {
-	flex: 1;
+	/* flex-grow: 0;
+	flex-shrink: 1; */
+	width: 95%;
 	margin: -3px;
 	padding: 6px;
 	background-image: linear-gradient(#3a2649 100%, #3a2649 100%), linear-gradient(45deg, #3a2649 25%, transparent 25%), linear-gradient(-45deg, #3a2649 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #3a2649 75%), linear-gradient(-45deg, transparent 75%, #3a2649 75%);
@@ -418,14 +423,9 @@ aside .decoded-wrap {
 	cursor: default;
 }
 
-aside .decoded-wrap ~ .btn.vertical {
-	position: sticky;
-	top: 0px;
-	right: 0px;
-}
-
 aside .decoded-wrap #decoded {
-	max-width: 100%;
+	width: 100%;
+	min-height: 1.5em;
 	padding: 0px;
 	border: none;
 	border-radius: 0px;
@@ -434,30 +434,35 @@ aside .decoded-wrap #decoded {
 	color: #150f1a;
 	font-family: "Ubuntu Mono";
 	line-height: 27px;
-	/* word-break: break-all; */
 	float: left;
+	cursor: pointer;
 }
 
-/* aside #decoded:before {
-	content: var(--decoded-str);
-	position: absolute;
-	top: var(--decoded-y);
-	left: var(--decoded-x);
-	width: 1ch;
-	height: 1.5em;
-	z-index: 0;
-	background-image: linear-gradient(0deg, #eca99d 100%, #eca99d 100%);
-	background-position: 0px 0.2em;
-	background-repeat: no-repeat;
-	background-size: 100% 1.1em;
-} */
+aside #decoded:empty {
+	width: auto;
+	min-width: 1ch;
+}
 
-aside #decoded input {
+aside #decoded div {
+	display: inline;
+	width: 2ch;
+	font-size: 18px;
+	font-weight: 600;
+	color: #150f1a;
+	font-family: "Ubuntu Mono";
+	box-shadow: 0px 0px 0px 1px #eca99d;
+	background-color: #eca99d2f;
+}
+
+aside #decoded div input {
+	position: sticky;
 	display: inline-block;
 	width: auto;
 	padding: 0px;
 	box-shadow: none;
 	text-decoration: none;
+	background-color: #eca99d6c;
+	color: #150f1a;
 	float: none;
 }
 
@@ -465,3 +470,18 @@ aside #decoded input::selection {
 	background-color: #eca99d;
 	color: #150f1a;
 }
+
+/* aside #decoded input.big {
+	width: 1ch;
+	border: 1px solid #eca99d;
+	background-color: transparent;
+	color: transparent;
+}
+
+aside #decoded input.big:focus {
+	width: auto;
+	padding: 3px;
+	background-color: #2d1f38;
+	color: #eca99d;
+	margin: 0px calc(-4px - 3ch);
+} */

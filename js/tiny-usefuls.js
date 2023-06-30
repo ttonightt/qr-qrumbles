@@ -12,10 +12,6 @@ Math.binlen = function (bx) {
 	return Math.floor(Math.log2(bx)) + 1;
 }
 
-Number.prototype.interval = function (a, b) {
-	return a <= this && this <= b;
-}
-
 function charToInt45 (char) {
 	switch (char) {
 		case " ":
@@ -39,6 +35,109 @@ function charToInt45 (char) {
 		default:
 			return parseInt(char, 36);
 	}
+}
+
+String.alphanumFromCode = function (code) {
+	code %= 45;
+	switch (code) {
+		case 0:
+			return "0";
+		case 1:
+			return "1";
+		case 2:
+			return "2";
+		case 3:
+			return "3";
+		case 4:
+			return "4";
+		case 5:
+			return "5";
+		case 6:
+			return "6";
+		case 7:
+			return "7";
+		case 8:
+			return "8";
+		case 9:
+			return "9";
+		case 10:
+			return "A";
+		case 11:
+			return "B";
+		case 12:
+			return "C";
+		case 13:
+			return "D";
+		case 14:
+			return "E";
+		case 15:
+			return "F";
+		case 16:
+			return "G";
+		case 17:
+			return "H";
+		case 18:
+			return "I";
+		case 19:
+			return "J";
+		case 20:
+			return "K";
+		case 21:
+			return "L";
+		case 22:
+			return "M";
+		case 23:
+			return "N";
+		case 24:
+			return "O";
+		case 25:
+			return "P";
+		case 26:
+			return "Q";
+		case 27:
+			return "R";
+		case 28:
+			return "S";
+		case 29:
+			return "T";
+		case 30:
+			return "U";
+		case 31:
+			return "V";
+		case 32:
+			return "W";
+		case 33:
+			return "X";
+		case 34:
+			return "Y";
+		case 35:
+			return "Z";
+		case 36:
+			return " ";
+		case 37:
+			return "$";
+		case 38:
+			return "%";
+		case 39:
+			return "*";
+		case 40:
+			return "+";
+		case 41:
+			return "-";
+		case 42:
+			return ".";
+		case 43:
+			return "/";
+		case 44:
+			return ":";
+	}
+}
+
+String.fromCharCodeS = function () {
+	if ((0 <= code && code <= 0x1f) || (0x7f <= code && code <= 0x9f)) {
+		code = 0xfffd;
+	}
+	return String.fromCharCode(code);
 }
 
 String.prototype.decodeAsAN2 = function () {
@@ -84,43 +183,31 @@ String.prototype.decodeAsASCII2 = function () {
 Int8Array.prototype.x2convert = function (cols) {
 	this.rows = Math.ceil(this.length / cols);
 	this.columns = cols;
+	this.x2get = function (x = 0, y = 0) {
+		return this[(y * this.columns) + x];
+	};
+	this.x2getDF = function (x = 0, y = 0, wrong) {
+		const adr = (y * this.columns) + x;
+		if (0 <= adr && adr < this.length) {
+			return this[adr];
+		} else {
+			return wrong;
+		}
+	};
+	this.x2getD = function (x = 0, y = 0, wrong) {
+		if (0 <= x && x < this.columns && 0 <= y && y < this.rows) {
+			return this[(y * this.columns) + x];
+		} else {
+			return wrong;
+		}
+	};
+	this.x2set = function (x = 0, y = 0, int) {
+		this[(y * this.columns) + x] = int;
+	};
 	return this;
 }
 
 Uint16Array.prototype.x2convert = Int8Array.prototype.x2convert;
-
-Int8Array.prototype.x2get = function (x = 0, y = 0) {
-	return this[(y * this.columns) + x];
-}
-
-Uint16Array.prototype.x2get = Int8Array.prototype.x2get;
-
-Int8Array.prototype.x2getDF = function (x = 0, y = 0, wrong) {
-	const adr = (y * this.columns) + x;
-	if (0 <= adr && adr < this.length) {
-		return this[adr];
-	} else {
-		return wrong;
-	}
-}
-
-Uint16Array.prototype.x2getDF = Int8Array.prototype.x2getDF;
-
-Int8Array.prototype.x2getD = function (x = 0, y = 0, wrong) {
-	if (0 <= x && x < this.columns && 0 <= y && y < this.rows) {
-		return this[(y * this.columns) + x];
-	} else {
-		return wrong;
-	}
-}
-
-Uint16Array.prototype.x2getD = Int8Array.prototype.x2getD;
-
-Int8Array.prototype.x2set = function (x = 0, y = 0, int) {
-	this[(y * this.columns) + x] = int;
-}
-
-Uint16Array.prototype.x2set = Int8Array.prototype.x2set;
 
 Uint16Array.prototype.inject = function (_i, arr) {
 	for (let i = 0; i < arr.length; i++) {
@@ -129,16 +216,16 @@ Uint16Array.prototype.inject = function (_i, arr) {
 	return this;
 }
 
-function setCSSvar (name, value) {
+function setCSSvar (name, value) { // ???????????????????????????????????????
 	console.log("setting");
 	document.documentElement.style.setProperty(name, value);
 }
 
-function getCSSvar (name) {
+function getCSSvar (name) { // ???????????????????????????????????
 	return document.documentElement.style.getPropertyValue(name);
 }
 
-function createPolygon (points, parent) {
+SVGPolygonElement.create = (points, parent) => {
 	const elem = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
 
 	let str = "";
@@ -150,7 +237,7 @@ function createPolygon (points, parent) {
 	parent.appendChild(elem);
 
 	return elem;
-}
+};
 
 function lineWidthCompensator (w, angle) {
 	return w * (1 + Math.abs(0.33 * Math.sin(angle * 2)));
@@ -162,17 +249,33 @@ const OneTitle = {
 	elem: document.getElementById("onetitle"),
 	content: document.querySelector("#onetitle > span"),
 	shown: 0,
-	_pivot: 0,
-	show: (message, anim, x, y, pivot = OneTitle._pivot) => {
+	pivot: 0,
+	_timer: 0,
+	show: (x, y, message, prefs = {}) => {
+		const pivot = prefs.pivot || OneTitle.pivot;
+		const anim = prefs.anim || "blink";
+		const timeOut = prefs.timeOut || 0;
+
 		OneTitle.elem.setAttribute("data-anim", anim);
-		OneTitle.content.textContent = message;
+		if (message) OneTitle.content.textContent = message;
 		OneTitle.elem.classList.add("visible");
 
-		OneTitle._pivot = pivot;
 		if (typeof x == "number" && typeof y == "number") {
 			OneTitle.elem.style.left = +(x - (Math.floor(pivot / 3) * OneTitle.elem.clientWidth / 2)) + "px";
 			OneTitle.elem.style.top = +(y - ((pivot % 3) * OneTitle.elem.clientHeight / 2)) + "px";
 		}
+
+		if (OneTitle._timer) {
+			clearTimeout(OneTitle._timer);
+		}
+
+		if (+timeOut > 50) {
+			OneTitle._timer = setTimeout(() => {
+				OneTitle.hide();
+			}, timeOut);
+			return;
+		}
+
 		OneTitle.shown = 1;
 	},
 	move: (x, y) => {
@@ -215,10 +318,3 @@ for (let i = 0; i < popupCallers.length; i++) {
 		popupElements[0].parentElement.classList.add("visible");
 	});
 }
-
-String.fromCharCodeS = code => {
-	if ((0 <= code && code <= 0x1f) || (0x7f <= code && code <= 0x9f)) {
-		code = 0xfffd;
-	}
-	return String.fromCharCode(code);
-};

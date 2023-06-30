@@ -137,7 +137,7 @@ canvas {
 }
 
 .btn:active, .btn:active:before, .btn:active:after {
-	box-shadow: 0px 0px 0px #25192e, inset 0px 3px 0px #2d1f38;
+	box-shadow: inset 0px 3px 0px #2d1f38;
 }
 
 input[type=checkbox] + label.btn:hover:active {
@@ -508,18 +508,19 @@ input[type=file].selected + label:after {
 	flex-direction: row !important;
 	flex-wrap: wrap;
 	align-items: stretch;
+	justify-content: start;
 	gap: 24px !important;
 }
 
-.controls-table > .radio-btn-container {
+.controls-table > .btn-container {
 	flex: 1;
 	display: flex;
 	flex-direction: row;
 	align-items: stretch;
-	flex-wrap: wrap;
+	flex-wrap: no-wrap;
 }
 
-.controls-table > .radio-btn-container:before {
+.controls-table > .btn-container[content |= ""]:before { /* <<< ТРЕБА УТОЧНИТИ ЯКИЙ ОПЕРАТОР CSS ВІДПОВІДАЄ ОПЕРАТОРУ != У JS*/
 	content: attr(content);
 	position: absolute;
 	top: 0px;
@@ -534,28 +535,21 @@ input[type=file].selected + label:after {
 	pointer-events: none;
 }
 
-.controls-table > .radio-btn-container:hover:before {
+.controls-table > .btn-container:hover:before {
 	height: 16px;
 	top: -16px;
 }
 
-.controls-table > .radio-btn-container.switcher {
+.controls-table > .btn-container.switcher {
 	box-shadow: 0px 6px 0px 3px #eca99d;
 }
 
-.controls-table > .btn.fl1 {
+.controls-table > .fl1 {
 	flex-grow: 1;
 }
 
-.controls-table > .btn.square {
+.controls-table > .fl0 {
 	flex-grow: 0;
-	padding: 8px 10px;
-	width: 17px;
-}
-
-.controls-table > .btn img {
-	height: 15px;
-	image-rendering: pixelated;
 }
 
 .controls-table > .btn.lesspad {
@@ -564,19 +558,15 @@ input[type=file].selected + label:after {
 	padding: 0px 0px 0px 3px;
 }
 
-.controls-table > .radio-btn-container.wide, .controls-table > .btn.wide {
+.controls-table > .btn-container.wide, .controls-table > .btn.wide {
 	flex-basis: 100%;
 }
 
-.controls-table > .radio-btn-container#errcor {
+.controls-table > .btn-container#errcor {
 	flex-grow: 2;
 }
 
-/* .controls-table > .radio-btn-container#errcor + * {
-	flex-grow: 2;
-} */
-
-.controls-table > .btn + .radio-btn-container{
+.controls-table > .btn + .btn-container{
 	align-self: flex-end;
 }
 
@@ -584,34 +574,34 @@ input[type=file].selected + label:after {
 	width: 23px;
 }
 
-.controls-table .radio-btn {
-	float: left;
-	flex-grow: 1;
-}
-
-.controls-table .radio-btn input {
+.controls-table input {
 	display: none;
 }
 
-.controls-table .radio-btn label {
+.controls-table label {
+	flex-grow: 1;
+	flex-basis: content;
 	display: block;
 	background-color: #3a2649;
 	box-shadow: 0px 6px 0px #25192e;
 	text-align: center;
 	color: #150f1a;
-	line-height: 30px;
 	cursor: pointer;
 }
 
-.controls-table .radio-btn label:hover {
+.controls-table label:not(.btn) {
+	line-height: 30px;
+}
+
+.controls-table label:hover {
 	background-color: #482f5c;
 }
 
-.controls-table .radio-btn label:hover:after, .controls-table .radio-btn label:hover:before {
+.controls-table label:hover:after, .controls-table label:hover:before {
 	background-color: #482f5c !important;
 }
 
-.controls-table .radio-btn:first-child label:before {
+.controls-table input:first-child + label:before {
 	content: "";
 	position: absolute;
 	top: 3px;
@@ -622,7 +612,7 @@ input[type=file].selected + label:after {
 	box-shadow: 0px 6px 0px #25192e;
 }
 
-.controls-table .radio-btn:last-child label:after {
+.controls-table label:last-child:after {
 	content: "";
 	position: absolute;
 	top: 3px;
@@ -633,46 +623,60 @@ input[type=file].selected + label:after {
 	box-shadow: 0px 6px 0px #25192e;
 }
 
-.controls-table .switcher .radio-btn:first-child label:before {
+.controls-table .switcher input:first-child + label:before {
 	box-shadow: 0px 6px 0px #25192e, -3px 3px 0px #eca99d, -3px 9px 0px #eca99d;
 }
 
-.controls-table .switcher .radio-btn:last-child label:after {
+.controls-table .switcher label:last-child:after {
 	box-shadow: 0px 6px 0px #25192e, 3px 3px 0px #eca99d, 3px 9px 0px #eca99d;
 }
 
-.controls-table .radio-btn label img {
+.controls-table label img {
 	display: block;
 	width: calc(100% - 12px);
 	padding: 6px;
 	image-rendering: pixelated;
 }
 
-.controls-table .radio-btn input:checked + label {
+.controls-table .btn-container input:checked + label,
+.controls-table .btn-container input:active + label {
 	top: 6px;
-	box-shadow: 0px 0px 0px #25192e, inset 4px 3px 0px #2d1f38;
+	box-shadow: inset 4px 3px 0px #2d1f38;
 }
 
-.controls-table .switcher .radio-btn input:checked + label {
-	box-shadow: 0px 0px 0px #25192e, inset 4px 3px 0px #2d1f38, 0px -3px 0px #eca99d;
+.controls-table .btn-container input:checked + label + input:checked + label,
+.controls-table .btn-container input:active + label + input:checked + label,
+.controls-table .btn-container input:checked + label + input:active + label {
+	box-shadow: inset 0px 3px 0px #2d1f38;
 }
 
-.controls-table .radio-btn:first-child input:checked + label {
-	box-shadow: 0px 0px 0px #25192e, inset 0px 3px 0px #2d1f38;
+.controls-table .switcher input:active + label,
+.controls-table .switcher input:checked + label {
+	box-shadow: inset 4px 3px 0px #2d1f38, 0px -3px 0px #eca99d;
 }
 
-.controls-table .switcher .radio-btn:first-child input:checked + label {
-	box-shadow: 0px 0px 0px #25192e, inset 0px 3px 0px #2d1f38, 0px -3px 0px #eca99d;
+.controls-table input:first-child:checked + label,
+.controls-table input:first-child:active + label {
+	box-shadow: inset 0px 3px 0px #2d1f38;
 }
 
-.controls-table .radio-btn input:checked + label:before, .controls-table .radio-btn input:checked + label:after {
-	box-shadow: 0px 0px 0px #25192e, inset 0px 3px 0px #2d1f38;
+.controls-table .switcher input:first-child:checked + label {
+	box-shadow: inset 0px 3px 0px #2d1f38, 0px -3px 0px #eca99d;
 }
 
-.controls-table .switcher .radio-btn:first-child input:checked + label:before {
-	box-shadow: 0px 0px 0px #25192e, inset 0px 3px 0px #2d1f38, -3px -3px 0px #eca99d, -3px 3px 0px #eca99d;
+.controls-table input:checked + label:before,
+.controls-table input:active + label:before,
+.controls-table input:checked + label:after,
+.controls-table input:active + label:after {
+	box-shadow: inset 0px 3px 0px #2d1f38;
 }
 
-.controls-table .switcher .radio-btn:last-child input:checked + label:after {
-	box-shadow: 0px 0px 0px #25192e, inset 0px 3px 0px #2d1f38, 3px -3px 0px #eca99d, 3px 3px 0px #eca99d;
+.controls-table .switcher input:first-child:checked + label:before,
+.controls-table .switcher input:first-child:active + label:before {
+	box-shadow: inset 0px 3px 0px #2d1f38, -3px -3px 0px #eca99d, -3px 3px 0px #eca99d;
+}
+
+.controls-table .switcher input:checked + label:last-child:after,
+.controls-table .switcher input:active + label:last-child:after {
+	box-shadow: inset 0px 3px 0px #2d1f38, 3px -3px 0px #eca99d, 3px 3px 0px #eca99d;
 }

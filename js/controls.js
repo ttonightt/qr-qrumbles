@@ -103,11 +103,10 @@ Tools.brush.elem.nextElementSibling.addEventListener("wheel", e => {
 	}
 
 	if (!OneTitle.shown) {
-		OneTitle.show(	"Brush radius: " + Tools.brush.radius,
-						"blink",
-						e.clientX + 6,
+		OneTitle.show(	e.clientX + 6,
 						e.clientY - 6,
-						2);
+						"Brush radius: " + Tools.brush.radius,
+						{pivot: 2});
 	} else {
 		OneTitle.log("Brush radius: " + Tools.brush.radius);
 	}
@@ -127,11 +126,10 @@ Tools.line.elem.nextElementSibling.addEventListener("wheel", e => {
 	}
 
 	if (!OneTitle.shown) {
-		OneTitle.show(	"Line width: " + Tools.line.width,
-						"blink",
-						e.clientX + 6,
+		OneTitle.show(	e.clientX + 6,
 						e.clientY - 6,
-						2);
+						"Line width: " + Tools.line.width,
+						{pivot: 2});
 	} else {
 		OneTitle.log("Line width: " + Tools.line.width);
 	}
@@ -160,6 +158,9 @@ document.onkeydown = e => {
 
 	if (e.keyCode == 45) {
 		InterCharMap.changeTypingMode();
-		OneTitle.show("Ins " + (InterCharMap.typingMode ? "on" : "off"), "blink", document.documentElement.clientWidth / 2, 20, 3)
+		OneTitle.show(	document.documentElement.clientWidth / 2,
+						20,
+						"Edit typing mode is " + (InterCharMap.typingMode ? "on" : "off"),
+						{pivot: 3, timeOut: 2000})
 	};
 };

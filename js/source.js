@@ -212,7 +212,13 @@ function setWorkspaceSize () {
 let datablocksmap;
 
 window.onload = () => {
-	datablocksmap = new DatablockMap(BASE.current(), dbPolygonMap);
+	DatablockMap.pcontainer = dbPolygonMap;
+	DatablockMap.ccontainer = document.getElementById("decoded");
+	datablocksmap = new DatablockMap(
+		BASE.current().decodeDataFrom(),
+		BASE.current().datatype,
+		BASE.current().getTableInfo().dataBytes
+	);
 };
 
 // window.onbeforeunload = e => {

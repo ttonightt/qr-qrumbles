@@ -1,67 +1,94 @@
 
 class InterCharMap {
 	static typingMode = 0;
-	static container = document.getElementById("decoded");
 
 	static changeTypingMode () {
 		this.typingMode ^= 1;
 	}
 
-	constructor (container, data) {
-		this.len = data.length;
+	constructor (data, length, container = DatablockMap.ccontainer) {
+		this.len = length || data.length;
 
 		this.container = container;
 
-		this.letterSize = [
-			this.container.clientWidth,
-			this.container.clientHeight
-		];
+		this.letterWidth = this.container.clientWidth;
+		this.letterHeight = this.container.clientHeight;
 
-		this.container.parentElement.style.flex = "1";
+		this.chars = "";
 
-		this.charCodes = new Uint16Array(this.len);
-		this.updateData(data);
-		this.logData();
-		this.charCodes.x2convert(Math.floor(this.container.clientWidth / this.letterSize[0]));
+		this.container.innerHTML = 0;
+		this.cols = Math.floor(this.container.clientWidth / this.letterWidth);
+		this.rows = Math.ceil(this.len / this.cols);
+		if (data) this.loadData(data);
+		this.logData(data);
 
-		// this.container.onmousemove = e => {
-		// 	const 	x = Math.min(Math.floor(e.offsetX / this.letterSize[0]), this.charCodes.columns - 1),
-		// 			y = Math.floor(e.offsetY / this.letterSize[1]);
+		this.container.onmouseup = e => {
+			if (e.target == this.marker) {
+				let i = Math.floor(e.offsetX / this.letterWidth);
+				if (i < 0) i = 1;
 
-		// 	if ((y * this.charCodes.columns) + x == this.mi) return;
+				this.pasteInput(i, true, Math.floor(e.button / 2));
 
-		// 	window.getComputedStyle(document.documentElement).setProperty("--decoded-str", "80px");
-		// };
+			} else if (e.target == this.container) {
+				const i = 	(Math.floor(e.offsetY / this.letterHeight) * this.cols) +
+							Math.min(Math.floor(e.offsetX / this.letterWidth), this.cols - 1);
 
-		this.container.onclick = e => {
-			if (e.target == this.input) return;
-
-			const 	x = Math.min(Math.floor(e.offsetX / this.letterSize[0]), this.charCodes.columns - 1),
-					y = Math.floor(e.offsetY / this.letterSize[1]);
-			if (this.charCodes.x2getDF(x, y, 0) != 0) {
-				this.pasteInput(x, y);
+				this.mark(i);
+				this.pasteInput(i - this.mi, true, Math.floor(e.button / 2));
 			}
 		};
+
+		this.container.onmousemove = e => {
+			if (!this.input.focused && e.target == this.container) {
+				const 	x = Math.min(Math.floor(e.offsetX / this.letterWidth), this.cols - 1),
+						y = Math.floor(e.offsetY / this.letterHeight);
+
+				this.mark((y * this.cols) + x);
+			}
+		};
+
+		this.container.oncontextmenu = e => {
+			e.preventDefault();
+		};
+
+		this.marker = document.createElement("div");
 
 		this.input = document.createElement("input");
 		this.input.type = "text";
 		this.input.maxLength = 1;
 		this.input.size = 1;
-		this.input.value = "";
+		this.input.value = this.chars[0];
+		this.inputMode = 0;
 
 		this.ci = 0;
-		// this.mi = 0;
+		this.mi = 0;
+
+		let keyDown = 0;
+
+		this.input.onfocus = () => {
+			this.input.focused = true;
+		};
+
+		this.input.onblur = () => {
+			this.input.focused = false;
+		};
 
 		this.input.onkeydown = e => {
-			if (e.keyCode == 39 && this.ci < this.len && this.input.selectionEnd == this.input.size) {
-				this.pasteInput(this.ci + 1, false);
-			} else if (e.keyCode == 37 && this.ci > 0 && this.input.selectionStart == 0) {
-				this.pasteInput(this.ci - 1, false);
-			} else if (e.keyCode == 38 && this.ci >= this.charCodes.columns) {
-				this.pasteInput(this.ci - this.charCodes.columns, false);
-			} else if (e.keyCode == 40 && this.ci < this.charCodes.length - (this.charCodes.length % this.charCodes.columns)) {
-				this.pasteInput(this.ci + this.charCodes.columns, false);
-			} else if ((e.keyCode == 8 || e.keyCode == 46) && InterCharMap.typingMode) {
+			if (this.inputMode) return;
+			keyDown = e.keyCode;
+			if (keyDown == 39 && this.ci < this.len - 1 && this.input.selectionEnd == this.input.value.length) {
+				this.mark(this.ci + 1);
+				this.pasteInput((this.ci + 1) % 2, true);
+			} else if (keyDown == 37 && this.ci > 0 && this.input.selectionStart == 0) {
+				this.mark(this.ci - 1);
+				this.pasteInput((this.ci - 1) % 2, true);
+			} else if (keyDown == 38 && this.ci >= this.cols) {
+				this.mark(this.ci - this.cols);
+				this.pasteInput((this.ci - this.cols) % 2, true);
+			} else if (keyDown == 40 && this.ci < this.len - (this.len % this.cols)) {
+				this.mark(this.ci + this.cols);
+				this.pasteInput((this.ci + this.cols) % 2, true);
+			} else if (keyDown == 8 && this.ci == 0) {
 				e.preventDefault();
 			}
 		};
@@ -71,78 +98,138 @@ class InterCharMap {
 				this.input.selectionStart = 0;
 				this.input.selectionEnd = 1;
 			}
+			keyDown = 0;
 		};
 
 		this.input.oninput = () => {
-			if (InterCharMap.typingMode) this.pasteInput(this.ci + 1);
+			if (InterCharMap.typingMode) {
+				if (keyDown == 46) {
+					this.pasteInput(this.ci);
+				} else if (keyDown == 8 && this.ci > 0) {
+					this.pasteInput(this.ci - 1);
+				} else {
+					this.pasteInput(this.ci + 1);
+				}
+			}
+
+			this.changeChar(this.ci, this.input.value);
 		};
 	}
 
-	pasteInput (x, y = 0, focus = true) {
-		const i = Math.min((y * this.charCodes.columns) + x, this.charCodes.length - 1);
-		let _textContent;
-		if (this.input.value == "") {
-			_textContent = this.container.textContent.slice(0, this.ci) + this.container.textContent.slice(this.ci, this.len) + "0";
+	changeChar (i, char) {
+		if (char == "") {
+			this.chars = this.chars.slice(0, i) + this.chars.slice(i + 1, this.len);
+			this.mark(this.ci);
 		} else {
-			_textContent = this.container.textContent.slice(0, this.ci) + this.input.value + this.container.textContent.slice(this.ci, this.len);
+			this.chars = this.chars.slice(0, i) + char + this.chars.slice(i + 1, this.len);
 		}
+	}
+
+	// changeInputMode (mode) {
+	// 	if (this.inputMode != mode) {
+	// 		this.inputMode = mode;
+	
+	// 		switch (mode) {
+	// 			case 0:
+	// 				this.input.size = 1;
+	// 				this.input.maxLength = 1;
+	// 				break;
+	// 			case 1:
+	// 				this.input.size = 6;
+	// 				this.input.maxLength = 6;
+	// 		}
+	// 		this.input.classList.toggle("big");
+	// 	}
+	// }
+
+	mark (i) {
+		i = Math.floor(Math.min(i, this.len - 1) / 2) * 2;
+		if (i == this.mi) return;
+
 		this.container.innerHTML = "";
+		this.container.append(
+			this.getLogData(0, i),
+			this.marker,
+			this.getLogData(i + 2)
+		);
 
-		this.container.append(	_textContent.slice(0, i),
-								this.input,
-								_textContent.slice(i + 1, this.len));
+		this.marker.innerHTML = this.getLogData(i, i + 2);
+		this.mi = i;
+	}
 
-		this.input.value = _textContent[i] || "";
+	pasteInput (i, focus = true, mode = this.inputMode) {
+		this.ci = this.mi + i;
+		this.marker.innerHTML = "";
+
+		// this.changeInputMode(mode); // <<<
+
+		if (i == 1) {
+			this.marker.append(this.getLogData(this.ci - 1, this.ci), this.input);
+		} else {
+			this.marker.append(this.input, this.getLogData(this.ci + 1, this.ci + 2));
+		}
+
+		// if (this.inputMode) {
+		// 	const cc = this.chars[i].charCodeAt(0).toString(16);
+		// 	this.input.value = "\\u" + "0".repeat(4 - cc.length) + cc;
+		// } else {
+			this.input.value = this.chars[this.ci];
+		// }
+
 		if (focus) {
 			this.input.focus();
 			this.input.selectionStart = 0;
 			this.input.selectionEnd = 1;
 		}
-
-		this.ci = i;
 	}
 
-	updateData (data) {
+	loadData (data) {
 		if (data instanceof Uint16Array) {
 			for (let i = 0; i < this.len; i++) {
-				this.charCodes[i] = data[i];
+				this.chars += String.fromCharCodeS(data[i] || 0x30);
 			}
 		} else if (typeof data == "string") {
 			for (let i = 0; i < this.len; i++) {
-				this.charCodes[i] = data[i].charCodeAt(0);
+				this.chars += data[i];
 			}
 		}
 	}
 
 	logData () {
-		let str = "";
-		for (let i = 0; i < this.len; i++) {
-			str += String.fromCharCodeS(this.charCodes[i]);
-		}
-		this.container.textContent = str;
+		this.container.innerHTML = this.getLogData();
 	}
-}
 
-class bitmapPolygon {
-	constructor () {
-
+	getLogData (a = 0, b = this.len) {
+		let str = "";
+		for (let i = a; i < b; i++) {
+			if (this.chars[i] == " ") {
+				str += "\u00a0";
+			} else {
+				str += this.chars[i];
+			}
+			if ((i + 1) % this.cols == 0) str += " ";
+		}
+		return str;
 	}
 }
 
 class DatablockMap {
-	constructor (qr, polygonsContainer) {
-		switch (qr.datatype) {
+	static pcontainer;
+	static ccontainer;
+
+	constructor (chars, datatype, databytes) {
+		switch (datatype) {
 			// case 7:
-			// 	this.dbs = QRtable[qr.version][qr.ecdepth].dataBytes * 8;
+			// 	this.dbs = databytes * 8;
 			// 	this.dblen = 8;
 			// 	break;
-			case 4:
-				this.dbs = QRtable[qr.version][qr.ecdepth].dataBytes;
+			case 0b0100:
+				this.dbs = databytes;
 				this.dblen = 8;
 				break;
-			case 2:
+			case 0b0010:
 				this.dblen = 11;
-				this.dbs = QRtable[qr.version][qr.ecdepth].dataBytes * 8;
+				this.dbs = databytes * 8;
 				if (this.dbs % 11 >= 7) {
 					this.dbs = Math.ceil(this.dbs / 11);
 				} else {
@@ -159,7 +246,7 @@ class DatablockMap {
 		BASE.current().goThroughDataModules((x, y, j, v) => {
 			_v = -v;
 			if (coords.length >= this.dblen * 2) {
-				this.polygons.push(bitCoordsToPolygons(coords, ["upgoing", "downgoing"][(_v + 1) / 2], polygonsContainer));
+				this.polygons.push(bitCoordsToPolygons(coords, ["upgoing", "downgoing"][(_v + 1) / 2], DatablockMap.pcontainer));
 				coords = [];
 			}
 			coords.push(x);
@@ -169,15 +256,14 @@ class DatablockMap {
 		});
 	
 		if (coords.length > 2) {
-			this.polygons.push(bitCoordsToPolygons(coords, ["upgoing", "downgoing"][(_v + 1) / 2], polygonsContainer));
-			coords = [];
+			this.polygons.push(bitCoordsToPolygons(coords, ["upgoing", "downgoing"][(_v + 1) / 2], DatablockMap.pcontainer));
 		}
+
+		coords = [];
 
 		// CHARS
 
-		let str = "";
-		for (let i = 0; i < 100; i++) str += String.fromCharCode(i + 33);
-		// this.chars = new InterCharMap(InterCharMap.container, str);
+		this.ichars = new InterCharMap(chars, this.dbs);
 	}
 }
 
@@ -281,10 +367,10 @@ function bitCoordsToPolygons (coords, cssClass, parent) {
 		parent.appendChild(elem);
 		
 		for (i = polygons.length - 1; i >= 0; i--) {
-			createPolygon(polygons[i], elem);
+			SVGPolygonElement.create(polygons[i], elem);
 		}
 	} else {
-		elem = createPolygon(polygons[0], parent);
+		elem = SVGPolygonElement.create(polygons[0], parent);
 	}
 
 	elem.classList.add(cssClass);
