@@ -225,6 +225,10 @@ function getCSSvar (name) { // ???????????????????????????????????
 	return document.documentElement.style.getPropertyValue(name);
 }
 
+window.deselect = () => {
+	window.getSelection().removeAllRanges();
+};
+
 SVGPolygonElement.create = (points, parent) => {
 	const elem = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
 
@@ -269,7 +273,7 @@ const OneTitle = {
 			clearTimeout(OneTitle._timer);
 		}
 
-		if (+timeOut > 50) {
+		if (parseInt(timeOut, 10) > 50) {
 			OneTitle._timer = setTimeout(() => {
 				OneTitle.hide();
 			}, timeOut);

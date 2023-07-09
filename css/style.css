@@ -373,10 +373,9 @@ aside input[type=checkbox]:checked + label:after {
 	box-shadow: inset 0px 3px 0px #25192e;
 }
 
-aside .topbar {
+aside .topbar, aside .topbar + * {
 	padding: 20px;
 	border-bottom: 3px dotted #74548d;
-	justify-content: start;
 }
 
 aside #rotate-canvas-right img,
@@ -391,14 +390,13 @@ aside .topbar input[type=checkbox]:checked + label {
 }
 
 aside .bottombar {
-	padding: 20px;
 	flex-grow: 1;
-	align-content: start;
-	/* overflow: auto; */
+	padding: 20px;
+	overflow: scroll;
 }
 
 aside #update-controller label {
-	vertical-align: middle;
+	line-height: 33px;
 }
 
 aside #update-controller input[type=button] + label {
@@ -411,8 +409,6 @@ aside #update-controller label img {
 }
 
 aside .decoded-wrap {
-	/* flex-grow: 0;
-	flex-shrink: 1; */
 	width: 95%;
 	margin: -3px;
 	padding: 6px;
@@ -420,7 +416,6 @@ aside .decoded-wrap {
 	background-repeat: no-repeat, repeat, repeat, repeat, repeat;
 	background-size: calc(100% - 12px) calc(100% - 12px), 6px 6px, 6px 6px, 6px 6px, 6px 6px;
 	background-position: 6px 6px, 0px 0px, 0px 3px, 3px -3px, -3px 0px;
-	cursor: default;
 }
 
 aside .decoded-wrap #decoded {
@@ -431,9 +426,10 @@ aside .decoded-wrap #decoded {
 	border-radius: 0px;
 	font-size: 18px;
 	font-weight: 600;
-	color: #150f1a;
+	color: transparent;
 	font-family: "Ubuntu Mono";
 	line-height: 27px;
+	overflow: hidden;
 	float: left;
 	cursor: pointer;
 }
@@ -443,42 +439,77 @@ aside #decoded:empty {
 	min-width: 1ch;
 }
 
-aside #decoded div {
+aside .decoded-wrap canvas {
+	position: absolute;
+	inset: 6px;
+	height: calc(100% - 12px);
+	background-color: #3a2649;
+	color: #402c50;
+	accent-color: #eca99d5b;
+	image-rendering: crisp-edges;
+}
+
+aside #decoded p {
 	display: inline;
-	width: 2ch;
 	font-size: 18px;
 	font-weight: 600;
 	color: #150f1a;
 	font-family: "Ubuntu Mono";
-	box-shadow: 0px 0px 0px 1px #eca99d;
-	background-color: #eca99d2f;
+	padding: 0.25em 0px;
 }
 
-aside #decoded div input {
-	position: sticky;
-	display: inline-block;
+aside #decoded input {
+	display: inline;
 	width: auto;
-	padding: 0px;
-	box-shadow: none;
-	text-decoration: none;
-	background-color: #eca99d6c;
+	padding: 0px 0px 0.2em 0px;
 	color: #150f1a;
+	caret-color: #eca99d;
+	text-decoration: none;
+	background-color: transparent;
+	box-shadow: none;
 	float: none;
+
+	border-top: 0.25em solid transparent;
+	border-image-slice: 100 0 0 0;
+	border-image-outset: 2px 0px 0px 0px;
+	border-image-width: 6px 0px 0px 0px;
+	border-image-repeat: stretch;
+	border-image-source: conic-gradient(from 15deg at 50% 100%, transparent 0deg, transparent 332deg, #eca99d 332deg, #eca99d 360deg);
 }
 
-aside #decoded input::selection {
+aside #decoded input:not(:focus) {
+	position: absolute;
+}
+
+aside #decoded input:not(:valid) {
+	background-color: #e2001362;
+}
+
+aside #decoded p::selection, aside #decoded input::selection {
 	background-color: #eca99d;
 	color: #150f1a;
 }
 
-/* aside #decoded input.big {
-	width: 1ch;
-	border: 1px solid #eca99d;
-	background-color: transparent;
-	color: transparent;
+aside #decoded::selection {
+	background-color: #eca99d;
 }
 
-aside #decoded input.big:focus {
+aside #decoded input.big {
+	position: absolute;
+	width: 5ch;
+	margin-left: calc(-2ch - 3px);
+	background-color: #3a2649;
+	margin-top: calc(-1.5em + 1px);
+	padding: 3px;
+
+	box-shadow: 0px 0px 0px 1px #eca99d;
+	border-top: none;
+	border-image-slice: 0 0 24 0;
+	border-image-outset: 0px 0px 6px 0px;
+	border-image-width: 0px 0px 6px 0px;
+}
+
+/* aside #decoded input.big:focus {
 	width: auto;
 	padding: 3px;
 	background-color: #2d1f38;

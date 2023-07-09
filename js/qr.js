@@ -3,7 +3,7 @@ BASE = {
 	ctx: 0,
 	arts: [],
 	eci: 0,
-	current: () => {
+	get current () {
 		return BASE.arts[BASE.eci];
 	},
 	add: (qrt, changeECI) => {
@@ -54,11 +54,11 @@ class QRT {
 		}
 
 		this.ctx = BASE.ctx;
-		this.version = +version;
+		this.version = parseInt(version, 10);
 		this.modules = 17 + (this.version * 4);
 
 		this.ecdepth = ecdepth.toUpperCase();
-		this.masktype = +masktype;
+		this.masktype = parseInt(masktype, 10);
 		this.format5 = 0x00000;
 
 		this.datatype = parseInt(datatype, 10);
@@ -682,50 +682,50 @@ class QRT {
 
 		this.format = bits;
 
-		this.matrix.x2set(0, 8, +bits[0] + 4);
-		this.matrix.x2set(8, this.modules - 1, +bits[0] + 4);
+		this.matrix.x2set(0, 8, parseInt(bits[0], 10) + 4);
+		this.matrix.x2set(8, this.modules - 1, parseInt(bits[0], 10) + 4);
 
-		this.matrix.x2set(1, 8, +bits[1] + 4);
-		this.matrix.x2set(8, this.modules - 2, +bits[1] + 4);
+		this.matrix.x2set(1, 8, parseInt(bits[1], 10) + 4);
+		this.matrix.x2set(8, this.modules - 2, parseInt(bits[1], 10) + 4);
 
-		this.matrix.x2set(2, 8, +bits[2] + 4);
-		this.matrix.x2set(8, this.modules - 3, +bits[2] + 4);
+		this.matrix.x2set(2, 8, parseInt(bits[2], 10) + 4);
+		this.matrix.x2set(8, this.modules - 3, parseInt(bits[2], 10) + 4);
 
-		this.matrix.x2set(3, 8, +bits[3] + 4);
-		this.matrix.x2set(8, this.modules - 4, +bits[3] + 4);
+		this.matrix.x2set(3, 8, parseInt(bits[3], 10) + 4);
+		this.matrix.x2set(8, this.modules - 4, parseInt(bits[3], 10) + 4);
 
-		this.matrix.x2set(4, 8, +bits[4] + 4);
-		this.matrix.x2set(8, this.modules - 5, +bits[4] + 4);
+		this.matrix.x2set(4, 8, parseInt(bits[4], 10) + 4);
+		this.matrix.x2set(8, this.modules - 5, parseInt(bits[4], 10) + 4);
 
-		this.matrix.x2set(5, 8, +bits[5] + 4);
-		this.matrix.x2set(8, this.modules - 6, +bits[5] + 4);
+		this.matrix.x2set(5, 8, parseInt(bits[5], 10) + 4);
+		this.matrix.x2set(8, this.modules - 6, parseInt(bits[5], 10) + 4);
 
-		this.matrix.x2set(7, 8, +bits[6] + 4);
-		this.matrix.x2set(8, this.modules - 7, +bits[6] + 4);
+		this.matrix.x2set(7, 8, parseInt(bits[6], 10) + 4);
+		this.matrix.x2set(8, this.modules - 7, parseInt(bits[6], 10) + 4);
 
-		this.matrix.x2set(8, 8, +bits[7] + 4);
-		this.matrix.x2set(this.modules - 8, 8, +bits[7] + 4);
+		this.matrix.x2set(8, 8, parseInt(bits[7], 10) + 4);
+		this.matrix.x2set(this.modules - 8, 8, parseInt(bits[7], 10) + 4);
 
-		this.matrix.x2set(8, 7, +bits[8] + 4);
-		this.matrix.x2set(this.modules - 7, 8, +bits[8] + 4);
+		this.matrix.x2set(8, 7, parseInt(bits[8], 10) + 4);
+		this.matrix.x2set(this.modules - 7, 8, parseInt(bits[8], 10) + 4);
 
-		this.matrix.x2set(8, 5, +bits[9] + 4);
-		this.matrix.x2set(this.modules - 6, 8, +bits[9] + 4);
+		this.matrix.x2set(8, 5, parseInt(bits[9], 10) + 4);
+		this.matrix.x2set(this.modules - 6, 8, parseInt(bits[9], 10) + 4);
 
-		this.matrix.x2set(8, 4, +bits[10] + 4);
-		this.matrix.x2set(this.modules - 5, 8, +bits[10] + 4);
+		this.matrix.x2set(8, 4, parseInt(bits[10, 10]) + 4);
+		this.matrix.x2set(this.modules - 5, 8, parseInt(bits[10, 10]) + 4);
 
-		this.matrix.x2set(8, 3, +bits[11] + 4);
-		this.matrix.x2set(this.modules - 4, 8, +bits[11] + 4);
+		this.matrix.x2set(8, 3, parseInt(bits[11, 10]) + 4);
+		this.matrix.x2set(this.modules - 4, 8, parseInt(bits[11, 10]) + 4);
 
-		this.matrix.x2set(8, 2, +bits[12] + 4);
-		this.matrix.x2set(this.modules - 3, 8, +bits[12] + 4);
+		this.matrix.x2set(8, 2, parseInt(bits[12, 10]) + 4);
+		this.matrix.x2set(this.modules - 3, 8, parseInt(bits[12, 10]) + 4);
 
-		this.matrix.x2set(8, 1, +bits[13] + 4);
-		this.matrix.x2set(this.modules - 2, 8, +bits[13] + 4);
+		this.matrix.x2set(8, 1, parseInt(bits[13, 10]) + 4);
+		this.matrix.x2set(this.modules - 2, 8, parseInt(bits[13, 10]) + 4);
 
-		this.matrix.x2set(8, 0, +bits[14] + 4);
-		this.matrix.x2set(this.modules - 1, 8, +bits[14] + 4);
+		this.matrix.x2set(8, 0, parseInt(bits[14, 10]) + 4);
+		this.matrix.x2set(this.modules - 1, 8, parseInt(bits[14, 10]) + 4);
 	}
 
 	applyVersionOn () {
@@ -739,19 +739,19 @@ class QRT {
 		bits = "0".repeat(18 - bits.length) + bits;
 
 		for (let i = 0; i < 6; i++) {
-			this.matrix.x2set(this.modules -  9, 5 - i, +bits[(i * 3)] + 2);
-			this.matrix.x2set(this.modules - 10, 5 - i, +bits[(i * 3) + 1] + 2);
-			this.matrix.x2set(this.modules - 11, 5 - i, +bits[(i * 3) + 2] + 2);
+			this.matrix.x2set(this.modules -  9, 5 - i, parseInt(bits[i * 3], 10) + 2);
+			this.matrix.x2set(this.modules - 10, 5 - i, parseInt(bits[(i * 3) + 1], 10) + 2);
+			this.matrix.x2set(this.modules - 11, 5 - i, parseInt(bits[(i * 3) + 2], 10) + 2);
 
-			this.matrix.x2set(5 - i, this.modules -  9, +bits[(i * 3)] + 2);
-			this.matrix.x2set(5 - i, this.modules - 10, +bits[(i * 3) + 1] + 2);
-			this.matrix.x2set(5 - i, this.modules - 11, +bits[(i * 3) + 2] + 2);
+			this.matrix.x2set(5 - i, this.modules -  9, parseInt(bits[i * 3], 10) + 2);
+			this.matrix.x2set(5 - i, this.modules - 10, parseInt(bits[(i * 3) + 1], 10) + 2);
+			this.matrix.x2set(5 - i, this.modules - 11, parseInt(bits[(i * 3) + 2], 10) + 2);
 		}
 	}
 
 	applyDataOn (data) {
 		return this.goThroughDataModules((x, y, j) => {
-			this.matrix.x2set(x, y, +data[j]);
+			this.matrix.x2set(x, y, parseInt(data[j], 10));
 		}, {
 			maxb: QRtable[this.version][this.ecdepth].dataBytes * 8
 		});
@@ -760,7 +760,7 @@ class QRT {
 	applyECDataOn (ecdata) {
 		let i = 0;
 		this.goThroughDataModules((x, y) => {
-			this.matrix.x2set(x, y, +ecdata[i++] + 6);
+			this.matrix.x2set(x, y, parseInt(ecdata[i++], 10) + 6);
 		}, this._forECDataOn);
 	}
 

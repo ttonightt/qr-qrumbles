@@ -1,87 +1,81 @@
 class CheckBox {
-	constructor (name, trigger = false) {
-		this.value = 0;
-
-		this.elem = document.getElementById(name);
-		this.setOnChange(trigger);
+	constructor (id, trigger = false, trigImmidiately = false) {
+		this.elem = document.getElementById(id);
+		this.value = this.elem.checked ? (this.elem.value || 1) : 0;
+		this.onchange = trigger;
+		if (trigImmidiately && trigger) trigger(this.value);
 	}
 
-	setOnChange (trigger) {
-		this.value = this.elem.checked;
-
-		this.elem.addEventListener("change", () => {
-			this.value = this.elem.checked;
-			if (trigger) {
-				trigger();
-			}
-		});
+	set onchange (trigger) {
+		this.elem.onchange = () => {
+			this.value = this.elem.checked ? (this.elem.value || 1) : 0;
+			if (trigger) trigger(this.value);
+		};
 	}
 }
 
 class RadioBox {
-	constructor (name, trigger = false, toObj = {attr: "", wordi: 0, ignore: "-"}) {
+	constructor (name, trigger = false, trigImmidiately = false) {
 		this.value = 0;
-		this.model = 0;
+		this.list;
 
-		const _elems = document.getElementsByName(name);
+		if (typeof name == "string") {
+			this.list = document.getElementsByName(name);
 
-		if (toObj.attr == "") {
-			this.elems = _elems;
-		} else {
-			let address;
+			for (let i = 0; i < this.list.length; i++) {
+				if (this.list[i].checked) this.value = this.list[i].value;
+			}
 
-			for (let i = 0; i < _elems.length; i++) {
-				address = _elems[i].getAttribute(toObj.attr);
+			this.model = 0;
+		} else if (typeof name == "object") {
+			this.list = {};
+			this.radioKeys = Object.keys(name);
 
-				if (toObj.wordi > 0) {
-					address = address.split(toObj.ignore)[toObj.wordi - 1];
-				} else if (toObj.wordi == 0) {
-					address = address.replaceAll(toObj.ignore, "");
-				} else {
-					address = address.split(toObj.ignore);
-					address = address[address.length + toObj.wordi];
+			for (let i = 0; i < this.radioKeys.length; i++) {
+				this.list[this.radioKeys[i]] = {elem: document.getElementById(name[this.radioKeys[i]])};
+
+				if (this.list[this.radioKeys[i]].elem.checked) {
+					this.value = this.list[this.radioKeys[i]].elem.value;
 				}
-
-				if (address == "elems") console.warn("Setting name \"elems\" of control while converting to object may be consfused with common name elems");
-
-				this[address] = {elem: _elems[i]};
 			}
 
 			this.model = 1;
 		}
 
-		this.setOnChange(trigger);
+		this.onchange = trigger;
+		if (trigImmidiately && trigger) trigger(this.value);
 	}
 
-	setOnChange (trigger) {
+	set onchange (trigger) {
 		if (this.model) {
-			const keys = Object.keys(this);
+			for (let i = 0; i < this.radioKeys.length; i++) {
 
-			for (let i = 2; i < keys.length; i++) {
-				if (this[keys[i]].elem.checked) {
-					this.value = this[keys[i]].elem.value;
-				}
-	
-				this[keys[i]].elem.addEventListener("change", () => {
-					this.value = this[keys[i]].elem.value;
-					if (trigger) {
-						trigger();
-					}
-				});
+				this.list[this.radioKeys[i]].elem.onchange = () => {
+					this.value = this.list[this.radioKeys[i]].elem.value;
+					if (trigger) trigger(this.value);
+				};
 			}
 		} else {
-			for (let i = 0; i < this.elems.length; i++) {
-				if (this.elems[i].checked) {
-					this.value = this.elems[i].value;
-				}
+			for (let i = 0; i < this.list.length; i++) {
 
-				this.elems[i].addEventListener("change", () => {
-					this.value = this.elems[i].value;
-					if (trigger) {
-						trigger();
-					}
-				});
+				this.list[i].onchange = () => {
+					this.value = this.list[i].value;
+					if (trigger) trigger(this.value);
+				};
 			}
+		}
+	}
+}
+
+class Button {
+	constructor (id, trigger = false) {
+		this.elem = document.getElementById(id);
+		this.onchange = trigger;
+	}
+
+	set onchange (trigger) {
+		if (trigger) {
+			this.elem.onclick = trigger;
 		}
 	}
 }
@@ -90,52 +84,56 @@ const Controls = {};
 
 // TOOLS vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
-let Tools = new RadioBox("tool", false, {attr: "id", wordi: 1, ignore: "-"});
+let Tools = new RadioBox({
+	brush: "brush-tool",
+	line: "line-tool",
+	circle: "circle-tool"
+}, false);
 
-Tools.brush.radius = 1;
-Tools.line.width = 1;
+Tools.list.brush.radius = 1;
+Tools.list.line.width = 1;
 
-Tools.brush.elem.nextElementSibling.addEventListener("wheel", e => {
-	if (e.deltaY > 0 && Tools.brush.radius > 1) {
-		Tools.brush.radius--;
-	} else if (e.deltaY < 0 && Tools.brush.radius < 10) {
-		Tools.brush.radius++;
+Tools.list.brush.elem.nextElementSibling.addEventListener("wheel", e => {
+	if (e.deltaY > 0 && Tools.list.brush.radius > 1) {
+		Tools.list.brush.radius--;
+	} else if (e.deltaY < 0 && Tools.list.brush.radius < 10) {
+		Tools.list.brush.radius++;
 	}
 
 	if (!OneTitle.shown) {
 		OneTitle.show(	e.clientX + 6,
 						e.clientY - 6,
-						"Brush radius: " + Tools.brush.radius,
+						"Brush radius: " + Tools.list.brush.radius,
 						{pivot: 2});
 	} else {
-		OneTitle.log("Brush radius: " + Tools.brush.radius);
+		OneTitle.log("Brush radius: " + Tools.list.brush.radius);
 	}
 });
 
-Tools.brush.elem.nextElementSibling.addEventListener("mouseleave", () => {
+Tools.list.brush.elem.nextElementSibling.addEventListener("mouseleave", () => {
 	if (OneTitle.shown) {
 		OneTitle.hide();
 	}
 });
 
-Tools.line.elem.nextElementSibling.addEventListener("wheel", e => {
-	if (e.deltaY > 0 && Tools.line.width > 1) {
-		Tools.line.width--;
-	} else if (e.deltaY < 0 && Tools.line.width < 10) {
-		Tools.line.width++;
+Tools.list.line.elem.nextElementSibling.addEventListener("wheel", e => {
+	if (e.deltaY > 0 && Tools.list.line.width > 1) {
+		Tools.list.line.width--;
+	} else if (e.deltaY < 0 && Tools.list.line.width < 10) {
+		Tools.list.line.width++;
 	}
 
 	if (!OneTitle.shown) {
 		OneTitle.show(	e.clientX + 6,
 						e.clientY - 6,
-						"Line width: " + Tools.line.width,
+						"Line width: " + Tools.list.line.width,
 						{pivot: 2});
 	} else {
-		OneTitle.log("Line width: " + Tools.line.width);
+		OneTitle.log("Line width: " + Tools.list.line.width);
 	}
 });
 
-Tools.line.elem.nextElementSibling.addEventListener("mouseleave", () => {
+Tools.list.line.elem.nextElementSibling.addEventListener("mouseleave", () => {
 	if (OneTitle.shown) {
 		OneTitle.hide();
 	}
@@ -143,7 +141,7 @@ Tools.line.elem.nextElementSibling.addEventListener("mouseleave", () => {
 
 // GLOBAL KEYBINDINGS vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
-document.onkeydown = e => {
+document.addEventListener("keydown", e => {
 	if (e.ctrlKey) {
 		switch (e.key) {
 			case "e":
@@ -156,11 +154,23 @@ document.onkeydown = e => {
 		}
 	}
 
-	if (e.keyCode == 45) {
-		InterCharMap.changeTypingMode();
-		OneTitle.show(	document.documentElement.clientWidth / 2,
-						20,
-						"Edit typing mode is " + (InterCharMap.typingMode ? "on" : "off"),
-						{pivot: 3, timeOut: 2000})
-	};
-};
+	// console.log(e.keyCode);
+
+	if (e.keyCode === 45) { // INS
+		InterCharMap.typingMode ^= 1;
+		datablocksmap.ichars.input.selecti(0, 1);
+
+		OneTitle.show(
+			document.documentElement.clientWidth / 2,
+			20,
+			"Edit typing mode is " + (InterCharMap.typingMode ? "on" : "off"),
+			{pivot: 3, timeOut: 2000}
+		);
+	} else if (e.keyCode === 9) { // TAB
+		if (!datablocksmap.ichars.input.focused) e.preventDefault();
+		datablocksmap.ichars.input.focus();
+		datablocksmap.ichars.input.selecti(0, 1);
+	} else if (e.keyCode === 8 && e.target.tagName !== "INPUT") {
+		e.preventDefault();
+	}
+});

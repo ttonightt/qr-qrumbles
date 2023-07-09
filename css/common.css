@@ -601,6 +601,10 @@ input[type=file].selected + label:after {
 	background-color: #482f5c !important;
 }
 
+.controls-table input:disabled + label * {
+	opacity: 0.5;
+}
+
 .controls-table input:first-child + label:before {
 	content: "";
 	position: absolute;
@@ -639,24 +643,24 @@ input[type=file].selected + label:after {
 }
 
 .controls-table .btn-container input:checked + label,
-.controls-table .btn-container input:active + label {
+.controls-table .btn-container input:not(:disabled):active + label {
 	top: 6px;
 	box-shadow: inset 4px 3px 0px #2d1f38;
 }
 
 .controls-table .btn-container input:checked + label + input:checked + label,
-.controls-table .btn-container input:active + label + input:checked + label,
-.controls-table .btn-container input:checked + label + input:active + label {
+.controls-table .btn-container input:not(:disabled):active + label + input:checked + label,
+.controls-table .btn-container input:checked + label + input:not(:disabled):active + label {
 	box-shadow: inset 0px 3px 0px #2d1f38;
 }
 
-.controls-table .switcher input:active + label,
+.controls-table .switcher input:not(:disabled):active + label,
 .controls-table .switcher input:checked + label {
 	box-shadow: inset 4px 3px 0px #2d1f38, 0px -3px 0px #eca99d;
 }
 
 .controls-table input:first-child:checked + label,
-.controls-table input:first-child:active + label {
+.controls-table input:first-child:not(:disabled):active + label {
 	box-shadow: inset 0px 3px 0px #2d1f38;
 }
 
@@ -665,18 +669,18 @@ input[type=file].selected + label:after {
 }
 
 .controls-table input:checked + label:before,
-.controls-table input:active + label:before,
+.controls-table input:not(:disabled):active + label:before,
 .controls-table input:checked + label:after,
-.controls-table input:active + label:after {
+.controls-table input:not(:disabled):active + label:after {
 	box-shadow: inset 0px 3px 0px #2d1f38;
 }
 
 .controls-table .switcher input:first-child:checked + label:before,
-.controls-table .switcher input:first-child:active + label:before {
+.controls-table .switcher input:first-child:not(:disabled):active + label:before {
 	box-shadow: inset 0px 3px 0px #2d1f38, -3px -3px 0px #eca99d, -3px 3px 0px #eca99d;
 }
 
 .controls-table .switcher input:checked + label:last-child:after,
-.controls-table .switcher input:active + label:last-child:after {
+.controls-table .switcher input:not(:disabled):active + label:last-child:after {
 	box-shadow: inset 0px 3px 0px #2d1f38, 3px -3px 0px #eca99d, 3px 3px 0px #eca99d;
 }
