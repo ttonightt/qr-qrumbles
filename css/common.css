@@ -37,6 +37,16 @@ html.invertion:root {
 	src: url(../pikopixel.ttf);
 }
 
+@font-face {
+	font-family: "Noto Mono";
+	src: url(../NotoSansMono-VariableFont_wdth\,wght.ttf);
+}
+
+@font-face {
+	font-family: Unifont;
+	src: url(../unifont-15.0.06.ttf);
+}
+
 * {
 	font-family: pikopixel;
 	font-size: 23px;

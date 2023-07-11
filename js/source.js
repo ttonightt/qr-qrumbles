@@ -228,13 +228,29 @@ function setWorkspaceSize () {
 let datablocksmap;
 
 window.onload = () => {
-	DatablockMap.pcontainer = dbPolygonMap;
-	DatablockMap.ccontainer = document.getElementById("decoded");
-	datablocksmap = new DatablockMap(
-		BASE.current.decodeDataFrom(),
-		BASE.current.datatype,
-		BASE.current.getTableInfo().dataBytes
-	);
+	// DBMPolygons.init(dbPolygonMap);
+	DBMChars.init(document.getElementById("decoded"), document.getElementById("decoded").parentElement.parentElement);
+	// new DBMPolygons(
+	// 	BASE.current.decodeDataFrom(),
+	// 	BASE.current.datatype,
+	// 	BASE.current.getTableInfo().dataBytes
+	// );
+
+	DBMChars.container.textContent = "";
+	
+	for (let i = 0; i < 1000; i++) {
+		const elem = document.createElement("p");
+		elem.textContent = "H";
+		elem.onclick = () => {
+			DBMChars.input.remove();
+			elem.before(DBMChars.input);
+			DBMChars.input.value = 0;
+			DBMChars.input.focus();
+			DBMChars.input.selecti(0,1);
+			elem.remove();
+		};
+		DBMChars.container.append(elem);
+	}
 };
 
 // window.onbeforeunload = e => {

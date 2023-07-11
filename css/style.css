@@ -409,7 +409,7 @@ aside #update-controller label img {
 }
 
 aside .decoded-wrap {
-	width: 95%;
+	width: 100%;
 	margin: -3px;
 	padding: 6px;
 	background-image: linear-gradient(#3a2649 100%, #3a2649 100%), linear-gradient(45deg, #3a2649 25%, transparent 25%), linear-gradient(-45deg, #3a2649 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #3a2649 75%), linear-gradient(-45deg, transparent 75%, #3a2649 75%);
@@ -424,23 +424,28 @@ aside .decoded-wrap #decoded {
 	padding: 0px;
 	border: none;
 	border-radius: 0px;
-	font-size: 18px;
-	font-weight: 600;
-	color: transparent;
-	font-family: "Ubuntu Mono";
-	line-height: 27px;
-	overflow: hidden;
+	line-height: 1.5em;
+	user-select: none;
 	float: left;
 	cursor: pointer;
+	word-break: break-all;
+}
+
+aside .decoded-wrap #decoded, aside .decoded-wrap #decoded > * {
+	color: #150f1a;
+	font-size: 16px;
+	font-weight: 600;
+	font-family: "Noto Mono";
 }
 
 aside #decoded:empty {
 	width: auto;
-	min-width: 1ch;
+	min-width: calc(1ch + 0.4px);
 }
 
 aside .decoded-wrap canvas {
 	position: absolute;
+	max-width: calc(100% - 12px);
 	inset: 6px;
 	height: calc(100% - 12px);
 	background-color: #3a2649;
@@ -449,49 +454,68 @@ aside .decoded-wrap canvas {
 	image-rendering: crisp-edges;
 }
 
-aside #decoded p {
+aside #decoded p, aside #decoded i {
 	display: inline;
-	font-size: 18px;
-	font-weight: 600;
-	color: #150f1a;
-	font-family: "Ubuntu Mono";
 	padding: 0.25em 0px;
+	user-select: none;
+	letter-spacing: 0.4px;
+}
+
+aside #decoded p:hover {
+	background-color: red;
+}
+
+aside #decoded i {
+	font-style: normal;
+	color: transparent !important;
+}
+
+aside #decoded i:after {
+	position: absolute;
+	display: block;
+	content: "";
+	left: 1px;
+	top: 2px;
+	width: 0px;
+	height: 0px;
+	border-top: 4px solid #eca99d;
+	border-left: 4px solid transparent;
+	border-right: 4px solid transparent;
+	border-bottom: none;
+	box-shadow: 0px -2px 0px #eca99d;
+}
+
+aside #decoded i:after {
+	left: unset;
+	right: 1px;
 }
 
 aside #decoded input {
 	display: inline;
-	width: auto;
-	padding: 0px 0px 0.2em 0px;
+	width: 1ch;
+	height: 1em;
+	padding: 0.25em 0px;
 	color: #150f1a;
 	caret-color: #eca99d;
 	text-decoration: none;
 	background-color: transparent;
 	box-shadow: none;
 	float: none;
-
-	border-top: 0.25em solid transparent;
-	border-image-slice: 100 0 0 0;
-	border-image-outset: 2px 0px 0px 0px;
-	border-image-width: 6px 0px 0px 0px;
-	border-image-repeat: stretch;
-	border-image-source: conic-gradient(from 15deg at 50% 100%, transparent 0deg, transparent 332deg, #eca99d 332deg, #eca99d 360deg);
+	margin-right: 0.4px;
 }
 
-aside #decoded input:not(:focus) {
+/* aside #decoded input:not(:focus) {
 	position: absolute;
-}
+	z-index: 1;
+} */
 
 aside #decoded input:not(:valid) {
-	background-color: #e2001362;
+	background-color: #7b1734 !important;
 }
 
-aside #decoded p::selection, aside #decoded input::selection {
+aside #decoded input::selection {
 	background-color: #eca99d;
 	color: #150f1a;
-}
-
-aside #decoded::selection {
-	background-color: #eca99d;
 }
 
 aside #decoded input.big {
@@ -499,14 +523,19 @@ aside #decoded input.big {
 	width: 5ch;
 	margin-left: calc(-2ch - 3px);
 	background-color: #3a2649;
-	margin-top: calc(-1.5em + 1px);
+	margin-top: -1.5em;
 	padding: 3px;
+	color: #eca99d;
 
 	box-shadow: 0px 0px 0px 1px #eca99d;
-	border-top: none;
-	border-image-slice: 0 0 24 0;
-	border-image-outset: 0px 0px 6px 0px;
-	border-image-width: 0px 0px 6px 0px;
+}
+
+aside #decoded input.big ~ i {
+	color: #150f1a !important;
+}
+
+aside #decoded input.big ~ i:after {
+	box-shadow: none;
 }
 
 /* aside #decoded input.big:focus {

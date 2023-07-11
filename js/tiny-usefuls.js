@@ -133,7 +133,7 @@ String.alphanumFromCode = function (code) {
 	}
 }
 
-String.fromCharCodeS = function () {
+String.fromCharCodeS = function (code) {
 	if ((0 <= code && code <= 0x1f) || (0x7f <= code && code <= 0x9f)) {
 		code = 0xfffd;
 	}

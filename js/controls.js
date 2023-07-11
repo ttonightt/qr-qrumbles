@@ -157,13 +157,13 @@ document.addEventListener("keydown", e => {
 	// console.log(e.keyCode);
 
 	if (e.keyCode === 45) { // INS
-		InterCharMap.typingMode ^= 1;
+		DBMChars.toggleTypingMode();
 		datablocksmap.ichars.input.selecti(0, 1);
 
 		OneTitle.show(
 			document.documentElement.clientWidth / 2,
 			20,
-			"Edit typing mode is " + (InterCharMap.typingMode ? "on" : "off"),
+			"Edit typing mode is " + (DBMChars.typingMode ? "on" : "off"),
 			{pivot: 3, timeOut: 2000}
 		);
 	} else if (e.keyCode === 9) { // TAB
