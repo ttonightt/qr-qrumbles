@@ -4,26 +4,23 @@
 	<meta charset="UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="stylesheet" href="css/common.css">
-    <style>
-    body {
-            font-family: Unifont;
-            font-size: 20px;
-            overflow: scroll;
-            background-image: linear-gradient(90deg, transparent 50%, #422e63 50%);
-            background-repeat: repeat;
-            background-size: 2ch 100%;
-            word-break: break-all;
-        }
-    </style>
 </head>
 <body>
-    <script>
-        let str = "";
+<script>
 
-        for (let i = 0; i < 0xffff; i++) str += String.fromCharCode(i);
+let randS = "";
 
-        document.body.textContent = str;
-    </script>
+for (let i = 0; i < 4000; i++) {
+    randS += Math.round(Math.random());
+}
+
+let randBI = 0n;
+
+for (let i = 0; i < 4000; i++) {
+    randBI;
+}
+
+
+</script>
 </body>
 </html>

@@ -2,23 +2,23 @@ const canvas = document.getElementById("main");
 const dbPolygonMap = document.getElementById("dbmap-polygons-container");
 const cnvP = canvas.parentElement, cnvPP = canvas.parentElement.parentElement;
 
-BASE.ctx = canvas.getContext("2d");
-BASE.ctx.fillStyle = "#000000";
+QRT.ctx = canvas.getContext("2d");
+QRT.ctx.fillStyle = "#000000";
 
 const infocorner = document.getElementById("infocorner");
 
 // CONTROLS CONNECTING vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
 Controls.mask = new RadioBox("mask", () => {
-	BASE.current.applyFormatOn(Controls.mask.value, Controls.errcor.value, 4).updateCanvas();
+	QRT.current.applyFormatOn(Controls.mask.value, Controls.errcor.value, 4).updateCanvas();
 });
 
 Controls.errcor = new RadioBox("errcor", () => {
-	BASE.current.applyFormatOn(Controls.mask.value, Controls.errcor.value, 4).updateCanvas();
+	QRT.current.applyFormatOn(Controls.mask.value, Controls.errcor.value, 4).updateCanvas();
 });
 
 Controls.datatype = new RadioBox("dtype", value => {
-	BASE.current.applyDataTypeOn(value).updateCanvas();
+	QRT.current.applyDataTypeOn(value).updateCanvas();
 });
 
 Controls.datablockMapOverlay = new RadioBox("dtbmapover", value => {
@@ -72,9 +72,9 @@ Controls.automaticEncode = new CheckBox("updatectrl-tocanv-auto", value => {
 
 // QRT CREATION vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
-BASE.add(new QRT(27, Controls.mask.value, Controls.errcor.value, Controls.datatype.value));
+new QRT(27, Controls.mask.value, Controls.errcor.value, Controls.datatype.value);
 
-let canvasScale = Math.floor((cnvPP.clientHeight - 40) / BASE.current.modules);
+let canvasScale = Math.floor((cnvPP.clientHeight - 40) / QRT.current.modules);
 const 	csMIN = canvasScale - 2,
 		csMAX = canvasScale + 8;
 setWorkspaceSize();
@@ -82,7 +82,7 @@ setWorkspaceSize();
 let _canvasScale = canvasScale;
 
 cnvPP.onwheel = function (e) {
-	if (e.shiftKey && Tools.value == "brush") {
+	if (e.shiftKey && Tools.value === "brush") {
 		Tools.events.changeRadiusOnWheel(e);
 	} else {
 		if (e.deltaY > 0 && canvasScale > csMIN) {
@@ -94,15 +94,15 @@ cnvPP.onwheel = function (e) {
 		const coef = canvasScale / _canvasScale;
 		_canvasScale = canvasScale;
 	
-		cnvP.style.width = BASE.current.modules * canvasScale + "px";
-		cnvP.style.height = BASE.current.modules * canvasScale + "px";
+		cnvP.style.width = QRT.current.modules * canvasScale + "px";
+		cnvP.style.height = QRT.current.modules * canvasScale + "px";
 		dbPolygonMap.setAttribute("stroke-width", 2 / canvasScale);
 
 		cnvP.style.top = (e.clientY - 100 - ((e.clientY - 100 - parseInt(cnvP.style.top)) * coef)) + "px";
 		cnvP.style.left = (e.clientX - ((e.clientX - parseInt(cnvP.style.left)) * coef)) + "px";
 	
-		// BASE.current.updateCanvas();
-		// BASE.current.drawPointOn(e.offsetX, e.offsetY, canvasScale);
+		// QRT.current.updateCanvas();
+		// QRT.current.drawPointOn(e.offsetX, e.offsetY, canvasScale);
 	}
 };
 
@@ -116,50 +116,50 @@ cnvPP.onmousedown = e => {
 	_offsetX = e.offsetX;
 	_offsetY = e.offsetY;
 
-	if (mouseDown == 2) {
+	if (mouseDown === 2) {
 		cnvPP.style.cursor = "move";
-	} else if (e.target == canvas) {
+	} else if (e.target === canvas) {
 		_offsetX = Math.floor(_offsetX / canvasScale);
 		_offsetY = Math.floor(_offsetY / canvasScale);
-		if (Tools.value == "brush") BASE.current.applyPointOn(_offsetX, _offsetY, (mouseDown - 3) / -2);
+		if (Tools.value === "brush") QRT.current.applyPointOn(_offsetX, _offsetY, (mouseDown - 3) / -2);
 	}
 };
 
 cnvPP.onmousemove = e => {
 	let _x = Math.floor(e.offsetX / canvasScale), _y = Math.floor(e.offsetY / canvasScale);
 
-	if (mouseDown == 2) {
+	if (mouseDown === 2) {
 		cnvP.style.top = (e.clientY - 100 - _offsetY) + "px";
 		cnvP.style.left = (e.clientX - _offsetX) + "px";
-	} else if (e.target == canvas) {
+	} else if (e.target === canvas) {
 		if (mouseDown % 2) {
 			switch (Tools.value) {
 				case "brush":
-					BASE.current.drawLineOn(_offsetX, _offsetY, _x, _y, (mouseDown - 3) / -2, Tools.list.brush.radius, false);
-					BASE.current.applyLineOn(_offsetX, _offsetY, _x, _y, (mouseDown - 3) / -2, Tools.list.brush.radius, false);
+					QRT.current.drawLineOn(_offsetX, _offsetY, _x, _y, (mouseDown - 3) / -2, Tools.list.brush.radius, false);
+					QRT.current.applyLineOn(_offsetX, _offsetY, _x, _y, (mouseDown - 3) / -2, Tools.list.brush.radius, false);
 					_offsetX = _x;
 					_offsetY = _y;
 					break;
 				case "line":
-					BASE.current.updateCanvasX();
-					BASE.current.drawLineOn(	Math.floor(_offsetX),
+					QRT.current.updateCanvasX();
+					QRT.current.drawLineOn(	Math.floor(_offsetX),
 												Math.floor(_offsetY),
 												_x, _y, (mouseDown - 3) / -2, Tools.list.line.width);
 					break;
 				case "circle":
-					BASE.current.updateCanvasX();
-					BASE.current.drawEllipseOn(	Math.floor(_offsetX),
+					QRT.current.updateCanvasX();
+					QRT.current.drawEllipseOn(	Math.floor(_offsetX),
 													Math.floor(_offsetY),
 													_x, _y, e.ctrlKey, e.shiftKey, (mouseDown - 3) / -2);
 			}
 			// infocorner.textContent = _x + "," + _y + " : " + Math.floor((e.offsetX - _offsetX) / canvasScale) + "," + Math.floor((e.offsetY - _offsetY) / canvasScale);
-		} else if (BASE.current.matrix.x2get(_x, _y) == 1) {
-			BASE.current.drawPointOn(_phantomX, _phantomY, 0);
+		} else if (QRT.current.matrix.x2get(_x, _y) === 1) {
+			QRT.current.drawPointOn(_phantomX, _phantomY, 0);
 			_phantomX = 1;
 			_phantomY = 1;
 		} else {
-			BASE.current.drawPointOn(_phantomX, _phantomY, 0);
-			BASE.current.drawPointOn(_x, _y, 1);
+			QRT.current.drawPointOn(_phantomX, _phantomY, 0);
+			QRT.current.drawPointOn(_x, _y, 1);
 			_phantomX = _x;
 			_phantomY = _y;
 		}
@@ -171,27 +171,27 @@ cnvPP.onmousemove = e => {
 };
 
 cnvPP.onmouseup = e => {
-	if (mouseDown == 2) {
+	if (mouseDown === 2) {
 		cnvPP.style.cursor = "";
-		BASE.current.drawPointOn(_phantomX, _phantomY, 0);
+		QRT.current.drawPointOn(_phantomX, _phantomY, 0);
 	} else {
 		switch (Tools.value) {
 			case "line":
-				BASE.current.applyLineOn(	Math.floor(_offsetX),
+				QRT.current.applyLineOn(	Math.floor(_offsetX),
 											Math.floor(_offsetY),
 											Math.floor(e.offsetX / canvasScale),
 											Math.floor(e.offsetY / canvasScale),
 											(mouseDown - 3) / -2, Tools.list.line.width);
 				break;
 			case "circle":
-				BASE.current.applyEllipseOn(	Math.floor(_offsetX),
+				QRT.current.applyEllipseOn(	Math.floor(_offsetX),
 												Math.floor(_offsetY),
 												Math.floor(e.offsetX / canvasScale),
 												Math.floor(e.offsetY / canvasScale),
 												e.ctrlKey, e.shiftKey, (mouseDown - 3) / -2);
 				break;
 		}
-		BASE.current.updateCanvasX();
+		QRT.current.updateCanvasX();
 	}
 	if (mouseDown != 0) {
 		_phantomX = 1;
@@ -201,7 +201,7 @@ cnvPP.onmouseup = e => {
 };
 
 cnvP.onmouseout = e => {
-	BASE.current.drawPointOn(_phantomX, _phantomY, 0);
+	QRT.current.drawPointOn(_phantomX, _phantomY, 0);
 	_phantomX = 1;
 	_phantomY = 1;
 };
@@ -213,44 +213,29 @@ cnvPP.oncontextmenu = e => {
 
 
 function setWorkspaceSize () {
-	canvasScale = Math.floor((cnvPP.clientHeight - 40) / BASE.current.modules);
-	canvas.width = BASE.current.modules;
-	canvas.height = BASE.current.modules;
-	cnvP.style.width = BASE.current.modules * canvasScale + "px";
-	cnvP.style.height = BASE.current.modules * canvasScale + "px";
-	cnvP.style.top = Math.floor((cnvPP.clientHeight - (canvasScale * BASE.current.modules)) / 2) + "px";
-	cnvP.style.left = Math.floor((cnvPP.clientWidth - (canvasScale * BASE.current.modules)) / 2) + "px";
-	dbPolygonMap.setAttribute("viewBox", "0 0 " + BASE.current.modules + " " + BASE.current.modules);
+	canvasScale = Math.floor((cnvPP.clientHeight - 40) / QRT.current.modules);
+	canvas.width = QRT.current.modules;
+	canvas.height = QRT.current.modules;
+	cnvP.style.width = QRT.current.modules * canvasScale + "px";
+	cnvP.style.height = QRT.current.modules * canvasScale + "px";
+	cnvP.style.top = Math.floor((cnvPP.clientHeight - (canvasScale * QRT.current.modules)) / 2) + "px";
+	cnvP.style.left = Math.floor((cnvPP.clientWidth - (canvasScale * QRT.current.modules)) / 2) + "px";
+	dbPolygonMap.setAttribute("viewBox", "0 0 " + QRT.current.modules + " " + QRT.current.modules);
 	dbPolygonMap.setAttribute("stroke-width", 2 / canvasScale);
-	BASE.current.updateCanvasX();
+	QRT.current.updateCanvasX();
 }
 
 let datablocksmap;
 
 window.onload = () => {
-	// DBMPolygons.init(dbPolygonMap);
+	DBMPolygons.init(dbPolygonMap);
 	DBMChars.init(document.getElementById("decoded"), document.getElementById("decoded").parentElement.parentElement);
-	// new DBMPolygons(
-	// 	BASE.current.decodeDataFrom(),
-	// 	BASE.current.datatype,
-	// 	BASE.current.getTableInfo().dataBytes
-	// );
-
-	DBMChars.container.textContent = "";
-	
-	for (let i = 0; i < 1000; i++) {
-		const elem = document.createElement("p");
-		elem.textContent = "H";
-		elem.onclick = () => {
-			DBMChars.input.remove();
-			elem.before(DBMChars.input);
-			DBMChars.input.value = 0;
-			DBMChars.input.focus();
-			DBMChars.input.selecti(0,1);
-			elem.remove();
-		};
-		DBMChars.container.append(elem);
-	}
+	new DBMPolygons(
+		QRT.current.decodeDataFrom(),
+		QRT.current.datatype,
+		QRT.current.getTableInfo().dataBytes
+	);
+	// new DBMChars();
 };
 
 // window.onbeforeunload = e => {

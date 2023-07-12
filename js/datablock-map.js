@@ -3,38 +3,18 @@ class DBMChars {
 	static typingMode = 0;
 	static container;
 	static swrap;
-	static canvas;
 	static input;
 	static inputMode;
 	static posti;
-	static _p;
-	static p_;
-	static letterWidth;
-	static letterHeight;
+	static eblocks = [];
 
 	static init (container, swrap) {
 		this.container = container;
 		this.swrap = swrap;
 
-		this.container.textContent = "";
-
-		this.letterWidth = this.container.clientWidth;
-		this.letterHeight = this.container.clientHeight;
-		
-		this.container.textContent = "0";
-
 		this.container.oncontextmenu = e => {
 			e.preventDefault();
 		};
-
-		this.canvas = this.container.previousElementSibling;
-		this.ctx = this.canvas.getContext("2d");
-
-		this.canvas.palette = [
-			getComputedStyle(this.canvas).backgroundColor,
-			getComputedStyle(this.canvas).color,
-			getComputedStyle(this.canvas).accentColor
-		];
 
 		this.input = document.createElement("input");
 		this.input.type = "text";
@@ -43,70 +23,40 @@ class DBMChars {
 		this.input.required = true;
 		DBMChars.input.pattern = "^.|\\n|\\r|\\u2028|\\u2029$";
 
+		this.posti = document.createElement("i");
+
 		this.input.selecti = (a = this.input.size, b = a) => {
 			this.input.selectionStart = a;
 			this.input.selectionEnd = b;
 		};
+	}
 
-		// this.input.onfocus = () => {
-		// 	this.input.focused = true;
-		// 	if (!this.inputMode) {
-		// 		this.posti.textContent = "";
-		// 	}
-		// };
-
-		// this.input.onblur = () => {
-		// 	this.input.focused = false;
-		// 	if (!this.inputMode) {
-		// 		this.posti.textContent = this.input.value;
-		// 	}
-		// };
-
-		// this.input.onmousedown = e => {
-		// 	if (DBMChars.typingMode) e.preventDefault();
-		// };
-
-		// this.posti = document.createElement("i");
-		// this._p = document.createElement("p");
-		// this.p_ = document.createElement("p");
+	static resizeContent (len) {
+		if (len < this.len)  {
+			// ...
+		} else if (len > this.len) {
+			// ...
+		}
 	}
 
 	static toggleTypingMode () {
 		DBMChars.typingMode ^= 1;
 	}
 
-	constructor (data, len, mlen) {
-		this.len = len || data.length;
+	constructor (data, dbs, blen, padTo = data.length) {
+		this.dbs = dbs;	//		  ^^^^^^^^^^^^^^^^^^^
+		this.clen = padTo; // <<< ТРЕБА ЗРОБИТИ ПЕРЕВІРКУ НА ПРАВИЛЬНІСТЬ ДОВЖИНИ ДАНИХ ТА ВИНЕСТИ ЇЇ У КЛАСС QR
 
-		switch (mlen) {
+		switch (blen) {
 			case 1: case 2:
-				this.mlen = mlen;
+				this.blen = blen;
 				break;
 			default:
 				throw new Error("Only values 1 or 2 are allowed");
 		}
 
-		this.chars = "";
-
-		// vvvv CALCULATIONS vvvv
-
-		this.cols = Math.floor(DBMChars.container.clientWidth / DBMChars.letterWidth);
-		this.rows = Math.ceil(this.len / this.cols);
-
-		// vvvv SETTING UP THE DATA vvvv
-
-		if (data instanceof Uint16Array) {
-			for (let i = 0; i < this.len; i++) {
-				this.chars += String.fromCharCodeS(data[i] || 0x30);
-			}
-		} else if (typeof data == "string") {
-			for (let i = 0; i < this.len; i++) {
-				this.chars += data[i];
-			}
-		}
-
-		// vvvv BOX vvvv
-
+		// vvvv ????
+		
 		this.box = DBMChars.container.getBoundingClientRect(); // METHOD IS WORKABLE ONLY WHEN CONTAINER IS SMALLER THAN GRANDPARENT
 
 		const __box = DBMChars.swrap.getBoundingClientRect();
@@ -125,62 +75,60 @@ class DBMChars {
 			bottom: DBMChars.swrap.scrollHeight - this.box.height - this.box.top + __box.top
 		};
 
-		// vvvv CONTAINER'S EVENTS vvvv
+		// vvvv SETTING UP THE DATA vvvv
 
-		DBMChars.container.onmouseleave = () => {
-			this.mark(-1);
-		};
+		this.chars = "";
 
-		DBMChars.container.onmousemove = e => {
-			this.mark((Math.floor((e.clientY - this.box.y + DBMChars.swrap.scrollTop) / DBMChars.letterHeight) * this.cols) + Math.floor((e.clientX - this.box.x) / DBMChars.letterWidth), 0, 2);
-		};
-
-		DBMChars.container.onmouseup = e => {
-			if (e.target === DBMChars.input) return;
-
-			this.relocateInput(
-				(Math.floor((e.clientY - this.box.y + DBMChars.swrap.scrollTop) / DBMChars.letterHeight) * this.cols) + Math.floor((e.clientX - this.box.x) / DBMChars.letterWidth),
-				false,
-				e.button
-			);
-			DBMChars.input.focus();
-			DBMChars.input.selecti(0, DBMChars.input.size);
-		};
-
-		// vvvv CANVAS vvvv
-
-		DBMChars.canvas.width = this.cols;
-		DBMChars.canvas.height = this.rows;
-		DBMChars.canvas.style.width = this.cols * DBMChars.letterWidth + "px"; // ROUND() IN CSS???
-		
-		this.mi = {i: 0, base: 0};
-
-		DBMChars.ctx.fillStyle = DBMChars.canvas.palette[1];
-
-		for (let i = 0, y = -1; i < this.len; i++) {
-			if (i % this.cols === 0) y++;
-			if (Math.floor(i / 2) % 2) DBMChars.ctx.fillRect(i % this.cols, y, 1, 1);
+		if (data instanceof Uint16Array) {
+			for (let i = 0; i < this.clen; i++) {
+				this.chars += String.fromCharCodeS(data[i] || 0x30);
+			}
+		} else if (typeof data === "string") {
+			for (let i = 0; i < this.clen; i++) {
+				this.chars += data[i] || "0";
+			}
 		}
 
-		// vvvv INPUT vvvv
+		if (this.dbs < DBMChars.eblocks.length) {
+			for (let i = DBMChars.eblocks.length; i > this.dbs; i--) {
+				DBMChars.eblocks.pop();
+				DBMChars.container.lastChild.remove();
+			}
+		} else if (this.dbs > DBMChars.eblocks.length) {
+			for (let i = DBMChars.eblocks.length; i < this.dbs; i++) {
+				const elem = document.createElement("p");
+				DBMChars.eblocks.push(elem);
+				DBMChars.container.appendChild(elem);
+			}
+		}
 
-		DBMChars.input.value = this.chars[0];
+		if (this.blen === 2) {
+			for (let i = 0, j = 0; j < this.clen; i++, j += 2) {
 
-		DBMChars.container.textContent = "";
+				const elem = DBMChars.eblocks[i];
+				elem.textContent = this.chars[j] + (this.chars[j + 1] || "");
 
-		DBMChars.container.append(
-			DBMChars._p,
-			DBMChars.input,
-			DBMChars.posti,
-			DBMChars.p_
-		);
+				elem.onmouseup = () => {
+					const selection = getSelection();
 
-		DBMChars.posti.textContent = DBMChars.input.value;
-		DBMChars.p_.textContent = this.getDataToLog(1, this.len);
+					if (selection.anchorNode === selection.focusNode && selection.anchorOffset === selection.focusOffset) {
+						this.relocateInputTo((i * this.blen) + selection.anchorOffset);
+					} else {
+						// ...
+					}
+				};
+			}
+		} else if (this.blen === 1) {
+			for (let i = 0; i < this.dbs; i++) {
+				const elem = document.createElement("p");
+				elem.textContent = this.chars[i];
+				DBMChars.container.appendChild(elem);
+			}
+		}
 
-		this.ci = 0;
+		// vvvv INPUT EVENTS vvvv
 
-		// vvvv EVENTS FOR INPUT vvvv
+		this.ci = -1;
 
 		let keyDown = 0;
 
@@ -197,20 +145,6 @@ class DBMChars {
 			} else if (keyDown === "ArrowLeft" && DBMChars.input.selectionStart === 0) {
 
 				this.relocateInput(this.ci - !e.ctrlKey, e.ctrlKey);
-				DBMChars.input.selecti(0, DBMChars.input.size);
-				this.showInput(false);
-				e.preventDefault();
-
-			} else if (keyDown === "ArrowUp") {
-
-				this.relocateInput(this.ci - this.cols);
-				DBMChars.input.selecti(0, DBMChars.input.size);
-				this.showInput(false);
-				e.preventDefault();
-
-			} else if (keyDown === "ArrowDown") {
-
-				this.relocateInput(this.ci + this.cols);
 				DBMChars.input.selecti(0, DBMChars.input.size);
 				this.showInput(false);
 				e.preventDefault();
@@ -245,7 +179,7 @@ class DBMChars {
 	}
 
 	changeChar (i, char, between = false) {
-		if (char == "") {
+		if (char === "") {
 			this.chars = this.chars.slice(0, i) + this.chars.slice(i + 1, this.len);
 			if (this.chars.length < this.len) this.chars += "0";
 		} else {
@@ -253,82 +187,53 @@ class DBMChars {
 		}
 	}
 
-	unmark () {
-		if (this.mi.base === 0) return;
+	relocateInputTo (i, between = false, mode = false) {
+		i = Math.fitinter(0, i, this.clen);
 
-		let x, y;
-		DBMChars.ctx.fillStyle = DBMChars.canvas.palette[Math.floor(this.mi.i / this.mlen) % this.mlen];
-
-		if (this.mi.base === 1) {
-			x = this.mi.i % this.cols;
-			y = (this.mi.i - x) / this.cols;
-			DBMChars.ctx.fillRect(x, y, 1, 1);
-		} else for (let j = this.mi.i; j < this.mi.i + this.mi.base; j++) {
-			x = j % this.cols;
-			y = (j - x) / this.cols;
-			DBMChars.ctx.fillRect(x, y, 1, 1);
-		}
-		this.mi.base = 0;
-	}
-
-	mark (x, y = 0, base) {
-		base ||= 1;
-
-		this.unmark();
-
-		DBMChars.ctx.fillStyle = DBMChars.canvas.palette[2];
-
-		const i = Math.floor(Math.min((y * this.cols) + x, this.len) / base) * base;
-		this.mi.i = i;
-		this.mi.base = base;
-
-		if (base === 1) {
-			x = i % this.cols;
-			y = (i - x) / this.cols;
-			DBMChars.ctx.fillRect(x, y, 1, 1);
-		} else for (let j = i; j < i + base; j++) {
-			x = j % this.cols;
-			y = (j - x) / this.cols;
-			DBMChars.ctx.fillRect(x, y, 1, 1);
-		}
-	}
-
-	relocateInput (i, between = false, mode = false) {
 		if (this.ci === i) return;
 
-		DBMChars._p.textContent = "";
-		DBMChars.p_.textContent = "";
-
-		this.ci = Math.fitinter(0, i, this.len - 1);
-
-		if (between) {
-			this.changeChar(this.ci, "0", true);
-			DBMChars.input.value = "0";
-		} else {
-			DBMChars.input.value = this.getDataToLog(this.ci, this.ci + 1);
+		if (this.ci !== -1) {
+			const bi = Math.floor(this.ci / this.blen);
+			DBMChars.eblocks[bi].textContent = this.getDataToLog(bi * this.blen, (bi + 1) * this.blen);
 		}
 
-		if (DBMChars.inputMode !== mode) {
-			DBMChars.inputMode = mode;
+		this.ci = i;
 
-			if (mode) {
-				DBMChars.input.value = "u" + DBMChars.input.value.charCodeAt(0).toString(16).padStart(4, "0");
-				DBMChars.input.size = 5;
-				DBMChars.input.maxLength = 5;
-				DBMChars.input.classList.add("big");
-				DBMChars.input.pattern = "^[uU]{0,1}[0-9a-fA-F]{1,4}$";
-			} else {
-				DBMChars.input.size = 1;
-				DBMChars.input.maxLength = 1;
-				DBMChars.input.classList.remove("big");
-				DBMChars.input.pattern = "^.|\\n|\\r|\\u2028|\\u2029$";
+		const bi = Math.floor(this.ci / this.blen), ii = this.ci % this.blen;
 
-				DBMChars.posti.textContent = "";
-			}
-		}
+		// if (between) {
+		// 	this.changeChar(this.ci, "0", true);
+		// 	DBMChars.input.value = "0";
+		// } else {
+			DBMChars.eblocks[bi].textContent = "";
 
-		DBMChars._p.textContent = this.getDataToLog(0, this.ci);
-		DBMChars.p_.textContent = this.getDataToLog(this.ci + 1, this.len);
+			if (ii > 0) DBMChars.eblocks[bi].append(this.getDataToLog(bi * this.blen, this.ci));
+			
+			DBMChars.eblocks[bi].append(DBMChars.input);
+
+			DBMChars.input.value = this.chars[this.ci];
+
+			if (ii < this.blen - 1) DBMChars.eblocks[bi].append(this.getDataToLog(this.ci + 1, (bi + 1) * this.blen));
+		// }
+
+		// if (DBMChars.inputMode !== mode) {
+		// 	DBMChars.inputMode = mode;
+
+		// 	if (mode) {
+		// 		DBMChars.input.value = "u" + DBMChars.input.value.charCodeAt(0).toString(16).padStart(4, "0");
+		// 		DBMChars.input.size = 5;
+		// 		DBMChars.input.maxLength = 5;
+		// 		DBMChars.input.classList.add("big");
+		// 		DBMChars.input.pattern = "^[uU]{0,1}[0-9a-fA-F]{1,4}$";
+		// 	} else {
+		// 		DBMChars.input.size = 1;
+		// 		DBMChars.input.maxLength = 1;
+		// 		DBMChars.input.classList.remove("big");
+		// 		DBMChars.input.pattern = "^.|\\n|\\r|\\u2028|\\u2029$";
+
+		// 		DBMChars.posti.textContent = "";
+		// 	}
+		// }
 	}
 
 	showInput (type = true) {
@@ -349,18 +254,17 @@ class DBMChars {
 		}
 	}
 
-	getDataToLog (a = 0, b = this.len, br = " ") {
-		if (a == b) return ""/*(((b - 1) % this.cols) ? "" : br)*/; // <<< WASN'T TESTED
-		if (b - a == 1) return this.chars[a]/* + ((b % this.cols) ? "" : br)*/;
+	getDataToLog (a = 0, b = this.clen) {
+		if (a === b) return "";
+		if (b - a === 1) return this.chars[a];
 
 		let str = "";
 		for (let i = a; i < b; i++) {
-			if (this.chars[i] == " ") {
+			if (this.chars[i] === " ") {
 				str += "\u00a0";
 			} else {
 				str += this.chars[i];
 			}
-			if ((i + 1) % this.cols === 0) str += br;
 		}
 		return str;
 	}
@@ -388,8 +292,10 @@ class DBMPolygons {
 				this.dbs = databytes * 8;
 				if (this.dbs % 11 >= 7) {
 					this.dbs = Math.ceil(this.dbs / 11);
+					this.clen = (this.dbs * 2) - 1;
 				} else {
 					this.dbs = Math.floor(this.dbs / 11);
+					this.clen = this.dbs * 2;
 				}
 		}
 
@@ -397,7 +303,7 @@ class DBMPolygons {
 		let coords = [];
 		let _v;
 	
-		BASE.current.goThroughDataModules((x, y, j, v) => {
+		QRT.current.goThroughDataModules((x, y, j, v) => {
 			_v = -v;
 			if (coords.length >= this.dblen * 2) {
 				this.polygons.push(bitCoordsToPolygons(coords, ["upgoing", "downgoing"][(_v + 1) / 2], DBMPolygons.container));
@@ -406,7 +312,7 @@ class DBMPolygons {
 			coords.push(x);
 			coords.push(y);
 		}, {
-			maxb: QRtable[BASE.current.version][BASE.current.ecdepth].dataBytes * 8,
+			maxb: QRtable[QRT.current.version][QRT.current.ecdepth].dataBytes * 8,
 		});
 	
 		if (coords.length > 2) {
@@ -417,7 +323,7 @@ class DBMPolygons {
 
 		// CHARS
 
-		this.ichars = new DBMChars(chars, this.dbs, 2);
+		this.ichars = new DBMChars(chars, this.dbs, 2, this.clen);
 	}
 }
 
@@ -465,14 +371,14 @@ function bitCoordsToPolygons (coords, cssClass, parent) {
 		let rn = 0;
 	
 		do {
-			if (points.length == 0) {
-				if (map.x2get(x, y) == 1 && map.x2getD(x + 1, y, 0) != 2 && map.x2getD(x, y + 1, 0) != 2 && map.x2getD(x - 1, y, 0) != 2 && map.x2getD(x, y - 1, 0) != 2) {
+			if (points.length === 0) {
+				if (map.x2get(x, y) === 1 && map.x2getD(x + 1, y, 0) != 2 && map.x2getD(x, y + 1, 0) != 2 && map.x2getD(x - 1, y, 0) != 2 && map.x2getD(x, y - 1, 0) != 2) {
 					t = true;
 					_x = x;
 					_y = y;
 					_p = p;
 				} else {
-					if (y == 1 && x < map.columns - 1) {
+					if (y === 1 && x < map.columns - 1) {
 						y = map.rows - 1;
 						x++;
 					} else {
@@ -507,7 +413,7 @@ function bitCoordsToPolygons (coords, cssClass, parent) {
 				points.push(y + miny);
 				rn++;
 			}
-		} while (!(x == _x && y == _y && p - _p > 1) && ++p < 200);
+		} while (!(x === _x && y === _y && p - _p > 1) && ++p < 200);
 
 		if (points.length > 1) {
 			polygons.push(points);

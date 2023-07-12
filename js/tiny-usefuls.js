@@ -7,7 +7,7 @@ Math.fitinter = function (min, x, max) {
 }
 
 Math.binlen = function (bx) {
-	if (bx == 0) return 0;
+	if (bx === 0) return 0;
 	if (bx < 0) throw new Error("Inapropriate argument was putted into Math.binlen(): the argument is a negative number");
 	return Math.floor(Math.log2(bx)) + 1;
 }
@@ -264,7 +264,7 @@ const OneTitle = {
 		if (message) OneTitle.content.textContent = message;
 		OneTitle.elem.classList.add("visible");
 
-		if (typeof x == "number" && typeof y == "number") {
+		if (typeof x === "number" && typeof y === "number") {
 			OneTitle.elem.style.left = +(x - (Math.floor(pivot / 3) * OneTitle.elem.clientWidth / 2)) + "px";
 			OneTitle.elem.style.top = +(y - ((pivot % 3) * OneTitle.elem.clientHeight / 2)) + "px";
 		}

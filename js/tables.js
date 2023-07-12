@@ -28,8 +28,12 @@ const polynomialsGens = {
 };
 
 const QRtable = {
-	"20": {
+	20: {
 		alignmentRectsGap: [28, 28],
+		counterLength: {
+			A: 11,
+			B: 16
+		},
 		L: {
 			dataBytes: 861,
 			ecBytesPerBlock: 28,
@@ -68,8 +72,12 @@ const QRtable = {
 		}
 	},
 
-	"27": {
+	27: {
 		alignmentRectsGap: [28, 28],
+		counterLength: {
+			A: 13,
+			B: 16
+		},
 		L: {
 			dataBytes: 1468,
 			ecBytesPerBlock: 30,
@@ -108,8 +116,12 @@ const QRtable = {
 		}
 	},
 
-	"34": {
+	34: {
 		alignmentRectsGap: [28, 28],
+		counterLength: {
+			A: 13,
+			B: 16
+		},
 		L: {
 			dataBytes: 2191,
 			ecBytesPerBlock: 30,
@@ -148,8 +160,12 @@ const QRtable = {
 		}
 	},
 
-	"40": {
+	40: {
 		alignmentRectsGap: [24, 28],
+		counterLength: {
+			A: 13,
+			B: 16
+		},
 		L: {
 			dataBytes: 2956,
 			ecBytesPerBlock: 30,

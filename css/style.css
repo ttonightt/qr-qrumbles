@@ -420,54 +420,39 @@ aside .decoded-wrap {
 
 aside .decoded-wrap #decoded {
 	width: 100%;
-	min-height: 1.5em;
 	padding: 0px;
 	border: none;
 	border-radius: 0px;
-	line-height: 1.5em;
-	user-select: none;
 	float: left;
-	cursor: pointer;
 	word-break: break-all;
 }
 
 aside .decoded-wrap #decoded, aside .decoded-wrap #decoded > * {
 	color: #150f1a;
-	font-size: 16px;
+	font-size: 18px;
+	line-height: 28px;
 	font-weight: 600;
-	font-family: "Noto Mono";
+	font-family: "Ubuntu Mono";
 }
 
-aside #decoded:empty {
-	width: auto;
-	min-width: calc(1ch + 0.4px);
-}
-
-aside .decoded-wrap canvas {
-	position: absolute;
-	max-width: calc(100% - 12px);
-	inset: 6px;
-	height: calc(100% - 12px);
-	background-color: #3a2649;
-	color: #402c50;
-	accent-color: #eca99d5b;
-	image-rendering: crisp-edges;
-}
-
-aside #decoded p, aside #decoded i {
+aside #decoded p {
 	display: inline;
-	padding: 0.25em 0px;
-	user-select: none;
-	letter-spacing: 0.4px;
+	padding: 5px 0px;
+	cursor: pointer;
+	position: relative;
+}
+
+aside #decoded p:nth-child(2n) {
+	background-color: #402c50;
 }
 
 aside #decoded p:hover {
-	background-color: red;
+	background-color: #eca99d5b;
 }
 
-aside #decoded i {
+/* aside #decoded i {
+	display: inline;
 	font-style: normal;
-	color: transparent !important;
 }
 
 aside #decoded i:after {
@@ -488,20 +473,21 @@ aside #decoded i:after {
 aside #decoded i:after {
 	left: unset;
 	right: 1px;
-}
+} */
 
 aside #decoded input {
 	display: inline;
 	width: 1ch;
-	height: 1em;
-	padding: 0.25em 0px;
+	height: 18px;
+	padding: 0px;
+	background-color: transparent !important;
+	line-height: 28px;
 	color: #150f1a;
 	caret-color: #eca99d;
 	text-decoration: none;
 	background-color: transparent;
-	box-shadow: none;
+	box-shadow: 0px 3px 0px #eca99d;
 	float: none;
-	margin-right: 0.4px;
 }
 
 /* aside #decoded input:not(:focus) {

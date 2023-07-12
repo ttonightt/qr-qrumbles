@@ -19,7 +19,7 @@ class RadioBox {
 		this.value = 0;
 		this.list;
 
-		if (typeof name == "string") {
+		if (typeof name === "string") {
 			this.list = document.getElementsByName(name);
 
 			for (let i = 0; i < this.list.length; i++) {
@@ -27,7 +27,7 @@ class RadioBox {
 			}
 
 			this.model = 0;
-		} else if (typeof name == "object") {
+		} else if (typeof name === "object") {
 			this.list = {};
 			this.radioKeys = Object.keys(name);
 
