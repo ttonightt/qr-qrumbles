@@ -1,4 +1,10 @@
 
+class CodewordArray extends Uint8ClampedArray {
+	constructor (length) {
+		super(length);
+	}
+}
+
 class QRT {
 	static ctx;
 
@@ -48,18 +54,14 @@ class QRT {
 	}
 
 	constructor (version, masktype, ecdepth, datatype) {
-		switch (version) {
-			case 20: case 27: case 34: case 40:
-				break;
-			default:
-				throw new Error("Inappropriate version value was detected in the argument of QRT constructor (only 20, 27, 34, 40 are allowed)");
-		}
 
-		this.version = parseInt(version, 10);
-		this.modules = 17 + (this.version * 4);
+		this.info = new QRTable(version, ecdepth);
 
+		this.version = version;
 		this.ecdepth = ecdepth.toUpperCase();
 		this.masktype = parseInt(masktype, 10);
+
+		this.modules = 17 + (this.version * 4);
 		this.format5 = 0x00000;
 
 		switch (datatype) {
@@ -245,7 +247,6 @@ class QRT {
 
 //		vvvvvvvv DATA ENCODING AND APPLING vvvvvvvv
 
-		this._DataStartPoint = this.applyDataOn("667666666767677");
 		this._ECStartPoint = this.applyDataOn("10100101010101011111");
 		this.applyECDataOn("1010101001010000001110101011");
 
@@ -253,72 +254,99 @@ class QRT {
 			QRT.add(this, true);
 		}
 
-		// return this;
-	}
+		this.decodeCodewords(this.scanDataFrom());
 
-	getTableInfo () {
-		return QRtable[this.version][this.ecdepth];
+
+		// this.encodeDataCodewords("HELLO WORLDDDDDDDDDD");
+
+		// return this;
 	}
 
 	// encoding - encoding - encoding - encoding - encoding - encoding - encoding - encoding
 
-/* >>> UPGRADES ARE NEEDED */ encodeDataBits (data, dtype) {
-		dtype = 1 << dtype;
+	encodeDataCodewords (data) {
+		let cws = new CodewordArray(this.info.dataBytes);
+		let buff = 0b0;
 
-		const dlen = data.length;
+		switch (this.datatype) {
+			case 2: // ALPHANUM // WAS NOT TESTED WHEN DATA COVERS ALL POSSIBLE CODEWORDS !!!!!!!!
+				let i, k = 4, c = 0;
 
-		let dbits = "";
-
-		switch (dtype) {
-			case 0b0010:
-				if (/^[a-z0-9\s%*+-/:.$]{1,}$/i.test(data)) {
-					const dbitslen2 = data.length.toString(2);
-					dbits = "0010" + ("0".repeat(8 - dbitslen2.length + 1) + dbitslen2);
-					dbits += data.decodeAsAN2();
-
-					if ((13 * 8) - dbits.length < 4) { // ОЦЕ ТРЕБА ВИРІЗАТИ Й ВИНЕСТИ ЗА СВІЧ-КЕЙС
-						dbits += "0".repeat((13 * 8) - dbits.length);
-					} else {
-						dbits += "0000";
-						dbits += "0".repeat(8 - (dbits.length % 8));
+				function distribute () {
+					if (k >= 16) {
+						k = (k % 8) + 8;
+						cws[c++] = buff >> k;
+						buff %= 1 << k;
 					}
-
-					// for (let i = 0; i < dbits.length; i += 11) {
-					// 	console.log(dbits.slice(i, i + 11) + "\n");
-					// }
-					// console.log("\n");
-					// for (let i = 0; i < dbits.length; i += 8) {
-					// 	console.log(dbits.slice(i, i + 8) + "\n");
-					// }
-				} else {
-					alert("Given data has anappropriate format (Non-Alphanumerical char)");
-				}
-				break;
-
-			case 0b0100:
-				if (/^[\x00-\xff]{1,}$/.test(data)) {
-					dbits = data.decodeAsASCII2();
-//						 vvvvvvv СТАРА ВЕРСІЯ QRtable, та й це приклад для одиничного випадку
-					if ((QRtable.L20.databytes * 8) - dbits.length > 0) { // ОЦЕ ТРЕБА ВИРІЗАТИ Й ВИНЕСТИ ЗА СВІЧ-КЕЙС
-						dbits += "00000000";
+	
+					if (k >= 8) {
+						k %= 8;
+						cws[c++] = buff >> k;
+						buff %= 1 << k;
 					}
-				} else {
-					alert("Given data has anappropriate format (Non-ASCII char)");
 				}
+
+				buff += 2;
+				buff <<= 13;
+				buff += 0b1111111111111;
+				k += 13;
+
+				distribute();
+
+				for (i = 0; i < data.length - 1; i += 2) {
+					k += 11;
+					buff <<= 11;
+					buff += (Alphanumerical.charCode(data[i]) * 45) + Alphanumerical.charCode(data[i + 1]);
+
+					distribute();
+				}
+
+				if (data.length % 2) {
+					k += 6;
+					buff <<= 6;
+					buff += Alphanumerical.charCode(data[i]);
+
+					distribute();
+				}
+
+				buff <<= 4;
+				k += 4;
+
+				if (k > 8) {
+					k %= 8;
+					cws[c++] = buff >> k;
+				} else {
+					cws[c] = buff << (8 - k);
+				}
+
+				if (c !== cws.length - 1) {
+					throw new Error("In this app it is necessary to cover all data codewords");
+				}
+
 				break;
+			case 4:
+				if (/^[\x00-\xff]+$/.test(data)) {
+
+				} else {
+					throw new Error("There is non-ASCII char in the given data");
+				}
+			// 	break;
+			// case 7:
+			// 	// ...
 		}
 
-		if (dbits.length < 16 * 8) {
-			const dbiteslen = dbits.length / 8;
-			for (let i = 0; i < 16 - dbiteslen; i++) {
-				if (i % 2) {
-					dbits += "00010001";
-				} else {
-					dbits += "11101100";
-				}
-			}
-		}
-		return dbits;
+		// if (dbits.length < 16 * 8) {
+		// 	const dbiteslen = dbits.length / 8;
+		// 	for (let i = 0; i < 16 - dbiteslen; i++) {
+		// 		if (i % 2) {
+		// 			dbits += "00010001";
+		// 		} else {
+		// 			dbits += "11101100";
+		// 		}
+		// 	}
+		// }
+
+		return cws;
 	}
 
 /* >>> UPGRADES ARE NEEDED */ encodeECBits (data) {
@@ -768,7 +796,7 @@ class QRT {
 		return this.goThroughDataModules((x, y, j) => {
 			this.matrix.x2set(x, y, parseInt(data[j], 10));
 		}, {
-			maxb: QRtable[this.version][this.ecdepth].dataBytes * 8
+			maxb: this.info.dataBytes * 8
 		});
 	}
 
@@ -779,37 +807,137 @@ class QRT {
 		}, this._ECStartPoint);
 	}
 
-	decodeDataFrom () {
-		let buff = 0b0,
-			i = 0,
-			data = "";
+	scanDataFrom () {
+		const cws = new CodewordArray(this.info.dataBytes);
+		let byte = 0b0, i = 0;
 
-		switch (this.datatype) {
-			case 0b0010:
-				this.goThroughDataModules((x, y) => {
-					buff <<= 1;
-					buff += this.matrix.x2get(x, y) ^ QRT.getMaskBit(this.masktype, x, y);
+		this.goThroughDataModules((x, y, j) => {
+			byte <<= 1;
+			byte += (this.matrix.x2get(x, y) % 2) ^ QRT.getMaskBit(this.masktype, x, y);
 
-					if (i++ === 11) {
-						data += String.alphanumFromCode(Math.floor(buff / 45)) +
-								String.alphanumFromCode(buff % 45);
-						buff = 0;
-						i = 0;
-					}
-				}, {
-					maxb: QRtable[this.version][this.ecdepth].dataBytes * 8
-				});
+			if (j % 8 === 7) {
+				cws[i++] = byte;
+				byte = 0;
+			}
+		}, {
+			maxb: this.info.dataBytes * 8
+		});
 
-				if (--i === 7) {
-					data += String.alphanumFromCode(buff % 45);
-				}
-				break;
-			case 0b0100:
-				break;
+		return cws;
+	}
+
+	decodeCodewords (cws) {
+		const ncws = new CodewordArray(cws.length);
+		const g1 = this.info.g1Blocks, g2 = this.info.g2Blocks;
+
+		let k = 0;
+
+		for (let i = 0; i < g1 + g2; i++) {
+			for (let j = 0; j < this.info.g1DataBytesPerBlock; j++) {
+				ncws[k++] = cws[(j * (g1 + g2)) + i];
+			}
+
+			if (i >= g1) {
+				ncws[k++] = cws[(this.info.g1DataBytesPerBlock * (g1 + g2)) + i - g1];
+			}
 		}
 
-		this.data = data;
-		return data;
+		let chars = "";
+		let buff = 0b0;
+
+		switch (this.datatype) {
+			case 2: // ALPHANUM
+				let k = 15; // <<< СЮДИ ТРЕБА ЗНАЧЕННЯ З ТАБЛИЦІ
+				let i = Math.floor(k / 8);
+
+				k = 8 - (k % 8);
+
+				buff = ncws[i] % (1 << k);
+
+				const pair = new Uint16Array(2);
+
+				for (i = i + 1; i < ncws.length; i++) {
+					buff <<= 8;
+					buff += ncws[i];
+					k += 8;
+
+					if (k >= 11) {
+						k %= 11;
+
+						pair[0] = buff >> k;
+
+						if (pair[0] > 0b11111101000) { // ENCODING CORRECTION BLOCK
+							const corrections = [];
+
+							for (let p = 1; p < pair[0]; p <<= 1) {
+								if ((pair[0] ^ p) <= 0b11111101000) {
+									corrections.push(pair[0] ^ p);
+									// console.logb(pair[0] ^ p, 11);
+								}
+							}
+						}
+
+						pair[1] = pair[0] % 45;
+						pair[0] = (pair[0] - pair[1]) / 45;
+
+						chars += Alphanumerical.fromCharCode(pair[0]) + Alphanumerical.fromCharCode(pair[1]);
+						buff &= (1 << k) - 1;
+					}
+				}
+
+				if (k >= 7) {
+					pair[0] = buff >> (k % 7);
+
+					if (pair[0] > 44) {
+						throw new Error("An attempt to get an alphanum char by too big code was detected!");
+					}
+
+					chars += Alphanumerical.fromCharCode(pair[0]);
+				}
+
+				break;
+			case 4: // BYTE
+				//       vvvvv СЮДИ ТРЕБА ЗНАЧЕННЯ З ТАБЛИЦІ (ДОВЖИНА ЛІЧИЛЬНИКА + 4)
+				for (let i = 0; i < ncws.length; i++) {
+					chars += String.fromCharCode(ncws[i]);
+				}
+				break;
+			case 7: // UNICODE // IS UNUSED NOW
+				let trig = 0;
+				//       vvvvv СЮДИ ТРЕБА ЗНАЧЕННЯ З ТАБЛИЦІ (ДОВЖИНА ЛІЧИЛЬНИКА + 4)
+				for (let i = 0; i < ncws.length; i++) {
+					if (ncws[i] >= 0b11110000) {
+						throw new Error("Bytes that greater or equal than 0b11110000 are not allowed in UTF16 encoding. Current byte: 0b" + ncws[i].toString(2).padStart(8, "0") + " (" + ncws[i] + ")");
+					}
+
+					if (ncws[i] >= 0b11100000) { 		// 1110xxxx
+						buff += ncws[i] % 16;
+						trig = 2;
+						i++;
+					} else if (ncws[i] >= 0b11000000) { // 110xxxxx
+						buff += ncws[i] % 32;
+						trig = 1;
+						i++;
+					}
+					
+					if (ncws[i] >= 0b10000000) { 		// 10xxxxxx
+						if (trig--) {
+							buff <<= 6;
+							buff += ncws[i] % 128;
+						} else throw new Error("0b" + ncws[i].toString(2) + " byte is preceded by neither 0b110xxxxx nor 0b1110xxxx bytes!");
+
+					} else { 							// 0xxxxxxx
+						buff = ncws[i];
+					}
+
+					if (trig === 0) {
+						chars += String.fromCharCode(buff);
+						buff = 0;
+					}
+				}
+		}
+
+		return chars;
 	}
 
 	goThroughDataModules (act, interval = {}) {
@@ -822,9 +950,9 @@ class QRT {
 			maxb = interval.maxb;
 
 		if (!maxb) {
-			maxb = (QRtable[this.version][this.ecdepth].dataBytes + QRtable[this.version][this.ecdepth].ecBytes) * 8;
+			maxb = (this.info.dataBytes + this.info.ecBytes) * 8;
 		} else {
-			maxb = Math.min(maxb, (QRtable[this.version][this.ecdepth].dataBytes + QRtable[this.version][this.ecdepth].ecBytes) * 8);
+			maxb = Math.min(maxb, (this.info.dataBytes + this.info.ecBytes) * 8);
 		}
 
 		for (let i = 0; j < maxb && i < 100000; i++) {

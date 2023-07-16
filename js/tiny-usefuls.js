@@ -1,5 +1,28 @@
-console.logb = function (bnum) {
-	console.log(parseInt(bnum.toString(2), 10));
+console.logb = function (bnum, pad = 0) {
+	bnum = bnum.toString(2);
+
+	if (pad > bnum.length) {
+		bnum = bnum.padStart(pad, "0");
+	}
+
+	console.log(bnum);
+};
+
+Math.hammingDistance = (a, b) => {
+	if (a === b) return 0;
+
+	a ^= b;
+	b = 0;
+
+	while (a > 0) {
+		if (a % 2) {
+			b++;
+		}
+
+		a >>= 1;
+	}
+
+	return b;
 };
 
 Math.fitinter = function (min, x, max) {
@@ -8,128 +31,203 @@ Math.fitinter = function (min, x, max) {
 
 Math.binlen = function (bx) {
 	if (bx === 0) return 0;
-	if (bx < 0) throw new Error("Inapropriate argument was putted into Math.binlen(): the argument is a negative number");
 	return Math.floor(Math.log2(bx)) + 1;
 }
 
-function charToInt45 (char) {
-	switch (char) {
-		case " ":
-			return 36;
-		case "$":
-			return 37;
-		case "%":
-			return 38;
-		case "*":
-			return 39;
-		case "+":
-			return 40;
-		case "-":
-			return 41;
-		case ".":
-			return 42;
-		case "/":
-			return 43;
-		case ":":
-			return 44;
-		default:
-			return parseInt(char, 36);
-	}
-}
+const Alphanumerical = {
 
-String.alphanumFromCode = function (code) {
-	code %= 45;
-	switch (code) {
-		case 0:
-			return "0";
-		case 1:
-			return "1";
-		case 2:
-			return "2";
-		case 3:
-			return "3";
-		case 4:
-			return "4";
-		case 5:
-			return "5";
-		case 6:
-			return "6";
-		case 7:
-			return "7";
-		case 8:
-			return "8";
-		case 9:
-			return "9";
-		case 10:
-			return "A";
-		case 11:
-			return "B";
-		case 12:
-			return "C";
-		case 13:
-			return "D";
-		case 14:
-			return "E";
-		case 15:
-			return "F";
-		case 16:
-			return "G";
-		case 17:
-			return "H";
-		case 18:
-			return "I";
-		case 19:
-			return "J";
-		case 20:
-			return "K";
-		case 21:
-			return "L";
-		case 22:
-			return "M";
-		case 23:
-			return "N";
-		case 24:
-			return "O";
-		case 25:
-			return "P";
-		case 26:
-			return "Q";
-		case 27:
-			return "R";
-		case 28:
-			return "S";
-		case 29:
-			return "T";
-		case 30:
-			return "U";
-		case 31:
-			return "V";
-		case 32:
-			return "W";
-		case 33:
-			return "X";
-		case 34:
-			return "Y";
-		case 35:
-			return "Z";
-		case 36:
-			return " ";
-		case 37:
-			return "$";
-		case 38:
-			return "%";
-		case 39:
-			return "*";
-		case 40:
-			return "+";
-		case 41:
-			return "-";
-		case 42:
-			return ".";
-		case 43:
-			return "/";
-		case 44:
-			return ":";
+	fromCharCode (code) {
+		switch (code) {
+			case 0:
+				return "0";
+			case 1:
+				return "1";
+			case 2:
+				return "2";
+			case 3:
+				return "3";
+			case 4:
+				return "4";
+			case 5:
+				return "5";
+			case 6:
+				return "6";
+			case 7:
+				return "7";
+			case 8:
+				return "8";
+			case 9:
+				return "9";
+			case 10:
+				return "A";
+			case 11:
+				return "B";
+			case 12:
+				return "C";
+			case 13:
+				return "D";
+			case 14:
+				return "E";
+			case 15:
+				return "F";
+			case 16:
+				return "G";
+			case 17:
+				return "H";
+			case 18:
+				return "I";
+			case 19:
+				return "J";
+			case 20:
+				return "K";
+			case 21:
+				return "L";
+			case 22:
+				return "M";
+			case 23:
+				return "N";
+			case 24:
+				return "O";
+			case 25:
+				return "P";
+			case 26:
+				return "Q";
+			case 27:
+				return "R";
+			case 28:
+				return "S";
+			case 29:
+				return "T";
+			case 30:
+				return "U";
+			case 31:
+				return "V";
+			case 32:
+				return "W";
+			case 33:
+				return "X";
+			case 34:
+				return "Y";
+			case 35:
+				return "Z";
+			case 36:
+				return " ";
+			case 37:
+				return "$";
+			case 38:
+				return "%";
+			case 39:
+				return "*";
+			case 40:
+				return "+";
+			case 41:
+				return "-";
+			case 42:
+				return ".";
+			case 43:
+				return "/";
+			case 44:
+				return ":";
+			default:
+				throw new Error("Code of alphanumerical char cannot be greater that 44");
+		}
+	},
+
+	charCode (char) {
+		switch (char[0]) {
+			case "0":
+				return 0;
+			case "1":
+				return 1;
+			case "2":
+				return 2;
+			case "3":
+				return 3;
+			case "4":
+				return 4;
+			case "5":
+				return 5;
+			case "6":
+				return 6;
+			case "7":
+				return 7;
+			case "8":
+				return 8;
+			case "9":
+				return 9;
+			case "A":
+				return 10;
+			case "B":
+				return 11;
+			case "C":
+				return 12;
+			case "D":
+				return 13;
+			case "E":
+				return 14;
+			case "F":
+				return 15;
+			case "G":
+				return 16;
+			case "H":
+				return 17;
+			case "I":
+				return 18;
+			case "J":
+				return 19;
+			case "K":
+				return 20;
+			case "L":
+				return 21;
+			case "M":
+				return 22;
+			case "N":
+				return 23;
+			case "O":
+				return 24;
+			case "P":
+				return 25;
+			case "Q":
+				return 26;
+			case "R":
+				return 27;
+			case "S":
+				return 28;
+			case "T":
+				return 29;
+			case "U":
+				return 30;
+			case "V":
+				return 31;
+			case "W":
+				return 32;
+			case "X":
+				return 33;
+			case "Y":
+				return 34;
+			case "Z":
+				return 35;
+			case " ":
+				return 36;
+			case "$":
+				return 37;
+			case "%":
+				return 38;
+			case "*":
+				return 39;
+			case "+":
+				return 40;
+			case "-":
+				return 41;
+			case ".":
+				return 42;
+			case "/":
+				return 43;
+			case ":":
+				return 44;
+			default:
+				throw new Error("Only following chars can be converted into code: \"0-9A-Z $%*+-./:\"");
+		}
 	}
 }
 
@@ -140,7 +238,7 @@ String.fromCharCodeS = function (code) {
 	return String.fromCharCode(code);
 }
 
-String.prototype.decodeAsAN2 = function () {
+String.prototype.decodeAsAN2 = function () { // MUST BE INTAGRATED INTO QR CLASS !!!!!!!!!!!
 	let res = 0n, _res = "";
 	let leadingZeroes = 0;
 
@@ -167,7 +265,7 @@ String.prototype.decodeAsAN2 = function () {
 	return _res;
 }
 
-String.prototype.decodeAsASCII2 = function () {
+String.prototype.decodeAsASCII2 = function () { // MUST BE INTAGRATED INTO QR CLASS !!!!!!!!!!!
 	let _res, res = "";
 
 	for (let i = 0; i < this.length; i++) {

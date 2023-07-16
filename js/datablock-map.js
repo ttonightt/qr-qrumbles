@@ -279,15 +279,7 @@ class DBMPolygons {
 
 	constructor (chars, datatype, databytes) {
 		switch (datatype) {
-			// case 7:
-			// 	this.dbs = databytes * 8;
-			// 	this.dblen = 8;
-			// 	break;
-			case 0b0100:
-				this.dbs = databytes;
-				this.dblen = 8;
-				break;
-			case 0b0010:
+			case 2:
 				this.dblen = 11;
 				this.dbs = databytes * 8;
 				if (this.dbs % 11 >= 7) {
@@ -297,37 +289,41 @@ class DBMPolygons {
 					this.dbs = Math.floor(this.dbs / 11);
 					this.clen = this.dbs * 2;
 				}
+				break;
+			case 4:
+				this.dbs = databytes;
+				this.dblen = 8;
+			// 	break;
+			// case 7:
+			// 	// ...
 		}
 
 		this.polygons = [];
 		let coords = [];
-		let _v;
+		let bit = 0;
 	
 		QRT.current.goThroughDataModules((x, y, j, v) => {
-			_v = -v;
-			if (coords.length >= this.dblen * 2) {
-				this.polygons.push(bitCoordsToPolygons(coords, ["upgoing", "downgoing"][(_v + 1) / 2], DBMPolygons.container));
+			if (coords.length >= 16) {
+				this.polygons.push(bitCoordsToPolygons(coords, DBMPolygons.container));
 				coords = [];
 			}
 			coords.push(x);
 			coords.push(y);
 		}, {
-			maxb: QRtable[QRT.current.version][QRT.current.ecdepth].dataBytes * 8,
+			maxb: QRT.current.info.dataBytes * 8,
 		});
 	
 		if (coords.length > 2) {
-			this.polygons.push(bitCoordsToPolygons(coords, ["upgoing", "downgoing"][(_v + 1) / 2], DBMPolygons.container));
+			this.polygons.push(bitCoordsToPolygons(coords, DBMPolygons.container));
 		}
-
-		coords = [];
 
 		// CHARS
 
-		this.ichars = new DBMChars(chars, this.dbs, 2, this.clen);
+		// this.ichars = new DBMChars(chars, this.dbs, 2, this.clen);
 	}
 }
 
-function bitCoordsToPolygons (coords, cssClass, parent) {
+function bitCoordsToPolygons (coords, parent) {
 	let i = 0, t;
 	let _coords = structuredClone(coords);
 
@@ -432,8 +428,6 @@ function bitCoordsToPolygons (coords, cssClass, parent) {
 	} else {
 		elem = SVGPolygonElement.create(polygons[0], parent);
 	}
-
-	elem.classList.add(cssClass);
 
 	return elem;
 }

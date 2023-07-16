@@ -12,8 +12,8 @@ body {
 	--contrast: 0.6;
 	--invertion: 0;
 
-	--svg-upgoing-color: #4220a0;
-	--svg-downgoing-color: #d81355;
+	--svg-pattern-color1: #4220a0;
+	--svg-pattern-color2: #d81355;
 
 	--decoded-str: "!";
 	--decoded-x: 0ch;

@@ -39,19 +39,11 @@ Controls.datablockMapOverlay = new RadioBox("dtbmapover", value => {
 }, true);
 
 Controls.toPreview = new CheckBox("topreview", value => {
-	if (value) {
-		document.documentElement.classList.add("preview");
-	} else {
-		document.documentElement.classList.remove("preview");
-	}
+	document.documentElement.classList.toggle("preview", value);
 });
 
 Controls.toInvert = new CheckBox("toinvert", value => {
-	if (value) {
-		document.documentElement.classList.add("invertion");
-	} else {
-		document.documentElement.classList.remove("invertion");
-	}
+	document.documentElement.classList.toggle("invertion", value);
 });
 
 Controls.toDecode = new Button("updatectrl-fromcanv", () => {
@@ -231,9 +223,9 @@ window.onload = () => {
 	DBMPolygons.init(dbPolygonMap);
 	DBMChars.init(document.getElementById("decoded"), document.getElementById("decoded").parentElement.parentElement);
 	new DBMPolygons(
-		QRT.current.decodeDataFrom(),
-		QRT.current.datatype,
-		QRT.current.getTableInfo().dataBytes
+		"",
+		2,
+		QRT.current.info.dataBytes
 	);
 	// new DBMChars();
 };

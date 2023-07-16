@@ -1,45 +1,33 @@
-.canvas-wrap svg pattern * {
-	fill: none;
+
+.canvas-wrap svg polyline {
+	fill: none !important;
 }
 
-.canvas-wrap svg pattern > rect {
-	fill-opacity: 0.7;
+.canvas-wrap svg #paired-pattern > rect {
+	fill-opacity: 0.8;
 	stroke: none !important;
 }
 
-.canvas-wrap svg #upgoing-pattern * {
-	stroke: var(--svg-upgoing-color);
+.canvas-wrap svg #paired-pattern .down {
+	fill: var(--svg-pattern-color1);
+	stroke: var(--svg-pattern-color1);
 }
 
-.canvas-wrap svg #upgoing-pattern > rect {
-	fill: var(--svg-upgoing-color);
+.canvas-wrap svg #paired-pattern .up {
+	fill: var(--svg-pattern-color2);
+	stroke: var(--svg-pattern-color2);
 }
 
-.canvas-wrap svg #downgoing-pattern * {
-	stroke: var(--svg-downgoing-color);
+.canvas-wrap svg polygon {
+	fill: url(#paired-pattern);
+	fill-opacity: 0.6;
+	stroke: white;
 }
-
-.canvas-wrap svg #downgoing-pattern > rect {
-	fill: var(--svg-downgoing-color);
-}
-
-
 
 .canvas-wrap svg polygon, .canvas-wrap svg g polygon {
-	fill-opacity: 0.3;
 	cursor: pointer;
 }
 
-.canvas-wrap svg polygon.upgoing, .canvas-wrap svg g.upgoing polygon {
-	fill: url(#upgoing-pattern);
-	stroke: var(--svg-upgoing-color);
-}
-
-.canvas-wrap svg polygon.downgoing, .canvas-wrap svg g.downgoing polygon {
-	fill: url(#downgoing-pattern);
-	stroke: var(--svg-downgoing-color);
-}
-
 .canvas-wrap svg polygon:hover, .canvas-wrap svg g:hover polygon {
-	fill-opacity: 0.7;
+	fill-opacity: 1;
 }

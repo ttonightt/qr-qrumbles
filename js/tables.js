@@ -27,180 +27,209 @@ const polynomialsGens = {
 	"30": new Uint16Array([0, 41, 173, 145, 152, 216, 31, 179, 182, 50, 48, 110, 86, 239, 96, 222, 125, 42, 173, 226, 193, 224, 130, 156, 37, 251, 216, 238, 40, 192, 180]),
 };
 
-const QRtable = {
-	20: {
-		alignmentRectsGap: [28, 28],
-		counterLength: {
-			A: 11,
-			B: 16
+class QRTable {
+	static __table = {
+		20: {
+			alignmentRectsGap: [28, 28],
+			counterLength: {
+				A: 11,
+				B: 16
+			},
+			L: {
+				dataBytes: 861,
+				ecBytesPerBlock: 28,
+				ecBytes: 224,
+				g1Blocks: 3,
+				g1DataBytesPerBlock: 107,
+				g2Blocks: 5,
+				g2DataBytesPerBlock: 108
+			},
+			M: {
+				dataBytes: 669,
+				ecBytesPerBlock: 26,
+				ecBytes: 416,
+				g1Blocks: 3,
+				g1DataBytesPerBlock: 41,
+				g2Blocks: 13,
+				g2DataBytesPerBlock: 42
+			},
+			Q: {
+				dataBytes: 485,
+				ecBytesPerBlock: 30,
+				ecBytes: 600,
+				g1Blocks: 15,
+				g1DataBytesPerBlock: 24,
+				g2Blocks: 5,
+				g2DataBytesPerBlock: 25
+			},
+			H: {
+				dataBytes: 385,
+				ecBytesPerBlock: 28,
+				ecBytes: 700,
+				g1Blocks: 15,
+				g1DataBytesPerBlock: 15,
+				g2Blocks: 10,
+				g2DataBytesPerBlock: 16
+			}
 		},
-		L: {
-			dataBytes: 861,
-			ecBytesPerBlock: 28,
-			ecBytes: 224,
-			g1Blocks: 3,
-			g1DataBytesPerBlock: 107,
-			g2Blocks: 5,
-			g2DataBytesPerBlock: 108
+	
+		27: {
+			alignmentRectsGap: [28, 28],
+			counterLength: {
+				A: 13,
+				B: 16
+			},
+			L: {
+				dataBytes: 1468,
+				ecBytesPerBlock: 30,
+				ecBytes: 360,
+				g1Blocks: 8,
+				g1DataBytesPerBlock: 122,
+				g2Blocks: 4,
+				g2DataBytesPerBlock: 123
+			},
+			M: {
+				dataBytes: 1128,
+				ecBytesPerBlock: 28,
+				ecBytes: 700,
+				g1Blocks: 22,
+				g1DataBytesPerBlock: 45,
+				g2Blocks: 3,
+				g2DataBytesPerBlock: 46
+			},
+			Q: {
+				dataBytes: 808,
+				ecBytesPerBlock: 30,
+				ecBytes: 1020,
+				g1Blocks: 8,
+				g1DataBytesPerBlock: 23,
+				g2Blocks: 26,
+				g2DataBytesPerBlock: 24
+			},
+			H: {
+				dataBytes: 628,
+				ecBytesPerBlock: 30,
+				ecBytes: 1200,
+				g1Blocks: 12,
+				g1DataBytesPerBlock: 15,
+				g2Blocks: 28,
+				g2DataBytesPerBlock: 16
+			}
 		},
-		M: {
-			dataBytes: 669,
-			ecBytesPerBlock: 26,
-			ecBytes: 416,
-			g1Blocks: 3,
-			g1DataBytesPerBlock: 41,
-			g2Blocks: 13,
-			g2DataBytesPerBlock: 42
+	
+		34: {
+			alignmentRectsGap: [28, 28],
+			counterLength: {
+				A: 13,
+				B: 16
+			},
+			L: {
+				dataBytes: 2191,
+				ecBytesPerBlock: 30,
+				ecBytes: 570,
+				g1Blocks: 13,
+				g1DataBytesPerBlock: 115,
+				g2Blocks: 6,
+				g2DataBytesPerBlock: 116
+			},
+			M: {
+				dataBytes: 1725,
+				ecBytesPerBlock: 28,
+				ecBytes: 1036,
+				g1Blocks: 14,
+				g1DataBytesPerBlock: 46,
+				g2Blocks: 23,
+				g2DataBytesPerBlock: 47
+			},
+			Q: {
+				dataBytes: 1231,
+				ecBytesPerBlock: 30,
+				ecBytes: 1530,
+				g1Blocks: 44,
+				g1DataBytesPerBlock: 24,
+				g2Blocks: 7,
+				g2DataBytesPerBlock: 25
+			},
+			H: {
+				dataBytes: 961,
+				ecBytesPerBlock: 30,
+				ecBytes: 1800,
+				g1Blocks: 59,
+				g1DataBytesPerBlock: 16,
+				g2Blocks: 1,
+				g2DataBytesPerBlock: 17
+			}
 		},
-		Q: {
-			dataBytes: 485,
-			ecBytesPerBlock: 30,
-			ecBytes: 600,
-			g1Blocks: 15,
-			g1DataBytesPerBlock: 24,
-			g2Blocks: 5,
-			g2DataBytesPerBlock: 25
-		},
-		H: {
-			dataBytes: 385,
-			ecBytesPerBlock: 28,
-			ecBytes: 700,
-			g1Blocks: 15,
-			g1DataBytesPerBlock: 15,
-			g2Blocks: 10,
-			g2DataBytesPerBlock: 16
+	
+		40: {
+			alignmentRectsGap: [24, 28],
+			counterLength: {
+				A: 13,
+				B: 16
+			},
+			L: {
+				dataBytes: 2956,
+				ecBytesPerBlock: 30,
+				ecBytes: 750,
+				g1Blocks: 19,
+				g1DataBytesPerBlock: 118,
+				g2Blocks: 6,
+				g2DataBytesPerBlock: 119
+			},
+			M: {
+				dataBytes: 2334,
+				ecBytesPerBlock: 28,
+				ecBytes: 1372,
+				g1Blocks: 18,
+				g1DataBytesPerBlock: 47,
+				g2Blocks: 31,
+				g2DataBytesPerBlock: 48
+			},
+			Q: {
+				dataBytes: 1666,
+				ecBytesPerBlock: 30,
+				ecBytes: 2040,
+				g1Blocks: 34,
+				g1DataBytesPerBlock: 24,
+				g2Blocks: 34,
+				g2DataBytesPerBlock: 25
+			},
+			H: {
+				dataBytes: 1276,
+				ecBytesPerBlock: 30,
+				ecBytes: 2430,
+				g1Blocks: 20,
+				g1DataBytesPerBlock: 15,
+				g2Blocks: 61,
+				g2DataBytesPerBlock: 16
+			}
 		}
-	},
+	};
 
-	27: {
-		alignmentRectsGap: [28, 28],
-		counterLength: {
-			A: 13,
-			B: 16
-		},
-		L: {
-			dataBytes: 1468,
-			ecBytesPerBlock: 30,
-			ecBytes: 360,
-			g1Blocks: 8,
-			g1DataBytesPerBlock: 122,
-			g2Blocks: 4,
-			g2DataBytesPerBlock: 123
-		},
-		M: {
-			dataBytes: 1128,
-			ecBytesPerBlock: 28,
-			ecBytes: 700,
-			g1Blocks: 22,
-			g1DataBytesPerBlock: 45,
-			g2Blocks: 3,
-			g2DataBytesPerBlock: 46
-		},
-		Q: {
-			dataBytes: 808,
-			ecBytesPerBlock: 30,
-			ecBytes: 1020,
-			g1Blocks: 8,
-			g1DataBytesPerBlock: 23,
-			g2Blocks: 26,
-			g2DataBytesPerBlock: 24
-		},
-		H: {
-			dataBytes: 628,
-			ecBytesPerBlock: 30,
-			ecBytes: 1200,
-			g1Blocks: 12,
-			g1DataBytesPerBlock: 15,
-			g2Blocks: 28,
-			g2DataBytesPerBlock: 16
+	static get (param, version, ec) {
+		// ...
+	}
+
+	constructor (version, ec) {
+		switch (version) {
+			case 20: case 27: case 34: case 40:
+				break;
+			default:
+				throw new Error("Inappropriate version value was detected in the argument of QRT constructor (only 20, 27, 34, 40 are allowed)");
 		}
-	},
 
-	34: {
-		alignmentRectsGap: [28, 28],
-		counterLength: {
-			A: 13,
-			B: 16
-		},
-		L: {
-			dataBytes: 2191,
-			ecBytesPerBlock: 30,
-			ecBytes: 570,
-			g1Blocks: 13,
-			g1DataBytesPerBlock: 115,
-			g2Blocks: 6,
-			g2DataBytesPerBlock: 116
-		},
-		M: {
-			dataBytes: 1725,
-			ecBytesPerBlock: 28,
-			ecBytes: 1036,
-			g1Blocks: 14,
-			g1DataBytesPerBlock: 46,
-			g2Blocks: 23,
-			g2DataBytesPerBlock: 47
-		},
-		Q: {
-			dataBytes: 1231,
-			ecBytesPerBlock: 30,
-			ecBytes: 1530,
-			g1Blocks: 44,
-			g1DataBytesPerBlock: 24,
-			g2Blocks: 7,
-			g2DataBytesPerBlock: 25
-		},
-		H: {
-			dataBytes: 961,
-			ecBytesPerBlock: 30,
-			ecBytes: 1800,
-			g1Blocks: 59,
-			g1DataBytesPerBlock: 16,
-			g2Blocks: 1,
-			g2DataBytesPerBlock: 17
+		switch (ec) {
+			case "L": case "M": case "Q": case "H":
+				break;
+			default:
+				throw new Error("Inappropriate version value was detected in the argument of QRT constructor (only 20, 27, 34, 40 are allowed)");
 		}
-	},
 
-	40: {
-		alignmentRectsGap: [24, 28],
-		counterLength: {
-			A: 13,
-			B: 16
-		},
-		L: {
-			dataBytes: 2956,
-			ecBytesPerBlock: 30,
-			ecBytes: 750,
-			g1Blocks: 19,
-			g1DataBytesPerBlock: 118,
-			g2Blocks: 6,
-			g2DataBytesPerBlock: 119
-		},
-		M: {
-			dataBytes: 2334,
-			ecBytesPerBlock: 28,
-			ecBytes: 1372,
-			g1Blocks: 18,
-			g1DataBytesPerBlock: 47,
-			g2Blocks: 31,
-			g2DataBytesPerBlock: 48
-		},
-		Q: {
-			dataBytes: 1666,
-			ecBytesPerBlock: 30,
-			ecBytes: 2040,
-			g1Blocks: 34,
-			g1DataBytesPerBlock: 24,
-			g2Blocks: 34,
-			g2DataBytesPerBlock: 25
-		},
-		H: {
-			dataBytes: 1276,
-			ecBytesPerBlock: 30,
-			ecBytes: 2430,
-			g1Blocks: 20,
-			g1DataBytesPerBlock: 15,
-			g2Blocks: 61,
-			g2DataBytesPerBlock: 16
+		this.alignmentRectsGap = QRTable.__table[version].alignmentRectsGap;
+		this.counterLength = QRTable.__table[version].counterLength;
+
+		for (let key in QRTable.__table[version][ec]) {
+			this[key] = QRTable.__table[version][ec][key];
 		}
 	}
-};
+}
