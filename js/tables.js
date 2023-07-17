@@ -206,10 +206,6 @@ class QRTable {
 		}
 	};
 
-	static get (param, version, ec) {
-		// ...
-	}
-
 	constructor (version, ec) {
 		switch (version) {
 			case 20: case 27: case 34: case 40:

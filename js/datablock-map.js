@@ -277,18 +277,40 @@ class DBMPolygons {
 		this.container = container;
 	}
 
-	constructor (chars, datatype, databytes) {
+	constructor (chars, datatype, tinfo) {
+		const g1 = tinfo.g1Blocks, g2 = tinfo.g2Blocks, g1cws = tinfo.g1DataBytesPerBlock, g2cws = tinfo.g2DataBytesPerBlock;
+
 		switch (datatype) {
 			case 2:
-				this.dblen = 11;
-				this.dbs = databytes * 8;
-				if (this.dbs % 11 >= 7) {
-					this.dbs = Math.ceil(this.dbs / 11);
-					this.clen = (this.dbs * 2) - 1;
-				} else {
-					this.dbs = Math.floor(this.dbs / 11);
-					this.clen = this.dbs * 2;
+				this.datablocks = [];
+				let coords = [];
+				
+				for (let i = Math.ceil(tinfo.dataBytes * 8 / 11); i >= 0; i--) {
+					this.datablocks.push(
+						DBMPolygons.container.appendChild(document.createElementNS("http://www.w3.org/2000/svg", "g"))
+					);
 				}
+
+				QRT.current.goThroughDataModules((x, y, j) => {
+					const li = j % 8, gi = (j - li) / 8;
+					const r = gi % (g1 + g2), c = (gi - r) / (g1 + g2);
+					const ti = (g1cws * Math.min(r, g1)) + (g2cws * Math.max(0, r - g1)) + c;
+
+					coords.push(x);
+					coords.push(y);
+
+					if (((ti * 8) + li) % 11 === 0 || li === 7) {
+						this.datablocks[Math.floor(ti * 8 / 11)].appendChild(bitCoordsToPolygons(coords));
+						coords = [];
+					}
+				}, {
+					maxb: tinfo.dataBytes * 8
+				});
+
+				// if (coords.length > 2) {
+				// 	this.polygons.push(bitCoordsToPolygons(coords, DBMPolygons.container));
+				// }
+
 				break;
 			case 4:
 				this.dbs = databytes;
@@ -296,25 +318,6 @@ class DBMPolygons {
 			// 	break;
 			// case 7:
 			// 	// ...
-		}
-
-		this.polygons = [];
-		let coords = [];
-		let bit = 0;
-	
-		QRT.current.goThroughDataModules((x, y, j, v) => {
-			if (coords.length >= 16) {
-				this.polygons.push(bitCoordsToPolygons(coords, DBMPolygons.container));
-				coords = [];
-			}
-			coords.push(x);
-			coords.push(y);
-		}, {
-			maxb: QRT.current.info.dataBytes * 8,
-		});
-	
-		if (coords.length > 2) {
-			this.polygons.push(bitCoordsToPolygons(coords, DBMPolygons.container));
 		}
 
 		// CHARS
@@ -417,16 +420,15 @@ function bitCoordsToPolygons (coords, parent) {
 	}
 
 	let elem;
-	
+
 	if (polygons.length > 1) {
 		elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
-		parent.appendChild(elem);
 		
 		for (i = polygons.length - 1; i >= 0; i--) {
-			SVGPolygonElement.create(polygons[i], elem);
+			elem.appendChild(SVGPolygonElement.create(polygons[i]));
 		}
 	} else {
-		elem = SVGPolygonElement.create(polygons[0], parent);
+		elem = SVGPolygonElement.create(polygons[0]);
 	}
 
 	return elem;

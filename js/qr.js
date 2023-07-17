@@ -73,6 +73,8 @@ class QRT {
 			// 	break;
 			// case "U": case 7:
 			// 	this.datatype = 7;
+			default:
+				throw new Error("Inappropriate datatype value was detected in the argument of QRT constructor (only A, B, U are allowed)");
 		}
 
 		// this.encdata = this.encodeDataBits(this.data, 1);
@@ -993,6 +995,28 @@ class QRT {
 
 		return {x, y, j, v};
 	}
+
+	// goThroughDataModules Alternative: : : : : : :
+
+	// let i = 0; // Bit index into the data
+	// // Do the funny zigzag scan
+	// for (let right = this.size - 1; right >= 1; right -= 2) { // Index of right column in each column pair
+	// 	if (right == 6)
+	// 		right = 5;
+	// 	for (let vert = 0; vert < this.size; vert++) { // Vertical counter
+	// 		for (let j = 0; j < 2; j++) {
+	// 			const x = right - j; // Actual x coordinate
+	// 			const upward = ((right + 1) & 2) == 0;
+	// 			const y = upward ? this.size - 1 - vert : vert; // Actual y coordinate
+	// 			if (!this.isFunction[y][x] && i < data.length * 8) {
+	// 				this.modules[y][x] = getBit(data[i >>> 3], 7 - (i & 7));
+	// 				i++;
+	// 			}
+	// 			// If this QR Code has any remainder bits (0 to 7), they were assigned as
+	// 			// 0/false/light by the constructor and are left unchanged by this method
+	// 		}
+	// 	}
+	// }
 	
 	// building - building - building - building - building - building - building
 

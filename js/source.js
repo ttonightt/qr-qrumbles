@@ -217,6 +217,45 @@ function setWorkspaceSize () {
 	QRT.current.updateCanvasX();
 }
 
+(function () {
+	const g1 = 4, g2 = 3, g1cws = 6, g2cws = 7;
+	const arr = new Uint8Array((g1 * g1cws) + (g2 * g2cws));
+
+	let str = "";
+
+	for (let i = 0; i < arr.length; i++) {
+		arr[i] = Math.round(Math.random() * 255);
+	}
+	
+	for (let i = 0; i < g1; i++) {
+		for (let j = 0; j < g1cws; j++) {
+			str += arr[(i * g1cws) + j].toString(2).padStart(8, "0") + " , ";
+		}
+
+		str += "\n";
+	}
+	
+	for (let i = 0; i < g2; i++) {
+		for (let j = 0; j < g2cws; j++) {
+			str += arr[(g1 * g1cws) + (i * g2cws) + j].toString(2).padStart(8, "0") + " , ";
+		}
+
+		str += "\n";
+	}
+
+	console.log(str);
+
+	const _index = 30 * 8;
+	const li = _index % 8, gi = (_index - li) / 8;
+	const r = gi % (g1 + g2), c = (gi - r) / (g1 + g2);
+	const index = (g1cws * Math.min(r, g1)) + (g2cws * Math.max(0, r - g1)) + c;
+
+	console.log(r + ", " + c);
+	console.log(index);
+	console.logb(arr[index], 8);
+	console.log((arr[index] >> (7 - li)) % 2);
+})();
+
 let datablocksmap;
 
 window.onload = () => {
@@ -225,7 +264,7 @@ window.onload = () => {
 	new DBMPolygons(
 		"",
 		2,
-		QRT.current.info.dataBytes
+		QRT.current.info
 	);
 	// new DBMChars();
 };

@@ -276,7 +276,23 @@ String.prototype.decodeAsASCII2 = function () { // MUST BE INTAGRATED INTO QR CL
 	return res;
 }
 
+// DATATYPES vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+
+
+
 // ARRAYS vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+
+Object.defineProperty(Array.prototype, "last", {
+	configurable: true,
+
+	get () {
+		return this[this.length - 1];
+	},
+
+	set (data) {
+		this[this.length - 1] = data;
+	}
+});
 
 Int8Array.prototype.x2convert = function (cols) {
 	this.rows = Math.ceil(this.length / cols);
@@ -327,7 +343,7 @@ window.deselect = () => {
 	window.getSelection().removeAllRanges();
 };
 
-SVGPolygonElement.create = (points, parent) => {
+SVGPolygonElement.create = (points) => {
 	const elem = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
 
 	let str = "";
@@ -336,7 +352,6 @@ SVGPolygonElement.create = (points, parent) => {
 	}
 
 	elem.setAttribute("points", str);
-	parent.appendChild(elem);
 
 	return elem;
 };
