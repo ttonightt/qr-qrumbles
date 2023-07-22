@@ -9,12 +9,12 @@ class QRT {
 	static ctx;
 
 	static base = [];
-	static _index;
+	static __index;
 
 	static autoAddition = true;
 	static add (qrt, actualizeIndex) {
 		this.base.push(qrt);
-		if (actualizeIndex) this.index = this.base.length - 1;
+		if (actualizeIndex) this.__index = this.base.length - 1;
 	}
 
 	static remove (i) {
@@ -22,7 +22,12 @@ class QRT {
 	}
 
 	static get current () {
-		return this.base[this.index];
+		return this.base[this.__index];
+	}
+
+	static reindexate (index) {
+		if (this.base.length <= index || index < 0) throw new Error("Invalid index");
+		this.__index = index;
 	}
 
 	static palette = ["white", "black", "tomato", "red", "cyan", "blue", "violet", "purple"];
@@ -249,15 +254,14 @@ class QRT {
 
 //		vvvvvvvv DATA ENCODING AND APPLING vvvvvvvv
 
-		this._ECStartPoint = this.applyDataOn("10100101010101011111");
-		this.applyECDataOn("1010101001010000001110101011");
+		this._ECStartPoint = this.applyDataOn("1010010101010101111111111111" + "1".repeat(1035));
+		// this.applyECDataOn("1010101001010000001110101011");
 
 		if (QRT.autoAddition) {
 			QRT.add(this, true);
 		}
 
-		this.decodeCodewords(this.scanDataFrom());
-
+		// console.log(this.decodeCodewords(this.scanDataFrom()));
 
 		// this.encodeDataCodewords("HELLO WORLDDDDDDDDDD");
 
@@ -380,26 +384,46 @@ class QRT {
 
 	// updating - updating - updating - updating - updating - updating - updating - updating
 
-	updateCanvas (mx = this.matrix) {
-		for (let y = 0; y < this.modules; y++) {
-			for (let x = 0; x < this.modules; x++) {
-				QRT.ctx.fillStyle = QRT.palette[mx.x2get(x, y) % 2];
-				QRT.ctx.fillRect(x, y, 1, 1);
-			}
+	updateCanvas (x0 = 0, y0 = 0, x = this.modules - 1, y = this.modules - 1) {
+		if (x0 > x) {
+			x += x0;
+			x0 = x - x0;
+			x -= x0;
 		}
 
-		return this;
+		if (y0 > y) {
+			y += y0;
+			y0 = y - y0;
+			y -= y0;
+		}
+
+		for (let i = y0; i <= y; i++) {
+			for (let j = x0; j <= x; j++) {
+				QRT.ctx.fillStyle = "red";
+				QRT.ctx.fillRect(j, i, 1, 1);
+			}
+		}
 	}
 
-	updateCanvasX (mx = this.matrix) {
-		for (let y = 0; y < this.modules; y++) {
-			for (let x = 0; x < this.modules; x++) {
-				QRT.ctx.fillStyle = QRT.palette[mx.x2get(x, y)];
-				QRT.ctx.fillRect(x, y, 1, 1);
-			}
+	updateCanvasX (x0 = 0, y0 = 0, x = this.modules - 1, y = this.modules - 1) {
+		if (x0 > x) {
+			x += x0;
+			x0 = x - x0;
+			x -= x0;
 		}
 
-		return this;
+		if (y0 > y) {
+			y += y0;
+			y0 = y - y0;
+			y -= y0;
+		}
+
+		for (let i = y0; i <= y; i++) {
+			for (let j = x0; j <= x; j++) {
+				QRT.ctx.fillStyle = QRT.palette[this.matrix.x2get(j, i)];
+				QRT.ctx.fillRect(j, i, 1, 1);
+			}
+		}
 	}
 
 	// drawing - drawing - drawing - drawing - drawing - drawing - drawing - drawing - drawing
@@ -849,7 +873,7 @@ class QRT {
 
 		switch (this.datatype) {
 			case 2: // ALPHANUM
-				let k = 15; // <<< СЮДИ ТРЕБА ЗНАЧЕННЯ З ТАБЛИЦІ
+				let k = 17; // <<< СЮДИ ТРЕБА ЗНАЧЕННЯ З ТАБЛИЦІ
 				let i = Math.floor(k / 8);
 
 				k = 8 - (k % 8);
@@ -945,8 +969,8 @@ class QRT {
 	goThroughDataModules (act, interval = {}) {
 		if (!act) throw new Error("Inappropriate value of act arg. was put into goThroughDataModules method!");
 
-		let x = interval.x || this.modules - 1,
-			y = interval.y || this.modules - 1,
+		let _x = interval.x || this.modules - 1,
+			_y = interval.y || this.modules - 1,
 			v = interval.v || 1,
 			j = interval.j || 0,
 			maxb = interval.maxb;
@@ -957,43 +981,41 @@ class QRT {
 			maxb = Math.min(maxb, (this.info.dataBytes + this.info.ecBytes) * 8);
 		}
 
-		for (let i = 0; j < maxb && i < 100000; i++) {
-			//			^^^^^^^^
-			if (x === 10 && y === this.modules) {
-				y -= 9;
-				x -= 2;
-				v = -v;
+		for (let x = _x; x >= 0; x -= 2) {
+			if (x === 6) x = 5;
+
+			const miny = ((x % (this.modules - 8) < 8) * 9) - ((x === 8) * 3);
+
+			if (v > 0) { // up
+				for (let y = _y - ((x < 6) * 11); y >= miny; y -= v) {
+					if (!(
+						5 <= x % 28 && x % 28 < 10 &&
+						5 <= y % 28 && y % 28 < 10
+					)) act(x, y, j++, v);
+
+					if (!(
+						5 <= x - 1 % 28 && x - 1 % 28 < 10 &&
+						5 <= y % 28 && y % 28 < 10
+					)) act(x - 1, y, j++, v);
+				}
+			} else { // down
+				for (let y = miny; y <= _y - ((x < 6) * 11); y -= v) {
+					if (!(
+						5 <= x % 28 && x % 28 < 10 &&
+						5 <= y % 28 && y % 28 < 10
+					)) act(x, y, j++, v);
+
+					if (!(
+						5 <= x - 1 % 28 && x - 1 % 28 < 10 &&
+						5 <= y % 28 && y % 28 < 10
+					)) act(x - 1, y, j++, v);
+				}
 			}
 
-			if (x === 8 && y === 8) {
-				x--;
-			}
-
-			if (x === this.modules - 9 && y === 6) {
-				x -= 2;
-				y -= 6;
-				v = -v;
-			}
-			
-			if (y < 0 || y >= this.modules || (y === 8 && (this.matrix.x2get(x, y) === 4 || this.matrix.x2get(x, y) === 5)) || (x <= 5 && y === this.modules - 11)) {
-				y += v;
-				x -= 2;
-				v = -v;
-				act(x, y, j++, v);
-			} else switch (this.matrix.x2get(x, y)) {
-				case 0: case 1: case 6: case 7:
-					act(x, y, j++, v);
-			}
-
-			if (i % 2) {
-				x++;
-				y -= v;
-			} else {
-				x--;
-			}
+			v = -v;
 		}
 
-		return {x, y, j, v};
+		// return {x, y, j, v};
 	}
 
 	// goThroughDataModules Alternative: : : : : : :

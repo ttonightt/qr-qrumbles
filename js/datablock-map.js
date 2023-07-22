@@ -270,46 +270,91 @@ class DBMChars {
 	}
 }
 
-class DBMPolygons {
-	static container;
+class BitMapWorkbench {
+	constructor () {
 
-	static init (container) {
-		this.container = container;
+	}
+}
+
+class CWMap {
+	static canvas;
+	static ctx;
+
+	static init (canvas) {
+		this.canvas = canvas;
+		this.ctx = canvas.getContext("2d");
+
+		// let _cw = -1;
+
+		// this.canvas.onmousemove = e => {
+		// 	const cw = (this.current.matrix.x2getD(
+		// 		Math.floor(e.offsetX / window.canvasScale) - this.current.modules + this.current.matrix.columns,
+		// 		Math.floor(e.offsetY / window.canvasScale),
+		// 		-1
+		// 	) % 4096) - 1;
+
+		// 	if (_cw !== cw) {
+		// 		console.log(cw);
+
+		// 		_cw = cw;
+		// 	}
+
+		// 	// OneTitle.move(e.clientX, e.clientY);
+		// };
 	}
 
-	constructor (chars, datatype, tinfo) {
-		const g1 = tinfo.g1Blocks, g2 = tinfo.g2Blocks, g1cws = tinfo.g1DataBytesPerBlock, g2cws = tinfo.g2DataBytesPerBlock;
+	static collection = {};
+	static __index;
+
+	static get current () {
+		return this.collection[this.__index];
+	}
+
+	static collect (cwm, key) {
+		this.collection[key] = cwm;
+		this.__index = key;
+	}
+
+	static reindexate (index) {
+		if (index in this) throw new Error("Invalid index");
+		this.__index = index;
+	}
+
+	static getCW (x, y) {
+		const bin12 = this.matrix.x2getD(x, y, 4095) % 4096;
+
+		if (bin12 > 2956) return -1; // 2956 means quantity of codewords in version 40 with L errcor level
+
+		return bin12 - 1;
+	}
+
+	constructor (datatype, modules, tinfo) {
+		this.matrix = new Uint16Array(modules * 100).x2convert(100);
+		this.modules = modules;
+
+		const g1 = 8, g2 = 4, g1cws = 122, g2cws = 123;
 
 		switch (datatype) {
 			case 2:
-				this.datablocks = [];
-				let coords = [];
-				
-				for (let i = Math.ceil(tinfo.dataBytes * 8 / 11); i >= 0; i--) {
-					this.datablocks.push(
-						DBMPolygons.container.appendChild(document.createElementNS("http://www.w3.org/2000/svg", "g"))
-					);
-				}
+				const xs = new Uint8Array(8);	// x coordinates
+				const ys = new Uint8Array(8);	// y coordinates
+				const fs = new Uint16Array(8);	// format bit + bit offset
 
 				QRT.current.goThroughDataModules((x, y, j) => {
-					const li = j % 8, gi = (j - li) / 8;
-					const r = gi % (g1 + g2), c = (gi - r) / (g1 + g2);
-					const ti = (g1cws * Math.min(r, g1)) + (g2cws * Math.max(0, r - g1)) + c;
+					const li = j % 8, _gi = (j - li) / 8;
+					const r = _gi % (g1 + g2), c = (_gi - r) / (g1 + g2);
+					const gi = (g1cws * Math.min(r, g1)) + (g2cws * Math.max(0, r - g1)) + c;
 
-					coords.push(x);
-					coords.push(y);
+					xs[j % 8] = x - this.modules + this.matrix.columns;
+					ys[j % 8] = y;
+					fs[j % 8] = (gi * 8) + li;
 
-					if (((ti * 8) + li) % 11 === 0 || li === 7) {
-						this.datablocks[Math.floor(ti * 8 / 11)].appendChild(bitCoordsToPolygons(coords));
-						coords = [];
+					if (j % 8 === 7) {
+						this.cwBitsCoordsToMX(xs, ys, fs);
 					}
 				}, {
-					maxb: tinfo.dataBytes * 8
+					maxb: 11744
 				});
-
-				// if (coords.length > 2) {
-				// 	this.polygons.push(bitCoordsToPolygons(coords, DBMPolygons.container));
-				// }
 
 				break;
 			case 4:
@@ -320,116 +365,79 @@ class DBMPolygons {
 			// 	// ...
 		}
 
-		// CHARS
+		CWMap.collect(this, "27LA"); // <<<
 
-		// this.ichars = new DBMChars(chars, this.dbs, 2, this.clen);
-	}
-}
-
-function bitCoordsToPolygons (coords, parent) {
-	let i = 0, t;
-	let _coords = structuredClone(coords);
-
-	for (i = 0; i < 2000; i++) {
-		t = true;
-		for (let j = 0; j < _coords.length - 2; j++) {
-			if (_coords[j] < _coords[j + 2]) {
-				_coords[j] += _coords[j + 2];
-				_coords[j + 2] = _coords[j] - _coords[j + 2];
-				_coords[j] -= _coords[j + 2];
-				t = false;
-			}
-		}
-		if (t) break;
+		this.updateCanvas();
 	}
 
-	const 	minx = _coords[_coords.length - 2];
-			miny = _coords[_coords.length - 1];
-			maxx = _coords[0];
-			maxy = _coords[1];
+	updateCanvas () {
+		const pixs = window.canvasScale;
+		const marg = this.modules - this.matrix.columns;
+		CWMap.ctx.fillStyle = "green";
 
-	let map = new Int8Array((maxy - miny + 2) * (maxx - minx + 2)).x2convert(maxx - minx + 2);
+		for (let x = 0; x < this.matrix.columns; x++) {
+			for (let y = 0; y < this.matrix.rows; y++) {
 
-	for (i = 0; i < coords.length; i += 2) {
-		map.x2set(coords[i] - minx, 	coords[i + 1] - miny, 		1);
-		map.x2set(coords[i] - minx + 1, coords[i + 1] - miny, 		1);
-		map.x2set(coords[i] - minx, 	coords[i + 1] - miny + 1, 	1);
-		map.x2set(coords[i] - minx + 1, coords[i + 1] - miny + 1, 	1);
-	}
+				const type = this.matrix.x2get(x, y) >> 14;
 
-	let polygons = [];
-	t = true;
+				if (type % 2) {
+					CWMap.ctx.fillRect(((x + marg) * pixs) - 1, (y * pixs) - 1, 2, pixs + 2);
+				}
 
-	for (i = 0; t && i < 10; i++) {
-		t = false;
-
-		let points = [];
-		let x = 0, y = map.rows - 1, vec = [0, -1];
-		let _x = 0, _y = 0;
-		let p = 0, _p = p;
-		let rn = 0;
-	
-		do {
-			if (points.length === 0) {
-				if (map.x2get(x, y) === 1 && map.x2getD(x + 1, y, 0) != 2 && map.x2getD(x, y + 1, 0) != 2 && map.x2getD(x - 1, y, 0) != 2 && map.x2getD(x, y - 1, 0) != 2) {
-					t = true;
-					_x = x;
-					_y = y;
-					_p = p;
-				} else {
-					if (y === 1 && x < map.columns - 1) {
-						y = map.rows - 1;
-						x++;
-					} else {
-						y--;
-					}
-					continue;
+				if ((type >> 1) % 2) {
+					CWMap.ctx.fillRect(((x + marg) * pixs) - 1, ((y + 1) * pixs) - 1, pixs + 2, 2);
 				}
 			}
-	
-			if (map.x2getD(x + vec[1], y - vec[0]) >= 1) {	// TURNING LEFT
-				vec = [vec[1], -vec[0]];
-				rn = 0;
-			}
-	
-			if (map.x2getD(x + vec[0], y + vec[1]) >= 1) {	// IF MOVING IS POSSIBLE
-				x += vec[0];
-				y += vec[1];
-				map.x2set(x, y, 2);
-				if (rn++ > 0) {
-					points[points.length - 2] = x + minx;
-					points[points.length - 1] = y + miny;
-				} else {
-					points.push(x + minx);
-					points.push(y + miny);
+		}
+	}
+
+	cwBitsCoordsToMX (xs, ys, fs) {
+		if (xs.length === ys.length && ys.length === fs.length) {
+			let bit, _bit;
+
+			for (let i = 0; i < xs.length; i++) {
+
+				fs[i] = Math.floor(fs[i] / 11) + 1;
+				bit = 0b00;
+
+				_bit = this.matrix.x2getD(xs[i] - 1, ys[i], 0);
+
+				if (_bit % 4096 !== fs[i]) { // check left cell
+					bit += 0b01;
 				}
-			} else {										// TURNING RIGHT
-				vec = [-vec[1], vec[0]];
-				x += vec[0];
-				y += vec[1];
-				map.x2set(x, y, 2);
-				points.push(x + minx);
-				points.push(y + miny);
-				rn++;
+
+				_bit = this.matrix.x2getD(xs[i], ys[i] - 1, 0);
+
+				if (_bit % 4096 === fs[i]) { // check top cell
+					this.matrix.x2set(
+						xs[i],
+						ys[i] - 1,
+						_bit & 0b0111111111111111 // removes bottom side of top cell
+					);
+				}
+
+				_bit = this.matrix.x2getD(xs[i] + 1, ys[i], 0);
+
+				if (_bit % 4096 === fs[i]) { // check right cell
+					this.matrix.x2set(
+						xs[i] + 1,
+						ys[i],
+						_bit & 0b1011111111111111 // removes left side of right cell
+					);
+				}
+
+				_bit = this.matrix.x2getD(xs[i], ys[i] + 1, 0);
+
+				if (_bit % 4096 !== fs[i]) { // check bottom cell
+					bit += 0b10;
+				}
+
+				this.matrix.x2set(
+					xs[i],
+					ys[i],
+					(bit << 14) + fs[i]
+				);
 			}
-		} while (!(x === _x && y === _y && p - _p > 1) && ++p < 200);
-
-		if (points.length > 1) {
-			polygons.push(points);
-		}
+		} else throw new Error("Inappropriate format of given data! Must be one array of int8s type of [x, y, x, y, ...] and then one non-negative number");
 	}
-
-	let elem;
-
-	if (polygons.length > 1) {
-		elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
-		
-		for (i = polygons.length - 1; i >= 0; i--) {
-			elem.appendChild(SVGPolygonElement.create(polygons[i]));
-		}
-	} else {
-		elem = SVGPolygonElement.create(polygons[0]);
-	}
-
-	return elem;
 }

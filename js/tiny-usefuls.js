@@ -321,6 +321,7 @@ Int8Array.prototype.x2convert = function (cols) {
 	return this;
 }
 
+Uint8Array.prototype.x2convert = Int8Array.prototype.x2convert;
 Uint16Array.prototype.x2convert = Int8Array.prototype.x2convert;
 
 Uint16Array.prototype.inject = function (_i, arr) {
@@ -367,9 +368,9 @@ const OneTitle = {
 	content: document.querySelector("#onetitle > span"),
 	shown: 0,
 	pivot: 0,
-	_timer: 0,
+	__timer: 0,
 	show: (x, y, message, prefs = {}) => {
-		const pivot = prefs.pivot || OneTitle.pivot;
+		OneTitle.pivot = prefs.pivot || OneTitle.pivot;
 		const anim = prefs.anim || "blink";
 		const timeOut = prefs.timeOut || 0;
 
@@ -378,16 +379,16 @@ const OneTitle = {
 		OneTitle.elem.classList.add("visible");
 
 		if (typeof x === "number" && typeof y === "number") {
-			OneTitle.elem.style.left = +(x - (Math.floor(pivot / 3) * OneTitle.elem.clientWidth / 2)) + "px";
-			OneTitle.elem.style.top = +(y - ((pivot % 3) * OneTitle.elem.clientHeight / 2)) + "px";
+			OneTitle.elem.style.left = x - (Math.floor(OneTitle.pivot / 3) * OneTitle.elem.clientWidth / 2) + "px";
+			OneTitle.elem.style.top = y - ((OneTitle.pivot % 3) * OneTitle.elem.clientHeight / 2) + "px";
 		}
 
-		if (OneTitle._timer) {
-			clearTimeout(OneTitle._timer);
+		if (OneTitle.__timer) {
+			clearTimeout(OneTitle.__timer);
 		}
 
 		if (parseInt(timeOut, 10) > 50) {
-			OneTitle._timer = setTimeout(() => {
+			OneTitle.__timer = setTimeout(() => {
 				OneTitle.hide();
 			}, timeOut);
 			return;
@@ -396,8 +397,8 @@ const OneTitle = {
 		OneTitle.shown = 1;
 	},
 	move: (x, y) => {
-		OneTitle.elem.style.left = +(x - (Math.floor(pivot / 3) * OneTitle.elem.clientWidth / 2)) + "px";
-		OneTitle.elem.style.top = +(y - ((pivot % 3) * OneTitle.elem.clientHeight / 2)) + "px";
+		OneTitle.elem.style.left = x - (Math.floor(OneTitle.pivot / 3) * OneTitle.elem.clientWidth / 2) + "px";
+		OneTitle.elem.style.top = y - ((OneTitle.pivot % 3) * OneTitle.elem.clientHeight / 2) + "px";
 	},
 	log: message => {
 		OneTitle.content.textContent = message;
