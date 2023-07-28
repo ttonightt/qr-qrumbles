@@ -7,10 +7,16 @@ class CheckBox {
 	}
 
 	set onchange (trigger) {
-		this.elem.onchange = () => {
-			this.value = this.elem.checked ? (this.elem.value || 1) : 0;
-			if (trigger) trigger(this.value);
-		};
+		if (isFunction(trigger)) {
+			this.elem.onchange = () => {
+				this.value = this.elem.checked ? (this.elem.value || 1) : 0;
+				trigger(this.value);
+			};
+		} else {
+			this.elem.onchange = () => {
+				this.value = this.elem.checked ? (this.elem.value || 1) : 0;
+			};
+		}
 	}
 }
 
@@ -27,15 +33,17 @@ class RadioBox {
 			}
 
 			this.model = 0;
+
 		} else if (typeof name === "object") {
 			this.list = {};
-			this.radioKeys = Object.keys(name);
 
-			for (let i = 0; i < this.radioKeys.length; i++) {
-				this.list[this.radioKeys[i]] = {elem: document.getElementById(name[this.radioKeys[i]])};
+			for (let key in name) {
+				this.list[key] = {
+					elem: document.getElementById(name[key])
+				};
 
-				if (this.list[this.radioKeys[i]].elem.checked) {
-					this.value = this.list[this.radioKeys[i]].elem.value;
+				if (this.list[key].elem.checked) {
+					this.value = this.list[key].elem.value;
 				}
 			}
 
@@ -43,25 +51,40 @@ class RadioBox {
 		}
 
 		this.onchange = trigger;
-		if (trigImmidiately && trigger) trigger(this.value);
+		if (trigImmidiately && isFunction(trigger)) trigger(this.value);
 	}
 
 	set onchange (trigger) {
 		if (this.model) {
-			for (let i = 0; i < this.radioKeys.length; i++) {
+			for (let key in this.list) {
 
-				this.list[this.radioKeys[i]].elem.onchange = () => {
-					this.value = this.list[this.radioKeys[i]].elem.value;
-					if (trigger) trigger(this.value);
-				};
+				if (isFunction(trigger)) {
+
+					this.list[key].elem.onchange = () => {
+
+						this.value = this.list[key].elem.value;
+						trigger(this.value);
+					};
+				} else {
+					this.list[key].elem.onchange = () => {
+						this.value = this.list[key].elem.value;
+					};
+				}
 			}
 		} else {
 			for (let i = 0; i < this.list.length; i++) {
 
-				this.list[i].onchange = () => {
-					this.value = this.list[i].value;
-					if (trigger) trigger(this.value);
-				};
+				if (isFunction(trigger)) {
+
+					this.list[i].onchange = () => {
+						this.value = this.list[i].value;
+						trigger(this.value)
+					};
+				} else {
+					this.list[i].onchange = () => {
+						this.value = this.list[i].value;
+					};
+				}
 			}
 		}
 	}
@@ -74,9 +97,46 @@ class Button {
 	}
 
 	set onchange (trigger) {
-		if (trigger) {
+		if (isFunction(trigger)) {
 			this.elem.onclick = trigger;
 		}
+	}
+}
+
+class InputText {
+	constructor (id, trigger = false, trigImmidiately = false) {
+		this.elem = document.getElementById(id);
+		this.value = this.elem.value;
+		this.onchange = trigger;
+		if (trigImmidiately && isFunction(trigger)) trigger(this.value);
+	}
+
+	set onchange (trigger) {
+		if (isFunction(trigger)) {
+			this.elem.onchange = () => {
+				this.value = this.elem.value;
+				trigger(this.value);
+			};
+		} else {
+			this.elem.onchange = () => {
+				this.value = this.elem.value;
+			};
+		}
+	}
+}
+
+class InputFile {
+	constructor (id, trigger) {
+		this.elem = document.getElementById(id);
+		this.onchange = trigger;
+	}
+
+	set onchange (trigger) {
+		if (isFunction(trigger)) {
+			this.elem.onchange = e => {
+				trigger(e.target.files);
+			};
+		} else throw new Error("The only argument of InputFile.prototype.onchange must be a function!");
 	}
 }
 
@@ -151,6 +211,13 @@ document.addEventListener("keydown", e => {
 			case "1":
 				setWorkspaceSize();
 				break;
+			case "o":
+				popupBindings["open"].popen();
+				e.preventDefault();
+				break;
+			case "s":
+				popupBindings["save"].popen();
+				e.preventDefault();
 		}
 	}
 

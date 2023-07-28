@@ -30,7 +30,6 @@ const polynomialsGens = {
 class QRTable {
 	static __table = {
 		20: {
-			alignmentRectsGap: [28, 28],
 			counterLength: {
 				A: 11,
 				B: 16
@@ -74,7 +73,6 @@ class QRTable {
 		},
 	
 		27: {
-			alignmentRectsGap: [28, 28],
 			counterLength: {
 				A: 13,
 				B: 16
@@ -118,7 +116,6 @@ class QRTable {
 		},
 	
 		34: {
-			alignmentRectsGap: [28, 28],
 			counterLength: {
 				A: 13,
 				B: 16
@@ -162,7 +159,6 @@ class QRTable {
 		},
 	
 		40: {
-			alignmentRectsGap: [24, 28],
 			counterLength: {
 				A: 13,
 				B: 16

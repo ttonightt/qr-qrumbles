@@ -1,25 +1,53 @@
 const canvas = document.getElementById("main");
 CWMap.init(document.getElementById("map"));
-const cnvP = canvas.parentElement, cnvPP = canvas.parentElement.parentElement;
 
-QRT.ctx = canvas.getContext("2d");
-QRT.ctx.fillStyle = "#000000";
-
-const infocorner = document.getElementById("infocorner");
+Project.init(
+	document.getElementById("tab-navs"),
+	canvas.parentElement.parentElement,
+	canvas.parentElement,
+	canvas
+);
 
 // CONTROLS CONNECTING vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
-Controls.mask = new RadioBox("mask", () => {
-	QRT.current.applyFormatOn(Controls.mask.value, Controls.errcor.value, 4).updateCanvas();
-});
+Controls.mask = new RadioBox("mask", value => {
+	if (QRT.current) {
+		const res = confirm("Would you like to keep current look of this QRT?");
+		if (res) {
+			for (let i = 0; i < QRT.current.modules; i++) {
+				for (let j = 0; j < QRT.current.modules; j++) {
+					if (QRT.current.matrix.x2get(i, j) % 6 < 2) {
+						QRT.current.matrix.x2set(i, j,
+							QRT.current.matrix.x2get(i, j) ^ QRT.current.getMaskBit(i, j)
+						);
+					}
+				}
+			}
 
-Controls.errcor = new RadioBox("errcor", () => {
-	QRT.current.applyFormatOn(Controls.mask.value, Controls.errcor.value, 4).updateCanvas();
-});
+			QRT.current.masktype = parseInt(value, 10);
 
-Controls.datatype = new RadioBox("dtype", value => {
-	QRT.current.applyDataTypeOn(value).updateCanvas();
-});
+			for (let i = 0; i < QRT.current.modules; i++) {
+				for (let j = 0; j < QRT.current.modules; j++) {
+					if (QRT.current.matrix.x2get(i, j) % 6 < 2) {
+						QRT.current.matrix.x2set(i, j,
+							QRT.current.matrix.x2get(i, j) ^ QRT.current.getMaskBit(i, j)
+						);
+					}
+				}
+			}
+
+			QRT.current.updateCanvasX();
+
+			// if (QRT.maskApplication === 2) {
+			// 	QRT.current.updateCanvasX();
+			// }
+		}
+	}
+}, false);
+
+Controls.errcor = new RadioBox("errcor", false);
+
+Controls.datatype = new RadioBox("dtype", false);
 
 Controls.cwmapOverlay = new RadioBox("dtbmapover", value => {
 	switch (value) {
@@ -62,197 +90,218 @@ Controls.automaticEncode = new CheckBox("updatectrl-tocanv-auto", value => {
 	Controls.toEncode.elem.disabled = value;
 }, true);
 
+Controls.savingProjectName = new InputText("proj-name-to-save");
+
+Controls.saveProject = new Button("save-proj-btn", () => {
+	FilePortal.save(QRT.current.buildTQRT());
+});
+
+Controls.fileInput = new InputFile("proj-to-open", files => {
+	FilePortal.buffer = files;
+});
+
+Controls.openFile = new Button("open-proj-btn", () => {
+	if (FilePortal.buffer) {
+		QRT.readTQRT(FilePortal.buffer[0]).then((obj) => {
+			new QRT("tttt", obj);
+		});
+
+		FilePortal.buffer = 0;
+	}
+});
+
+Controls.rotateWorkbenchRight = new Button("rotate-workbench-right", () => {
+	const match = cnvP.style.transform.match(/rotateZ\(\-?[0-9]+/);
+
+	if (match !== null) {
+		cnvP.style.transform = cnvP.style.transform.replace(/rotateZ\(\-?[0-9]+/,
+			"rotateZ(" +
+			parseInt((parseInt(match[0].slice(8), 10) + 90) % 360, 10)
+		);
+	} else {
+		cnvP.style.transform += " rotateZ(90deg)";
+	}
+});
+
+Controls.rotateWorkbenchLeft = new Button("rotate-workbench-left", () => {
+	const match = cnvP.style.transform.match(/rotateZ\(\-?[0-9]+/);
+
+	if (match !== null) {
+		cnvP.style.transform = cnvP.style.transform.replace(/rotateZ\(\-?[0-9]+/,
+			"rotateZ(" +
+			parseInt((parseInt(match[0].slice(8), 10) - 90) % 360, 10)
+		);
+	} else {
+		cnvP.style.transform += " rotateZ(-90deg)";
+	}
+});
+
+Controls.maskApplication = new RadioBox("mskover", value => {
+	QRT.maskApplication = parseInt(value, 10);
+	if (QRT.current) QRT.current.updateCanvasX();
+}, true);
+
 // QRT CREATION vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
-new QRT(27, Controls.mask.value, Controls.errcor.value, Controls.datatype.value);
+Project.add("NewQRT", {
+	version: 34,
+	ecdepth: Controls.errcor.value,
+	masktype: Controls.mask.value,
+	datatype: Controls.datatype.value
+});
 
-window.canvasScale = Math.floor((cnvPP.clientHeight - 40) / QRT.current.modules);
+// window.canvasScale = Math.floor((cnvPP.clientHeight - 40) / QRT.current.modules);
 
-const 	csMIN = window.canvasScale - 1,
-		csMAX = window.canvasScale + 8;
-setWorkspaceSize();
+// const csMIN = window.canvasScale - 1, csMAX = window.canvasScale + 8;
+// setWorkspaceSize();
 
-let _canvasScale = window.canvasScale;
+// let _canvasScale = window.canvasScale;
 
-cnvPP.onwheel = function (e) {
-	if (e.shiftKey && Tools.value === "brush") {
-		Tools.events.changeRadiusOnWheel(e);
-	} else {
-		if (e.deltaY > 0 && window.canvasScale > csMIN) {
-			window.canvasScale--;
-		}
-		if (e.deltaY < 0 && window.canvasScale < csMAX) {
-			window.canvasScale++;
-		}
-		const coef = window.canvasScale / _canvasScale;
-		_canvasScale = window.canvasScale;
+// cnvPP.onwheel = function (e) {
+// 	if (e.deltaY > 0 && window.canvasScale > csMIN) {
+// 		window.canvasScale--;
+// 	}
+// 	if (e.deltaY < 0 && window.canvasScale < csMAX) {
+// 		window.canvasScale++;
+// 	}
+// 	const coef = window.canvasScale / _canvasScale;
+// 	_canvasScale = window.canvasScale;
+
+// 	cnvP.style.width = QRT.current.modules * window.canvasScale + "px";
+// 	cnvP.style.height = QRT.current.modules * window.canvasScale + "px";
 	
-		cnvP.style.width = QRT.current.modules * window.canvasScale + "px";
-		cnvP.style.height = QRT.current.modules * window.canvasScale + "px";
-		
-		cnvP.style.top = (e.clientY - 100 - ((e.clientY - 100 - parseInt(cnvP.style.top)) * coef)) + "px";
-		cnvP.style.left = (e.clientX - ((e.clientX - parseInt(cnvP.style.left)) * coef)) + "px";
+// 	cnvP.style.top = (e.clientY - 100 - ((e.clientY - 100 - parseInt(cnvP.style.top)) * coef)) + "px";
+// 	cnvP.style.left = (e.clientX - ((e.clientX - parseInt(cnvP.style.left)) * coef)) + "px";
 
-		CWMap.canvas.width = QRT.current.modules * window.canvasScale;
-		CWMap.canvas.height = QRT.current.modules * window.canvasScale;
-		CWMap.current.updateCanvas();
-		
-		// QRT.current.updateCanvas();
-		// QRT.current.drawPointOn(e.offsetX, e.offsetY, window.canvasScale);
-	}
-};
+// 	CWMap.canvas.width = QRT.current.modules * window.canvasScale;
+// 	CWMap.canvas.height = QRT.current.modules * window.canvasScale;
+// };
 
-let mouseDown = 0;
-let _offsetX, _offsetY;
-let _phantomX = 1, _phantomY = 1;
-let areaToClear = new Uint8Array(4);
+// let mouseDown = 0;
+// let _offsetX, _offsetY;
+// let _phantomX = 1, _phantomY = 1;
+// let areaToClear = 0;
+// let _color;
 
-cnvPP.onmousedown = e => {
+// cnvPP.onmousedown = e => {
 
-	mouseDown = e.button + 1;
-	_offsetX = e.offsetX;
-	_offsetY = e.offsetY;
+// 	mouseDown = e.button + 1;
+// 	_offsetX = e.offsetX;
+// 	_offsetY = e.offsetY;
 
-	if (mouseDown === 2) {
-		cnvPP.style.cursor = "move";
-	} else if (e.target === canvas) {
-		_offsetX = Math.floor(_offsetX / window.canvasScale);
-		_offsetY = Math.floor(_offsetY / window.canvasScale);
-		if (Tools.value === "brush") QRT.current.applyPointOn(_offsetX, _offsetY, (mouseDown - 3) / -2);
-	}
-};
+// 	if (mouseDown === 2) {
+// 		cnvPP.style.cursor = "move";
+// 	} else if (e.target === canvas) {
+// 		_offsetX = Math.floor(_offsetX / window.canvasScale);
+// 		_offsetY = Math.floor(_offsetY / window.canvasScale);
+// 		if (Tools.value === "brush") QRT.current.applyPointOn(_offsetX, _offsetY, (mouseDown - 3) / -2);
+// 	}
+// };
 
-cnvPP.onmousemove = e => {
-	let _x = Math.floor(e.offsetX / window.canvasScale), _y = Math.floor(e.offsetY / window.canvasScale);
+// cnvPP.onmousemove = e => {
+// 	let _x = Math.floor(e.offsetX / window.canvasScale), _y = Math.floor(e.offsetY / window.canvasScale);
 
-	if (mouseDown === 2) {
-		cnvP.style.top = (e.clientY - 100 - _offsetY) + "px";
-		cnvP.style.left = (e.clientX - _offsetX) + "px";
-	} else if (e.target === canvas) {
-		if (mouseDown % 2) {
-			switch (Tools.value) {
-				case "brush":
-					QRT.current.drawLineOn(_offsetX, _offsetY, _x, _y, (mouseDown - 3) / -2, Tools.list.brush.radius, false);
-					QRT.current.applyLineOn(_offsetX, _offsetY, _x, _y, (mouseDown - 3) / -2, Tools.list.brush.radius, false);
-					_offsetX = _x;
-					_offsetY = _y;
-					break;
-				case "line":
-					QRT.current.updateCanvasX(
-						areaToClear[0],
-						areaToClear[1],
-						areaToClear[2],
-						areaToClear[3]
-					);
+// 	if (mouseDown === 2) {
+// 		cnvP.style.top = (e.clientY - 100 - _offsetY) + "px";
+// 		cnvP.style.left = (e.clientX - _offsetX) + "px";
+// 	} else if (e.target === canvas) {
+// 		if (mouseDown % 2) {
+// 			switch (Tools.value) {
+// 				case "brush":
+// 					QRT.current.drawLineOn(_offsetX, _offsetY, _x, _y, (mouseDown - 3) / -2, Tools.list.brush.radius, false);
+// 					QRT.current.applyLineOn(_offsetX, _offsetY, _x, _y, (mouseDown - 3) / -2, Tools.list.brush.radius, false);
+// 					_offsetX = _x;
+// 					_offsetY = _y;
+// 					break;
+// 				case "line":
+// 					if (areaToClear) QRT.current.updateCanvasX(areaToClear);
 
-					QRT.current.drawLineOn(
-						Math.floor(_offsetX),
-						Math.floor(_offsetY),
-						_x, _y, (mouseDown - 3) / -2, Tools.list.line.width
-					);
+// 					areaToClear = QRT.current.drawLineOn(
+// 						Math.floor(_offsetX),
+// 						Math.floor(_offsetY),
+// 						_x, _y, (mouseDown - 3) / -2, Tools.list.line.width
+// 					);
 
-					areaToClear[0] = _offsetX;
-					areaToClear[1] = _offsetY;
-					areaToClear[2] = _x;
-					areaToClear[3] = _y;
-					
-					break;
-				case "circle":
-					QRT.current.updateCanvasX();
+// 					break;
+// 				case "circle":
+// 					if (areaToClear) QRT.current.updateCanvasX(areaToClear);
 
-					QRT.current.updateCanvasX(
-						areaToClear[0],
-						areaToClear[1],
-						areaToClear[2],
-						areaToClear[3]
-					);
+// 					areaToClear = QRT.current.drawEllipseOn(
+// 						Math.floor(_offsetX),
+// 						Math.floor(_offsetY),
+// 						_x, _y, e.ctrlKey, e.shiftKey, (mouseDown - 3) / -2
+// 					);
+// 			}
+// 		} else if ((QRT.current.matrix.x2get(_x, _y) ^ QRT.current.getMaskBit(_x, _y)) === 1) {
+// 			QRT.current.drawPointOn(_phantomX, _phantomY, 0);
+// 			_phantomX = 1;
+// 			_phantomY = 1;
+// 		} else {
+// 			QRT.current.drawPointOn(_phantomX, _phantomY, 0);
+// 			QRT.current.drawPointOn(_x, _y, 1);
+// 			_phantomX = _x;
+// 			_phantomY = _y;
+// 		}
+// 	}
 
-					QRT.current.drawEllipseOn(
-						Math.floor(_offsetX),
-						Math.floor(_offsetY),
-						_x, _y, e.ctrlKey, e.shiftKey, (mouseDown - 3) / -2
-					);
+// 	if (OneTitle.shown) {
+// 		OneTitle.hide();
+// 	}
+// };
 
-					areaToClear[0] = _offsetX;
-					areaToClear[1] = _offsetY;
-					areaToClear[2] = _x;
-					areaToClear[3] = _y;
-			}
-			// infocorner.textContent = _x + "," + _y + " : " + Math.floor((e.offsetX - _offsetX) / window.canvasScale) + "," + Math.floor((e.offsetY - _offsetY) / window.canvasScale);
-		} else if (QRT.current.matrix.x2get(_x, _y) === 1) {
-			QRT.current.drawPointOn(_phantomX, _phantomY, 0);
-			_phantomX = 1;
-			_phantomY = 1;
-		} else {
-			QRT.current.drawPointOn(_phantomX, _phantomY, 0);
-			QRT.current.drawPointOn(_x, _y, 1);
-			_phantomX = _x;
-			_phantomY = _y;
-		}
-	}
+// cnvPP.onmouseup = e => {
+// 	if (mouseDown === 2) {
+// 		cnvPP.style.cursor = "";
+// 		QRT.current.drawPointOn(_phantomX, _phantomY, 0);
+// 	} else {
+// 		switch (Tools.value) {
+// 			case "line":
+// 				QRT.current.applyLineOn(Math.floor(_offsetX),
+// 										Math.floor(_offsetY),
+// 										Math.floor(e.offsetX / window.canvasScale),
+// 										Math.floor(e.offsetY / window.canvasScale),
+// 										(mouseDown - 3) / -2, Tools.list.line.width);
+// 				break;
+// 			case "circle":
+// 				QRT.current.applyEllipseOn(	Math.floor(_offsetX),
+// 											Math.floor(_offsetY),
+// 											Math.floor(e.offsetX / window.canvasScale),
+// 											Math.floor(e.offsetY / window.canvasScale),
+// 											e.ctrlKey, e.shiftKey, (mouseDown - 3) / -2);
+// 				break;
+// 		}
+// 	}
+// 	if (mouseDown != 0) {
+// 		_phantomX = 1;
+// 		_phantomY = 1;
+// 	}
+// 	mouseDown = 0;
+// };
 
-	if (OneTitle.shown) {
-		OneTitle.hide();
-	}
-};
+// cnvP.onmouseleave = () => {
+// 	QRT.current.drawPointOn(_phantomX, _phantomY, 0);
+// 	_phantomX = 1;
+// 	_phantomY = 1;
+// };
 
-cnvPP.onmouseup = e => {
-	if (mouseDown === 2) {
-		cnvPP.style.cursor = "";
-		QRT.current.drawPointOn(_phantomX, _phantomY, 0);
-	} else {
-		switch (Tools.value) {
-			case "line":
-				QRT.current.applyLineOn(Math.floor(_offsetX),
-										Math.floor(_offsetY),
-										Math.floor(e.offsetX / window.canvasScale),
-										Math.floor(e.offsetY / window.canvasScale),
-										(mouseDown - 3) / -2, Tools.list.line.width);
-				break;
-			case "circle":
-				QRT.current.applyEllipseOn(	Math.floor(_offsetX),
-											Math.floor(_offsetY),
-											Math.floor(e.offsetX / window.canvasScale),
-											Math.floor(e.offsetY / window.canvasScale),
-											e.ctrlKey, e.shiftKey, (mouseDown - 3) / -2);
-				break;
-		}
-		QRT.current.updateCanvasX();
-	}
-	if (mouseDown != 0) {
-		_phantomX = 1;
-		_phantomY = 1;
-	}
-	mouseDown = 0;
-};
+// cnvPP.oncontextmenu = e => {
+// 	e.preventDefault();
+// };
 
-cnvP.onmouseout = e => {
-	QRT.current.drawPointOn(_phantomX, _phantomY, 0);
-	_phantomX = 1;
-	_phantomY = 1;
-};
-
-cnvPP.oncontextmenu = e => {
-	e.preventDefault();
-};
-
-function setWorkspaceSize () {
-	window.canvasScale = Math.floor((cnvPP.clientHeight - 40) / QRT.current.modules);
-	canvas.width = QRT.current.modules;
-	canvas.height = QRT.current.modules;
-	CWMap.canvas.width = QRT.current.modules * window.canvasScale;
-	CWMap.canvas.height = QRT.current.modules * window.canvasScale;
-	cnvP.style.width = QRT.current.modules * window.canvasScale + "px";
-	cnvP.style.height = QRT.current.modules * window.canvasScale + "px";
-	cnvP.style.top = Math.floor((cnvPP.clientHeight - (window.canvasScale * QRT.current.modules)) / 2) + "px";
-	cnvP.style.left = Math.floor((cnvPP.clientWidth - (window.canvasScale * QRT.current.modules)) / 2) + "px";
-	QRT.current.updateCanvasX();
-}
+// function setWorkspaceSize () {
+	// window.canvasScale = Math.floor((cnvPP.clientHeight - 40) / QRT.current.modules);
+	// canvas.width = QRT.current.modules;
+	// canvas.height = QRT.current.modules;
+	// cnvP.style.width = QRT.current.modules * window.canvasScale + "px";
+	// cnvP.style.height = QRT.current.modules * window.canvasScale + "px";
+	// cnvP.style.top = Math.floor((cnvPP.clientHeight - (window.canvasScale * QRT.current.modules)) / 2) + "px";
+	// cnvP.style.left = Math.floor((cnvPP.clientWidth - (window.canvasScale * QRT.current.modules)) / 2) + "px";
+// }
 
 let datablocksmap;
 
 window.onload = () => {
-	new CWMap(2, 125 /*, ...*/);
+	// new CWMap(QRT.current);
 	// DBMChars.init(document.getElementById("decoded"), document.getElementById("decoded").parentElement.parentElement);
 	// new DBMPolygons(
 	// 	"",

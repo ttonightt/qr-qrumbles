@@ -276,6 +276,10 @@ String.prototype.decodeAsASCII2 = function () { // MUST BE INTAGRATED INTO QR CL
 	return res;
 }
 
+isFunction = func => {
+	return !!(func && func.constructor && func.call && func.apply);
+};
+
 // DATATYPES vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
 
@@ -295,6 +299,7 @@ Object.defineProperty(Array.prototype, "last", {
 });
 
 Int8Array.prototype.x2convert = function (cols) {
+	this.dimentions = 2;
 	this.rows = Math.ceil(this.length / cols);
 	this.columns = cols;
 	this.x2get = function (x = 0, y = 0) {
@@ -340,10 +345,6 @@ function getCSSvar (name) { // ???????????????????????????????????
 	return document.documentElement.style.getPropertyValue(name);
 }
 
-window.deselect = () => {
-	window.getSelection().removeAllRanges();
-};
-
 SVGPolygonElement.create = (points) => {
 	const elem = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
 
@@ -359,80 +360,4 @@ SVGPolygonElement.create = (points) => {
 
 function lineWidthCompensator (w, angle) {
 	return w * (1 + Math.abs(0.33 * Math.sin(angle * 2)));
-}
-
-// ONETITLE vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-
-const OneTitle = {
-	elem: document.getElementById("onetitle"),
-	content: document.querySelector("#onetitle > span"),
-	shown: 0,
-	pivot: 0,
-	__timer: 0,
-	show: (x, y, message, prefs = {}) => {
-		OneTitle.pivot = prefs.pivot || OneTitle.pivot;
-		const anim = prefs.anim || "blink";
-		const timeOut = prefs.timeOut || 0;
-
-		OneTitle.elem.setAttribute("data-anim", anim);
-		if (message) OneTitle.content.textContent = message;
-		OneTitle.elem.classList.add("visible");
-
-		if (typeof x === "number" && typeof y === "number") {
-			OneTitle.elem.style.left = x - (Math.floor(OneTitle.pivot / 3) * OneTitle.elem.clientWidth / 2) + "px";
-			OneTitle.elem.style.top = y - ((OneTitle.pivot % 3) * OneTitle.elem.clientHeight / 2) + "px";
-		}
-
-		if (OneTitle.__timer) {
-			clearTimeout(OneTitle.__timer);
-		}
-
-		if (parseInt(timeOut, 10) > 50) {
-			OneTitle.__timer = setTimeout(() => {
-				OneTitle.hide();
-			}, timeOut);
-			return;
-		}
-
-		OneTitle.shown = 1;
-	},
-	move: (x, y) => {
-		OneTitle.elem.style.left = x - (Math.floor(OneTitle.pivot / 3) * OneTitle.elem.clientWidth / 2) + "px";
-		OneTitle.elem.style.top = y - ((OneTitle.pivot % 3) * OneTitle.elem.clientHeight / 2) + "px";
-	},
-	log: message => {
-		OneTitle.content.textContent = message;
-	},
-	hide: () => {
-		OneTitle.elem.classList.remove("visible");
-		OneTitle.shown = 0;
-	},
-};
-
-// POPUPS vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-
-const popupElements = document.querySelectorAll("#popups .popup");
-let popupBindings = {};
-
-const popupCallers = document.querySelectorAll(".call-popup");
-
-for (let i = 0; i < popupElements.length; i++) {
-	popupElements[i].popen = () => {
-		popupElements[i].classList.add("active");
-		popupElements[0].parentElement.classList.add("visible");
-	};
-
-	popupBindings[popupElements[i].getAttribute("data-popup").replaceAll("-", "")] = popupElements[i];
-	popupElements[i].querySelector("i#this-close").addEventListener("click", () => {
-		popupElements[i].classList.remove("active");
-		popupElements[0].parentElement.classList.remove("visible");
-	});
-}
-
-for (let i = 0; i < popupCallers.length; i++) {
-	const caller = popupCallers[i];
-	caller.addEventListener("click", () => {
-		popupBindings[caller.getAttribute("data-popup").replaceAll("-", "")].classList.add("active");
-		popupElements[0].parentElement.classList.add("visible");
-	});
 }

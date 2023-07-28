@@ -243,6 +243,7 @@ html.preview.invertion .workspace {
 }
 
 .canvas-wrap #map {
+	display: none;
 	z-index: 2;
 }
 
@@ -370,8 +371,8 @@ aside .topbar, aside .topbar + * {
 	border-bottom: 3px dotted #74548d;
 }
 
-aside #rotate-canvas-right img,
-aside #rotate-canvas-left img {
+aside #rotate-workbench-right img,
+aside #rotate-workbench-left img {
 	width: 15px;
 	image-rendering: crisp-edges;
 }

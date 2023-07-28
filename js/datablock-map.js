@@ -323,23 +323,24 @@ class CWMap {
 	static getCW (x, y) {
 		const bin12 = this.matrix.x2getD(x, y, 4095) % 4096;
 
-		if (bin12 > 2956) return -1; // 2956 means quantity of codewords in version 40 with L errcor level
+		if (bin12 > 2956) return -1; // 2956 means quantity of codewords in version 40 with L errcor level (the highest)
 
 		return bin12 - 1;
 	}
 
-	constructor (datatype, modules, tinfo) {
-		this.matrix = new Uint16Array(modules * 100).x2convert(100);
-		this.modules = modules;
+	constructor (qr) {
+		this.modules = qr.modules;
+		this.datatype = qr.info.datatype;
+		this.matrix = new Uint16Array(this.modules * (this.modules - qr.__ECStartPoint.x + 1)).x2convert(this.modules - qr.__ECStartPoint.x + 1);
 
-		const g1 = 8, g2 = 4, g1cws = 122, g2cws = 123;
+		const g1 = qr.info.g1Blocks, g2 = qr.info.g2Blocks, g1cws = qr.info.g1DataBytesPerBlock, g2cws = qr.info.g2DataBytesPerBlock;
 
-		switch (datatype) {
+		const xs = new Uint8Array(8);	// x coordinates
+		const ys = new Uint8Array(8);	// y coordinates
+		const fs = new Uint16Array(8);	// format bit + bit offset
+
+		switch (this.datatype) {
 			case 2:
-				const xs = new Uint8Array(8);	// x coordinates
-				const ys = new Uint8Array(8);	// y coordinates
-				const fs = new Uint16Array(8);	// format bit + bit offset
-
 				QRT.current.goThroughDataModules((x, y, j) => {
 					const li = j % 8, _gi = (j - li) / 8;
 					const r = _gi % (g1 + g2), c = (_gi - r) / (g1 + g2);
@@ -358,14 +359,23 @@ class CWMap {
 
 				break;
 			case 4:
-				this.dbs = databytes;
-				this.dblen = 8;
+				qr.goThroughDataModules((x, y, j) => {
+					xs[j % 8] = x - this.modules + this.matrix.columns;
+					ys[j % 8] = y;
+					fs[j % 8] = Math.floor(j / 8) + 1;
+
+					if (j % 8 === 7) {
+						this.cwBitsCoordsToMX(xs, ys, fs);
+					}
+				}, {
+					maxb: qr.info.dataBytes * 8
+				});
 			// 	break;
 			// case 7:
 			// 	// ...
 		}
 
-		CWMap.collect(this, "27LA"); // <<<
+		CWMap.collect(this, "27LB"); // <<<
 
 		this.updateCanvas();
 	}
@@ -397,7 +407,7 @@ class CWMap {
 
 			for (let i = 0; i < xs.length; i++) {
 
-				fs[i] = Math.floor(fs[i] / 11) + 1;
+				// fs[i] = Math.floor(fs[i] / 11) + 1; // FOR ALPHANUM!!!!
 				bit = 0b00;
 
 				_bit = this.matrix.x2getD(xs[i] - 1, ys[i], 0);

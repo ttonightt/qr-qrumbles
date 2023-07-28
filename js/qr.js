@@ -5,267 +5,508 @@ class CodewordArray extends Uint8ClampedArray {
 	}
 }
 
+class Rect8 extends Uint8ClampedArray {
+	constructor (x0, y0, x, y, outset = 0) {
+		if (typeof x0 === "number" && typeof y0 === "number" && typeof x === "number" && typeof y === "number" && typeof outset === "number") {
+
+			super(4);
+
+			if (x0 > x) {
+				this[0] = x - outset;
+				this[2] = x0 + outset;
+			} else {
+				this[0] = x0 - outset;
+				this[2] = x + outset;
+			}
+
+			if (y0 > y) {
+				this[1] = y - outset;
+				this[3] = y0 + outset;
+			} else {
+				this[1] = y0 - outset;
+				this[3] = y + outset;
+			}
+		} else return false;
+	}
+}
+
 class QRT {
 	static ctx;
 
-	static base = [];
-	static __index;
-
-	static autoAddition = true;
-	static add (qrt, actualizeIndex) {
-		this.base.push(qrt);
-		if (actualizeIndex) this.__index = this.base.length - 1;
-	}
-
-	static remove (i) {
-		this.base.splice(i, 1);
-	}
-
-	static get current () {
-		return this.base[this.__index];
-	}
-
-	static reindexate (index) {
-		if (this.base.length <= index || index < 0) throw new Error("Invalid index");
-		this.__index = index;
+	static init (ctx) {
+		if (ctx instanceof CanvasRenderingContext2D) {
+			this.ctx = ctx;
+			this.canvas = this.ctx.canvas;
+		} else if (ctx instanceof HTMLCanvasElement) {
+			this.canvas = ctx;
+			this.ctx = ctx.getContext("2d");
+		} else {
+			throw new Error("..."); // <<<
+		}
 	}
 
 	static palette = ["white", "black", "tomato", "red", "cyan", "blue", "violet", "purple"];
 
-	static getMaskBit (mt, x, y) {
-		x %= 6;
-		y %= 6;
+	static maskApplication;
+	
+	static blueprints = {};
 
-		switch (mt) {
-			case 0:
-				return (x + y) % 2 === 0;
-			case 1:
-				return y % 2 === 0;
-			case 2:
-				return x % 3 === 0;
-			case 3:
-				return (x + y) % 3 === 0;
-			case 4:
-				return (Math.floor(y / 2) + Math.floor(x / 3)) % 2 === 0;
-			case 5:
-				return ((x * y) % 2) + ((x * y) % 3) === 0;
-			case 6:
-				return (((x * y) % 2) + ((x * y) % 3)) % 2 === 0;
-			case 7:
-				return (((x + y) % 2) + ((x * y) % 3)) % 2 === 0;
-			default:
-				throw new Error("Inappropriate value of mask! Only 0 to 8 numbers are allowed. You've used \"" + mt + "\"")
-		}
+	static getBlueprint (version) {
+
 	}
 
-	constructor (version, masktype, ecdepth, datatype) {
+	static sprites = {
+		circles: [
+			new Uint8Array([
+				1,1,
+				1,1,
+			]),
 
-		this.info = new QRTable(version, ecdepth);
+			new Uint8Array([
+				0,1,0,
+				1,1,1,
+				0,1,0
+			]),
 
-		this.version = version;
-		this.ecdepth = ecdepth.toUpperCase();
-		this.masktype = parseInt(masktype, 10);
+			new Uint8Array([
+				0,1,1,0,
+				1,1,1,1,
+				1,1,1,1,
+				0,1,1,0
+			]),
 
-		this.modules = 17 + (this.version * 4);
-		this.format5 = 0x00000;
+			new Uint8Array([
+				0,1,1,1,0,
+				1,1,1,1,1,
+				1,1,1,1,1,
+				1,1,1,1,1,
+				0,1,1,1,0
+			]),
 
-		switch (datatype) {
-			case "A": case 2: case "2":
-				this.datatype = 2;
+			new Uint8Array([
+				0,1,1,1,1,0,
+				1,1,1,1,1,1,
+				1,1,1,1,1,1,
+				1,1,1,1,1,1,
+				1,1,1,1,1,1,
+				0,1,1,1,1,0
+			]),
+
+			new Uint8Array([
+				0,0,1,1,1,0,0,
+				0,1,1,1,1,1,0,
+				1,1,1,1,1,1,1,
+				1,1,1,1,1,1,1,
+				1,1,1,1,1,1,1,
+				0,1,1,1,1,1,0,
+				0,0,1,1,1,0,0
+			]),
+
+			new Uint8Array([
+				0,0,1,1,1,1,0,0,
+				0,1,1,1,1,1,1,0,
+				1,1,1,1,1,1,1,1,
+				1,1,1,1,1,1,1,1,
+				1,1,1,1,1,1,1,1,
+				1,1,1,1,1,1,1,1,
+				0,1,1,1,1,1,1,0,
+				0,0,1,1,1,1,0,0
+			]),
+
+			new Uint8Array([
+				0,0,0,1,1,1,0,0,0,
+				0,1,1,1,1,1,1,1,0,
+				0,1,1,1,1,1,1,1,0,
+				1,1,1,1,1,1,1,1,1,
+				1,1,1,1,1,1,1,1,1,
+				1,1,1,1,1,1,1,1,1,
+				0,1,1,1,1,1,1,1,0,
+				0,1,1,1,1,1,1,1,0,
+				0,0,0,1,1,1,0,0,0
+			]),
+
+			new Uint8Array([
+				0,0,0,1,1,1,1,0,0,0,
+				0,0,1,1,1,1,1,1,0,0,
+				0,1,1,1,1,1,1,1,1,0,
+				1,1,1,1,1,1,1,1,1,1,
+				1,1,1,1,1,1,1,1,1,1,
+				1,1,1,1,1,1,1,1,1,1,
+				1,1,1,1,1,1,1,1,1,1,
+				0,1,1,1,1,1,1,1,1,0,
+				0,0,1,1,1,1,1,1,0,0,
+				0,0,0,1,1,1,1,0,0,0
+			])
+		]
+	};
+
+	constructor (settings) {
+		this.info = {};
+
+		if (settings && 0 < settings.version && settings.version <= 40) {
+
+			this.info.version = parseInt(settings.version, 10);
+
+		} else throw new Error("An argument was lost or its property has inappropriate value!");
+
+		if (settings.masktype && 0 <= settings.masktype && settings.masktype < 8) {
+
+			this.masktype = parseInt(settings.masktype, 10);
+			//	^^^^^^^^^ - sets info.masktype through the setter
+		} else throw new Error("An argument was lost or its property has inappropriate value!");
+
+		switch (settings.ecdepth) {
+			case "L": case "l": case 1: case "1":
+				this.info.ecdepth = "L";
 				break;
-			case "B": case 4: case "4":
-				this.datatype = 4;
-			// 	break;
-			// case "U": case 7:
-			// 	this.datatype = 7;
+			case "M": case "m": case 0: case "0":
+				this.info.ecdepth = "M";
+				break;
+			case "Q": case "q": case 3: case "3":
+				this.info.ecdepth = "Q";
+				break;
+			case "H": case "h": case 2: case "2":
+				this.info.ecdepth = "H";
+				break;
 			default:
-				throw new Error("Inappropriate datatype value was detected in the argument of QRT constructor (only A, B, U are allowed)");
+				throw new Error("An argument was lost or its property has inappropriate value!");
 		}
+
+		if (settings.datatype && (
+			settings.datatype == 2 ||
+			settings.datatype == 4
+		)) {
+
+			this.info.datatype = parseInt(settings.datatype, 10);
+
+		} else throw new Error("An argument was lost or its property has inappropriate value!");
+
+		Object.assign(this.info, new QRTable(this.info.version, this.info.ecdepth));
+
+		this.modules = 17 + (this.info.version * 4);
+
+		if (settings.matrix instanceof Uint8Array && settings.matrix.columns === settings.matrix.rows && settings.matrix.rows === this.modules) {
+
+			this.matrix = settings.matrix;
+
+		} else {
+
+			this.matrix = new Int8Array(this.modules ** 2).x2convert(this.modules);
+
+			function applySmallBaseSquareOn (mx, x0, y0, c0 = 2, c1 = 3) {
+				mx.x2set(x0 - 2, y0 - 2, c1);
+				mx.x2set(x0 - 1, y0 - 2, c1);
+				mx.x2set(x0, y0 - 2, c1);
+				mx.x2set(x0 + 1, y0 - 2, c1);
+				mx.x2set(x0 + 2, y0 - 2, c1);
+				mx.x2set(x0 + 2, y0 - 1, c1);
+				mx.x2set(x0 + 2, y0, c1);
+				mx.x2set(x0 + 2, y0 + 1, c1);
+				mx.x2set(x0 + 2, y0 + 2, c1);
+				mx.x2set(x0 + 1, y0 + 2, c1);
+				mx.x2set(x0, y0 + 2, c1);
+				mx.x2set(x0 - 1, y0 + 2, c1);
+				mx.x2set(x0 - 2, y0 + 2, c1);
+				mx.x2set(x0 - 2, y0 + 1, c1);
+				mx.x2set(x0 - 2, y0, c1);
+				mx.x2set(x0 - 2, y0 - 1, c1);
+
+				mx.x2set(x0 - 1, y0 - 1, c0);
+				mx.x2set(x0, y0 - 1, c0);
+				mx.x2set(x0 + 1, y0 - 1, c0);
+				mx.x2set(x0 + 1, y0, c0);
+				mx.x2set(x0 + 1, y0 + 1, c0);
+				mx.x2set(x0, y0 + 1, c0);
+				mx.x2set(x0 - 1, y0 + 1, c0);
+				mx.x2set(x0 - 1, y0, c0);
+
+				mx.x2set(x0, y0, c1);
+			}
+
+			function applyBigBaseSquareOn (mx, x0, y0, c0 = 2, c1 = 3) {
+				mx.x2set(x0 - 3, y0 - 3, c1);
+				mx.x2set(x0 - 2, y0 - 3, c1);
+				mx.x2set(x0 - 1, y0 - 3, c1);
+				mx.x2set(x0, y0 - 3, c1);
+				mx.x2set(x0 + 1, y0 - 3, c1);
+				mx.x2set(x0 + 2, y0 - 3, c1);
+				mx.x2set(x0 + 3, y0 - 3, c1);
+				mx.x2set(x0 + 3, y0 - 2, c1);
+				mx.x2set(x0 + 3, y0 - 1, c1);
+				mx.x2set(x0 + 3, y0, c1);
+				mx.x2set(x0 + 3, y0 + 1, c1);
+				mx.x2set(x0 + 3, y0 + 2, c1);
+				mx.x2set(x0 + 3, y0 + 3, c1);
+				mx.x2set(x0 + 2, y0 + 3, c1);
+				mx.x2set(x0 + 1, y0 + 3, c1);
+				mx.x2set(x0, y0 + 3, c1);
+				mx.x2set(x0 - 1, y0 + 3, c1);
+				mx.x2set(x0 - 2, y0 + 3, c1);
+				mx.x2set(x0 - 3, y0 + 3, c1);
+				mx.x2set(x0 - 3, y0 + 2, c1);
+				mx.x2set(x0 - 3, y0 + 1, c1);
+				mx.x2set(x0 - 3, y0, c1);
+				mx.x2set(x0 - 3, y0 - 1, c1);
+				mx.x2set(x0 - 3, y0 - 2, c1);
+
+				mx.x2set(x0 - 2, y0 - 2, c0);
+				mx.x2set(x0 - 1, y0 - 2, c0);
+				mx.x2set(x0, y0 - 2, c0);
+				mx.x2set(x0 + 1, y0 - 2, c0);
+				mx.x2set(x0 + 2, y0 - 2, c0);
+				mx.x2set(x0 + 2, y0 - 1, c0);
+				mx.x2set(x0 + 2, y0, c0);
+				mx.x2set(x0 + 2, y0 + 1, c0);
+				mx.x2set(x0 + 2, y0 + 2, c0);
+				mx.x2set(x0 + 1, y0 + 2, c0);
+				mx.x2set(x0, y0 + 2, c0);
+				mx.x2set(x0 - 1, y0 + 2, c0);
+				mx.x2set(x0 - 2, y0 + 2, c0);
+				mx.x2set(x0 - 2, y0 + 1, c0);
+				mx.x2set(x0 - 2, y0, c0);
+				mx.x2set(x0 - 2, y0 - 1, c0);
+
+				mx.x2set(x0 - 1, y0 - 1, c1);
+				mx.x2set(x0, y0, c1);
+				mx.x2set(x0 + 1, y0 + 1, c1);
+				mx.x2set(x0 + 1, y0 - 1, c1);
+				mx.x2set(x0 - 1, y0 + 1, c1);
+				mx.x2set(x0 + 1, y0, c1);
+				mx.x2set(x0 - 1, y0, c1);
+				mx.x2set(x0, y0 + 1, c1);
+				mx.x2set(x0, y0 - 1, c1);
+			}
+
+			let x, y;
+
+			for (x = 7; x < this.modules - 7; x += 2) {
+				this.matrix.x2set(x + 1, 6, 3);
+				this.matrix.x2set(x, 6, 2);
+			}
+
+			for (y = 7; y < this.modules - 7; y += 2) {
+				this.matrix.x2set(6, y + 1, 3);
+				this.matrix.x2set(6, y, 2);
+			}
+
+			let i = 0;
+
+			const sbss = new Uint8Array(Math.floor(this.info.version / 7) + 1);
+			const inter = (this.modules - 13) / sbss.length;
+
+			if (inter === Math.floor(inter / 2) * 2) {
+				for (i = 0; i < sbss.length; i++) {
+					sbss[i] = inter;
+				}
+			} else {
+				let inter0 = inter;
+				sbss[1] = Math.ceil(Math.round(inter) / 2) * 2;
+
+				for (i = 1; i < sbss.length; i++) {
+					sbss[i] = sbss[1];
+					inter0 -= (sbss[1] - inter);
+				}
+
+				sbss[0] = Math.round(inter0);
+			}
+
+			let j = 0;
+
+			i = 0;
+
+			for (y = 6; y < this.modules; y += sbss[j++]) {
+				const maxx = this.modules - ((y === 6) * 7);
+
+				if ((y % (this.modules - 13)) === 6) {
+					x = 6 + sbss[i++];
+				} else {
+					x = 6;
+				}
+
+				for (x; x < maxx; x += sbss[i++]) {
+					applySmallBaseSquareOn(this.matrix, x, y);
+				}
+
+				i = 0;
+			}
+
+			applyBigBaseSquareOn(this.matrix, 3, 3);
+			applyBigBaseSquareOn(this.matrix, this.modules - 4, 3);
+			applyBigBaseSquareOn(this.matrix, 3, this.modules - 4);
+
+			this.matrix.x2set(7, 0, 2);
+			this.matrix.x2set(7, 1, 2);
+			this.matrix.x2set(7, 2, 2);
+			this.matrix.x2set(7, 3, 2);
+			this.matrix.x2set(7, 4, 2);
+			this.matrix.x2set(7, 5, 2);
+
+			this.matrix.x2set(0, 7, 2);
+			this.matrix.x2set(1, 7, 2);
+			this.matrix.x2set(2, 7, 2);
+			this.matrix.x2set(3, 7, 2);
+			this.matrix.x2set(4, 7, 2);
+			this.matrix.x2set(5, 7, 2);
+
+			this.matrix.x2set(7, 7, 2);
+
+			this.matrix.x2set(7, this.modules - 1, 2);
+			this.matrix.x2set(7, this.modules - 2, 2);
+			this.matrix.x2set(7, this.modules - 3, 2);
+			this.matrix.x2set(7, this.modules - 4, 2);
+			this.matrix.x2set(7, this.modules - 5, 2);
+			this.matrix.x2set(7, this.modules - 6, 2);
+			this.matrix.x2set(7, this.modules - 7, 2);
+			this.matrix.x2set(7, this.modules - 8, 2);
+
+			this.matrix.x2set(0, this.modules - 8, 2);
+			this.matrix.x2set(1, this.modules - 8, 2);
+			this.matrix.x2set(2, this.modules - 8, 2);
+			this.matrix.x2set(3, this.modules - 8, 2);
+			this.matrix.x2set(4, this.modules - 8, 2);
+			this.matrix.x2set(5, this.modules - 8, 2);
+
+			this.matrix.x2set(8, this.modules - 8, 3);
+
+			this.matrix.x2set(this.modules - 8, 0, 2);
+			this.matrix.x2set(this.modules - 8, 1, 2);
+			this.matrix.x2set(this.modules - 8, 2, 2);
+			this.matrix.x2set(this.modules - 8, 3, 2);
+			this.matrix.x2set(this.modules - 8, 4, 2);
+			this.matrix.x2set(this.modules - 8, 5, 2);
+
+			this.matrix.x2set(this.modules - 1, 7, 2);
+			this.matrix.x2set(this.modules - 2, 7, 2);
+			this.matrix.x2set(this.modules - 3, 7, 2);
+			this.matrix.x2set(this.modules - 4, 7, 2);
+			this.matrix.x2set(this.modules - 5, 7, 2);
+			this.matrix.x2set(this.modules - 6, 7, 2);
+			this.matrix.x2set(this.modules - 7, 7, 2);
+			this.matrix.x2set(this.modules - 8, 7, 2);
+
+			this.applyFormatOn(this.info.masktype, this.info.ecdepth);
+
+			let vbits = this.info.version << 12,
+				gen = 0b1111100100101;
+
+			for (let p = 0; Math.binlen(vbits) > 12 && p < 100; p++) {
+				vbits ^= gen << Math.binlen(vbits) - 13;
+			}
+
+			vbits = (this.info.version << 12) + vbits;
+			vbits = vbits.toString(2);
+			vbits = "0".repeat(18 - vbits.length) + vbits;
+
+			for (let i = 0; i < 6; i++) {
+				this.matrix.x2set(this.modules -  9, 5 - i, parseInt(vbits[i * 3], 10) + 2);
+				this.matrix.x2set(this.modules - 10, 5 - i, parseInt(vbits[(i * 3) + 1], 10) + 2);
+				this.matrix.x2set(this.modules - 11, 5 - i, parseInt(vbits[(i * 3) + 2], 10) + 2);
+
+				this.matrix.x2set(5 - i, this.modules -  9, parseInt(vbits[i * 3], 10) + 2);
+				this.matrix.x2set(5 - i, this.modules - 10, parseInt(vbits[(i * 3) + 1], 10) + 2);
+				this.matrix.x2set(5 - i, this.modules - 11, parseInt(vbits[(i * 3) + 2], 10) + 2);
+			}
+		}
+
+//		vvvvvvvv DATA ENCODING AND APPLING vvvvvvvv
 
 		// this.encdata = this.encodeDataBits(this.data, 1);
 		// console.log(this.encdata);
 
-		this.matrix = new Int8Array(this.modules ** 2).x2convert(this.modules);
-
 		// this.encodeECBits(this.encdata);
 
-//		vvvvvvvv PREPARATIONS vvvvvvvv
+		this.__ECStartPoint = this.applyDataOn("1".repeat(2800));
+		this.applyECDataOn("1".repeat(4000));
 
-		function applySmallBaseSquareOn (mx, x0, y0, c0 = 2, c1 = 3) {
-			mx.x2set(x0 - 2, y0 - 2, c1);
-			mx.x2set(x0 - 1, y0 - 2, c1);
-			mx.x2set(x0, y0 - 2, c1);
-			mx.x2set(x0 + 1, y0 - 2, c1);
-			mx.x2set(x0 + 2, y0 - 2, c1);
-			mx.x2set(x0 + 2, y0 - 1, c1);
-			mx.x2set(x0 + 2, y0, c1);
-			mx.x2set(x0 + 2, y0 + 1, c1);
-			mx.x2set(x0 + 2, y0 + 2, c1);
-			mx.x2set(x0 + 1, y0 + 2, c1);
-			mx.x2set(x0, y0 + 2, c1);
-			mx.x2set(x0 - 1, y0 + 2, c1);
-			mx.x2set(x0 - 2, y0 + 2, c1);
-			mx.x2set(x0 - 2, y0 + 1, c1);
-			mx.x2set(x0 - 2, y0, c1);
-			mx.x2set(x0 - 2, y0 - 1, c1);
-	
-			mx.x2set(x0 - 1, y0 - 1, c0);
-			mx.x2set(x0, y0 - 1, c0);
-			mx.x2set(x0 + 1, y0 - 1, c0);
-			mx.x2set(x0 + 1, y0, c0);
-			mx.x2set(x0 + 1, y0 + 1, c0);
-			mx.x2set(x0, y0 + 1, c0);
-			mx.x2set(x0 - 1, y0 + 1, c0);
-			mx.x2set(x0 - 1, y0, c0);
-	
-			mx.x2set(x0, y0, c1);
-		}
-
-		function applyBigBaseSquareOn (mx, x0, y0, c0 = 2, c1 = 3) {
-			mx.x2set(x0 - 3, y0 - 3, c1);
-			mx.x2set(x0 - 2, y0 - 3, c1);
-			mx.x2set(x0 - 1, y0 - 3, c1);
-			mx.x2set(x0, y0 - 3, c1);
-			mx.x2set(x0 + 1, y0 - 3, c1);
-			mx.x2set(x0 + 2, y0 - 3, c1);
-			mx.x2set(x0 + 3, y0 - 3, c1);
-			mx.x2set(x0 + 3, y0 - 2, c1);
-			mx.x2set(x0 + 3, y0 - 1, c1);
-			mx.x2set(x0 + 3, y0, c1);
-			mx.x2set(x0 + 3, y0 + 1, c1);
-			mx.x2set(x0 + 3, y0 + 2, c1);
-			mx.x2set(x0 + 3, y0 + 3, c1);
-			mx.x2set(x0 + 2, y0 + 3, c1);
-			mx.x2set(x0 + 1, y0 + 3, c1);
-			mx.x2set(x0, y0 + 3, c1);
-			mx.x2set(x0 - 1, y0 + 3, c1);
-			mx.x2set(x0 - 2, y0 + 3, c1);
-			mx.x2set(x0 - 3, y0 + 3, c1);
-			mx.x2set(x0 - 3, y0 + 2, c1);
-			mx.x2set(x0 - 3, y0 + 1, c1);
-			mx.x2set(x0 - 3, y0, c1);
-			mx.x2set(x0 - 3, y0 - 1, c1);
-			mx.x2set(x0 - 3, y0 - 2, c1);
-	
-			mx.x2set(x0 - 2, y0 - 2, c0);
-			mx.x2set(x0 - 1, y0 - 2, c0);
-			mx.x2set(x0, y0 - 2, c0);
-			mx.x2set(x0 + 1, y0 - 2, c0);
-			mx.x2set(x0 + 2, y0 - 2, c0);
-			mx.x2set(x0 + 2, y0 - 1, c0);
-			mx.x2set(x0 + 2, y0, c0);
-			mx.x2set(x0 + 2, y0 + 1, c0);
-			mx.x2set(x0 + 2, y0 + 2, c0);
-			mx.x2set(x0 + 1, y0 + 2, c0);
-			mx.x2set(x0, y0 + 2, c0);
-			mx.x2set(x0 - 1, y0 + 2, c0);
-			mx.x2set(x0 - 2, y0 + 2, c0);
-			mx.x2set(x0 - 2, y0 + 1, c0);
-			mx.x2set(x0 - 2, y0, c0);
-			mx.x2set(x0 - 2, y0 - 1, c0);
-	
-			mx.x2set(x0 - 1, y0 - 1, c1);
-			mx.x2set(x0, y0, c1);
-			mx.x2set(x0 + 1, y0 + 1, c1);
-			mx.x2set(x0 + 1, y0 - 1, c1);
-			mx.x2set(x0 - 1, y0 + 1, c1);
-			mx.x2set(x0 + 1, y0, c1);
-			mx.x2set(x0 - 1, y0, c1);
-			mx.x2set(x0, y0 + 1, c1);
-			mx.x2set(x0, y0 - 1, c1);
-		}
-
-		let x, y;
-
-		for (x = 7; x < this.modules - 7; x += 2) {
-			this.matrix.x2set(x + 1, 6, 3);
-			this.matrix.x2set(x, 6, 2);
-		}
-
-		for (y = 7; y < this.modules - 7; y += 2) {
-			this.matrix.x2set(6, y + 1, 3);
-			this.matrix.x2set(6, y, 2);
-		}
-
-		for (x = 6; x < this.modules; x += 28) {
-			for (y = 6; y < this.modules; y += 28) {
-				if (!(y === 6 && x === 6) && !(x === 6 && y === this.modules - 7) && !(x === this.modules - 7 && y === 6)) {
-					applySmallBaseSquareOn(this.matrix, x, y);
+		// vvvvv PROBLEMS MAY APPEARS WHILE IMPORTING QRT vvvvv
+		for (let i = 0; i < this.modules; i++) {
+			for (let j = 0; j < this.modules; j++) {
+				if (this.matrix.x2get(i, j) % 6 < 2) {
+					this.matrix.x2set(i, j, this.matrix.x2get(i, j) ^ this.getMaskBit(i, j));
 				}
 			}
-		}
-
-		applyBigBaseSquareOn(this.matrix, 3, 3);
-		applyBigBaseSquareOn(this.matrix, this.modules - 4, 3);
-		applyBigBaseSquareOn(this.matrix, 3, this.modules - 4);
-
-		this.matrix.x2set(7, 0, 2);
-		this.matrix.x2set(7, 1, 2);
-		this.matrix.x2set(7, 2, 2);
-		this.matrix.x2set(7, 3, 2);
-		this.matrix.x2set(7, 4, 2);
-		this.matrix.x2set(7, 5, 2);
-
-		this.matrix.x2set(0, 7, 2);
-		this.matrix.x2set(1, 7, 2);
-		this.matrix.x2set(2, 7, 2);
-		this.matrix.x2set(3, 7, 2);
-		this.matrix.x2set(4, 7, 2);
-		this.matrix.x2set(5, 7, 2);
-
-		this.matrix.x2set(7, 7, 2);
-
-		this.matrix.x2set(7, this.modules - 1, 2);
-		this.matrix.x2set(7, this.modules - 2, 2);
-		this.matrix.x2set(7, this.modules - 3, 2);
-		this.matrix.x2set(7, this.modules - 4, 2);
-		this.matrix.x2set(7, this.modules - 5, 2);
-		this.matrix.x2set(7, this.modules - 6, 2);
-		this.matrix.x2set(7, this.modules - 7, 2);
-		this.matrix.x2set(7, this.modules - 8, 2);
-
-		this.matrix.x2set(0, this.modules - 8, 2);
-		this.matrix.x2set(1, this.modules - 8, 2);
-		this.matrix.x2set(2, this.modules - 8, 2);
-		this.matrix.x2set(3, this.modules - 8, 2);
-		this.matrix.x2set(4, this.modules - 8, 2);
-		this.matrix.x2set(5, this.modules - 8, 2);
-
-		this.matrix.x2set(8, this.modules - 8, 3);
-
-		this.matrix.x2set(this.modules - 8, 0, 2);
-		this.matrix.x2set(this.modules - 8, 1, 2);
-		this.matrix.x2set(this.modules - 8, 2, 2);
-		this.matrix.x2set(this.modules - 8, 3, 2);
-		this.matrix.x2set(this.modules - 8, 4, 2);
-		this.matrix.x2set(this.modules - 8, 5, 2);
-
-		this.matrix.x2set(this.modules - 1, 7, 2);
-		this.matrix.x2set(this.modules - 2, 7, 2);
-		this.matrix.x2set(this.modules - 3, 7, 2);
-		this.matrix.x2set(this.modules - 4, 7, 2);
-		this.matrix.x2set(this.modules - 5, 7, 2);
-		this.matrix.x2set(this.modules - 6, 7, 2);
-		this.matrix.x2set(this.modules - 7, 7, 2);
-		this.matrix.x2set(this.modules - 8, 7, 2);
-
-		this.applyFormatOn(this.masktype, this.ecdepth);
-		this.applyVersionOn();
-
-//		vvvvvvvv DATA ENCODING AND APPLING vvvvvvvv
-
-		this._ECStartPoint = this.applyDataOn("1010010101010101111111111111" + "1".repeat(1035));
-		// this.applyECDataOn("1010101001010000001110101011");
-
-		if (QRT.autoAddition) {
-			QRT.add(this, true);
 		}
 
 		// console.log(this.decodeCodewords(this.scanDataFrom()));
 
 		// this.encodeDataCodewords("HELLO WORLDDDDDDDDDD");
+	}
 
-		// return this;
+	getMaskbit;
+
+	set masktype (value) {
+		switch (parseInt(value, 10)) {
+			case 0:
+				this.info.masktype = value;
+				this.getMaskBit = (x, y) => {
+					x %= 6;
+					y %= 6;
+					return (x + y) % 2 === 0
+				};
+				break;
+			case 1:
+				this.info.masktype = value;
+				this.getMaskBit = (x, y) => {
+					x %= 6;
+					y %= 6;
+					return y % 2 === 0;
+				};
+				break;
+			case 2:
+				this.info.masktype = value;
+				this.getMaskBit = (x, y) => {
+					x %= 6;
+					y %= 6;
+					return x % 3 === 0;
+				};
+				break;
+			case 3:
+				this.info.masktype = value;
+				this.getMaskBit = (x, y) => {
+					x %= 6;
+					y %= 6;
+					return (x + y) % 3 === 0;
+				};
+				break;
+			case 4:
+				this.info.masktype = value;
+				this.getMaskBit = (x, y) => {
+					x %= 6;
+					y %= 6;
+					return (Math.floor(y / 2) + Math.floor(x / 3)) % 2 === 0;
+				};
+				break;
+			case 5:
+				this.info.masktype = value;
+				this.getMaskBit = (x, y) => {
+					x %= 6;
+					y %= 6;
+					return ((x * y) % 2) + ((x * y) % 3) === 0;
+				};
+				break;
+			case 6:
+				this.info.masktype = value;
+				this.getMaskBit = (x, y) => {
+					x %= 6;
+					y %= 6;
+					return (((x * y) % 2) + ((x * y) % 3)) % 2 === 0;
+				};
+				break;
+			case 7:
+				this.info.masktype = value;
+				this.getMaskBit = (x, y) => {
+					x %= 6;
+					y %= 6;
+					return (((x + y) % 2) + ((x * y) % 3)) % 2 === 0;
+				};
+				break;
+			default:
+				throw new Error("Inappropriate value of mask! Only 0 to 8 numbers are allowed. You've used \"" + value + "\"")
+		}
+	}
+
+	get masktype () {
+		throw new Error(".masktype is not a property of QRT instances! It's a setter");
 	}
 
 	// encoding - encoding - encoding - encoding - encoding - encoding - encoding - encoding
@@ -274,7 +515,7 @@ class QRT {
 		let cws = new CodewordArray(this.info.dataBytes);
 		let buff = 0b0;
 
-		switch (this.datatype) {
+		switch (this.info.datatype) {
 			case 2: // ALPHANUM // WAS NOT TESTED WHEN DATA COVERS ALL POSSIBLE CODEWORDS !!!!!!!!
 				let i, k = 4, c = 0;
 
@@ -284,7 +525,7 @@ class QRT {
 						cws[c++] = buff >> k;
 						buff %= 1 << k;
 					}
-	
+
 					if (k >= 8) {
 						k %= 8;
 						cws[c++] = buff >> k;
@@ -384,44 +625,45 @@ class QRT {
 
 	// updating - updating - updating - updating - updating - updating - updating - updating
 
-	updateCanvas (x0 = 0, y0 = 0, x = this.modules - 1, y = this.modules - 1) {
-		if (x0 > x) {
-			x += x0;
-			x0 = x - x0;
-			x -= x0;
-		}
-
-		if (y0 > y) {
-			y += y0;
-			y0 = y - y0;
-			y -= y0;
-		}
-
-		for (let i = y0; i <= y; i++) {
-			for (let j = x0; j <= x; j++) {
-				QRT.ctx.fillStyle = "red";
-				QRT.ctx.fillRect(j, i, 1, 1);
+	updateCanvas (rect8) {
+		if (rect8 && rect8 instanceof Rect8 && 0 <= rect8[0] && rect8[0] < this.modules && 0 <= rect8[1] && rect8[1] < this.modules) {
+			for (let i = rect8[1]; i <= rect8[3]; i++) {
+				for (let j = rect8[0]; j <= rect8[2]; j++) {
+					QRT.ctx.fillStyle = QRT.palette[this.matrix.x2get(j, i) % 2];
+					QRT.ctx.fillRect(j, i, 1, 1);
+				}
+			}
+		} else {
+			for (let i = 0; i <= this.modules - 1; i++) {
+				for (let j = 0; j <= this.modules - 1; j++) {
+					QRT.ctx.fillStyle = QRT.palette[this.matrix.x2get(j, i) % 2];
+					QRT.ctx.fillRect(j, i, 1, 1);
+				}
 			}
 		}
 	}
 
-	updateCanvasX (x0 = 0, y0 = 0, x = this.modules - 1, y = this.modules - 1) {
-		if (x0 > x) {
-			x += x0;
-			x0 = x - x0;
-			x -= x0;
+	updateCanvasX (rect8) {
+		if (!(rect8 && rect8 instanceof Rect8 && 0 <= rect8[0] && rect8[0] < this.modules && 0 <= rect8[1] && rect8[1] < this.modules)) {
+			rect8 = new Rect8(0, 0, this.modules - 1, this.modules - 1);
 		}
 
-		if (y0 > y) {
-			y += y0;
-			y0 = y - y0;
-			y -= y0;
-		}
-
-		for (let i = y0; i <= y; i++) {
-			for (let j = x0; j <= x; j++) {
-				QRT.ctx.fillStyle = QRT.palette[this.matrix.x2get(j, i)];
-				QRT.ctx.fillRect(j, i, 1, 1);
+		if (QRT.maskApplication === 2) {
+			for (let y = rect8[1]; y <= rect8[3]; y++) {
+				for (let x = rect8[0]; x <= rect8[2]; x++) {
+					QRT.ctx.fillStyle = QRT.palette[
+						// this.matrix.x2get(x, y)
+						(this.matrix.x2get(x, y) % 6 < 2) ? this.matrix.x2get(x, y) ^ this.getMaskBit(x, y) : this.matrix.x2get(x, y)
+					];
+					QRT.ctx.fillRect(x, y, 1, 1);
+				}
+			}
+		} else {
+			for (let y = rect8[1]; y <= rect8[3]; y++) {
+				for (let x = rect8[0]; x <= rect8[2]; x++) {
+					QRT.ctx.fillStyle = QRT.palette[this.matrix.x2get(x, y)];
+					QRT.ctx.fillRect(x, y, 1, 1);
+				}
 			}
 		}
 	}
@@ -451,23 +693,34 @@ class QRT {
 		}
 	}
 
-	drawLineOn (x0, y0, x, y, c, w = 1, wcomp = true, roundcap = true) {
+	drawLineOn (x0, y0, x, y, c, w = 1) {
 		let dx = (x - x0), dy = (y - y0);
+
 		if (dx === 0 && dy === 0) {
 			this.drawPointOn(x0, y0, c);
-			return;
+			return false;
 		}
 
-		if (wcomp && w > 1) {
-			w = Math.floor(lineWidthCompensator(w, Math.atan((y - y0) / (x - x0))));
-		}
-
-		const _w = Math.floor(w / 2);
 		QRT.ctx.fillStyle = QRT.palette[c];
 
-		if (roundcap && w > 2) {
-			this.drawEllipseOn(x0 - _w, y0 - _w, x0 + _w - 1, y0 + _w - 1, false, true, c);
-			this.drawEllipseOn(x - _w, y - _w, x + _w - 1, y + _w - 1, false, true, c);
+		const _w = Math.floor(w / 2);
+
+		const rect = new Rect8(x0, y0, x, y, _w);
+		rect[2] -= (w & 1) ^ 1;
+		rect[3] -= (w & 1) ^ 1;
+
+		const brush = (w === 1) ? (x, y) => {
+			if (this.matrix.x2get(x, y) < 2) {
+				QRT.ctx.fillRect(x, y, 1, 1);
+			}
+		} : (x, y) => {
+			for (let i = 0; i < w; i++) {
+				for (let j = 0; j < w; j++) {
+					if (QRT.sprites.circles[w - 2][(j * w) + i] === 1 && this.matrix.x2getD(x - _w + i, y - _w + j, 2) < 2) {
+						QRT.ctx.fillRect(x - _w + i, y - _w + j, 1, 1);
+					}
+				}
+			}
 		}
 
 		if (Math.abs(dx) < Math.abs(dy)) {
@@ -482,12 +735,9 @@ class QRT {
 
 			const k = dx / dy;
 			for (y = 0; y <= dy; y++) {
-				const _x = Math.round(y * k) + x0, _y = y + y0;
-				for (let i = -_w; i < w - _w; i++) {
-					if (this.matrix.x2getD(_x + i, _y, 2) < 2) QRT.ctx.fillRect(_x + i, _y, 1, 1);
-				}
+				brush(Math.round(y * k) + x0, y + y0);
 			}
-		} else if (Math.abs(dx) >= Math.abs(dy)) {
+		} else {
 			if (dx < 0) {
 				x = -dx;
 				y = -dy;
@@ -499,26 +749,36 @@ class QRT {
 
 			const k = dy / dx;
 			for (x = 0; x <= dx; x++) {
-				const _x = x + x0, _y = Math.round(x * k) + y0;
-				for (let i = -_w; i < w - _w; i++) {
-					if (this.matrix.x2getD(_x, _y + i, 2) < 2) QRT.ctx.fillRect(_x, _y + i, 1, 1);
-				}
+				brush(x + x0, Math.round(x * k) + y0);
 			}
 		}
+
+		return rect;
 	}
 
-	applyLineOn (x0, y0, x, y, c, w = 1, wcomp = true, roundcap = true) {
+	applyLineOn (x0, y0, x, y, c, w = 1) {
 		let dx = (x - x0), dy = (y - y0);
+
 		if (dx === 0 && dy === 0) {
 			this.applyPointOn(x0, y0, c);
 			return;
 		}
 
-		if (wcomp && w > 1) {
-			w = Math.floor(lineWidthCompensator(w, Math.atan((y - y0) / (x - x0))));
-		}
-
 		const _w = Math.floor(w / 2);
+
+		const brush = (w === 1) ? (x, y) => {
+			if (this.matrix.x2get(x, y) < 2) {
+				this.matrix.x2set(x, y, c ^ ((QRT.maskApplication === 2) * this.getMaskBit(x, y)));
+			}
+		} : (x, y) => {
+			for (let i = 0; i < w; i++) {
+				for (let j = 0; j < w; j++) {
+					if (QRT.sprites.circles[w - 2][(j * w) + i] === 1 && this.matrix.x2getD(x - _w + i, y - _w + j, 2) < 2) {
+						this.matrix.x2set(x - _w + i, y - _w + j, c ^ ((QRT.maskApplication === 2) * this.getMaskBit(x - _w + i, y - _w + j)));
+					}
+				}
+			}
+		}
 
 		if (Math.abs(dx) < Math.abs(dy)) {
 			if (dy < 0) {
@@ -532,12 +792,9 @@ class QRT {
 
 			const k = dx / dy;
 			for (y = 0; y <= dy; y++) {
-				const _x = Math.round(y * k) + x0, _y = y + y0;
-				for (let i = -_w; i < w - _w; i++) {
-					if (this.matrix.x2getD(_x + i, _y, 2) < 2) this.matrix.x2set(_x + i, _y, c);
-				}
+				brush(Math.round(y * k) + x0, y + y0);
 			}
-		} else if (Math.abs(dx) >= Math.abs(dy)) {
+		} else {
 			if (dx < 0) {
 				x = -dx;
 				y = -dy;
@@ -549,10 +806,7 @@ class QRT {
 
 			const k = dy / dx;
 			for (x = 0; x <= dx; x++) {
-				const _x = x + x0, _y = Math.round(x * k) + y0;
-				for (let i = -_w; i < w - _w; i++) {
-					if (this.matrix.x2getD(_x, _y + i, 2) < 2) this.matrix.x2set(_x, _y + i, c);
-				}
+				brush(x + x0, Math.round(x * k) + y0);
 			}
 		}
 	}
@@ -561,16 +815,19 @@ class QRT {
 		let a = Math.abs(x - x0) + 1,
 			b = Math.abs(y - y0) + 1;
 
-		if (a === 1 && b === 1) {
-			this.drawPointOn(x0, y0, c);
-			return;
-		}
-
 		QRT.ctx.fillStyle = QRT.palette[c];
 
-		let _x, _y;
+		const rect = center ? new Rect8(x0 - a, y0 - b, x0 + a, y0 + b) : new Rect8(x0, y0, x, y);
 
-		if (!center && a === 0 || b === 0) return;
+		if (a % (3 - center) === a) {
+			QRT.ctx.fillRect(rect[0] + center, rect[1], a % 3, (b * (1 + center)) + center);
+			return rect;
+		} else if (b % (3 - center) === b) {
+			QRT.ctx.fillRect(rect[0], rect[1] + center, (a * (1 + center)) + center, b % 3);
+			return rect;
+		}
+
+		let _x, _y;
 
 		if (circle) {
 			a = Math.max(a, b);
@@ -587,7 +844,7 @@ class QRT {
 				x0++;
 				x++;
 			}
-	
+
 			if (y0 > y) {
 				y0 -= b;
 				y = y0 + b;
@@ -601,6 +858,11 @@ class QRT {
 			db = -(b % 1);
 			x0 += a - da;
 			y0 += b - db;
+		} else {
+			rect[0] = x0 - a + da;
+			rect[1] = y0 - b + db;
+			rect[2] = x0 + a + da;
+			rect[3] = y0 + b + db;
 		}
 
 		for (y = -b; y <= b; y++) {
@@ -632,6 +894,8 @@ class QRT {
 				QRT.ctx.fillRect(_x, _y, 1, 1);
 			}
 		}
+
+		return rect;
 	}
 
 	applyEllipseOn (x0, y0, x, y, center = false, circle = false, c = 1) {
@@ -662,7 +926,7 @@ class QRT {
 				x0++;
 				x++;
 			}
-	
+
 			if (y0 > y) {
 				y0 -= b;
 				y = y0 + b;
@@ -685,11 +949,11 @@ class QRT {
 			_y = y + db + y0;
 
 			if (this.matrix.x2getD(x, _y, 2) < 2) {
-				this.matrix.x2set(x, _y, c);
+				this.matrix.x2set(x, _y, c ^ ((QRT.maskApplication === 2) * QRT.current.getMaskBit(x, _y)));
 			}
 
 			if (this.matrix.x2getD(_x, _y, 2) < 2) {
-				this.matrix.x2set(_x, _y, c);
+				this.matrix.x2set(_x, _y, c ^ ((QRT.maskApplication === 2) * QRT.current.getMaskBit(_x, _y)));
 			}
 		}
 
@@ -700,11 +964,11 @@ class QRT {
 			_x = x + da + x0;
 
 			if (this.matrix.x2getD(_x, y, 2) < 2) {
-				this.matrix.x2set(_x, y, c);
+				this.matrix.x2set(_x, y, c ^ ((QRT.maskApplication === 2) * QRT.current.getMaskBit(_x, y)));
 			}
 
 			if (this.matrix.x2getD(_x, _y, 2) < 2) {
-				this.matrix.x2set(_x, _y, c);
+				this.matrix.x2set(_x, _y, c ^ ((QRT.maskApplication === 2) * QRT.current.getMaskBit(_x, _y)));
 			}
 		}
 	}
@@ -734,12 +998,12 @@ class QRT {
 
 		let bits = necdepth + nmask;
 
-		this.format5 = bits;
+		this.format5u = bits;
 
 		bits <<= 10;
 
 		let _num = bits;
-		
+
 		for (let p = 0; Math.binlen(bits) > 10 && p < 100; p++) {
 			bits ^= 0b10100110111 << (bits.toString(2).length - 11);
 		}
@@ -747,7 +1011,7 @@ class QRT {
 		bits += _num;
 		bits ^= 0b101010000010010;
 		bits = bits.toString(2);
-		bits = "0".repeat(15 - bits.length) + bits;
+		bits = bits.padStart(15, "0");
 
 		this.format = bits;
 
@@ -797,28 +1061,9 @@ class QRT {
 		this.matrix.x2set(this.modules - 1, 8, parseInt(bits[14, 10]) + 4);
 	}
 
-	applyVersionOn () {
-		let bits = this.version, gen = 0b1111100100101;
-		bits <<= 12;
-		for (let p = 0; Math.binlen(bits) > 12 && p < 100; p++) {
-			bits ^= gen << Math.binlen(bits) - 13;
-		}
-		bits = (this.version << 12) + bits;
-		bits = bits.toString(2);
-		bits = "0".repeat(18 - bits.length) + bits;
-
-		for (let i = 0; i < 6; i++) {
-			this.matrix.x2set(this.modules -  9, 5 - i, parseInt(bits[i * 3], 10) + 2);
-			this.matrix.x2set(this.modules - 10, 5 - i, parseInt(bits[(i * 3) + 1], 10) + 2);
-			this.matrix.x2set(this.modules - 11, 5 - i, parseInt(bits[(i * 3) + 2], 10) + 2);
-
-			this.matrix.x2set(5 - i, this.modules -  9, parseInt(bits[i * 3], 10) + 2);
-			this.matrix.x2set(5 - i, this.modules - 10, parseInt(bits[(i * 3) + 1], 10) + 2);
-			this.matrix.x2set(5 - i, this.modules - 11, parseInt(bits[(i * 3) + 2], 10) + 2);
-		}
-	}
-
 	applyDataOn (data) {
+		if (typeof data !== "string" || data.length <= 0) throw new Error("Data must be given!");
+
 		return this.goThroughDataModules((x, y, j) => {
 			this.matrix.x2set(x, y, parseInt(data[j], 10));
 		}, {
@@ -827,10 +1072,9 @@ class QRT {
 	}
 
 	applyECDataOn (ecdata) {
-		let i = 0;
-		this.goThroughDataModules((x, y) => {
-			this.matrix.x2set(x, y, parseInt(ecdata[i++], 10) + 6);
-		}, this._ECStartPoint);
+		this.goThroughDataModules((x, y, j) => {
+			this.matrix.x2set(x, y, parseInt(ecdata[j - this.__ECStartPoint.j], 10) + 6);
+		}, this.__ECStartPoint);
 	}
 
 	scanDataFrom () {
@@ -839,7 +1083,7 @@ class QRT {
 
 		this.goThroughDataModules((x, y, j) => {
 			byte <<= 1;
-			byte += (this.matrix.x2get(x, y) % 2) ^ QRT.getMaskBit(this.masktype, x, y);
+			byte += (this.matrix.x2get(x, y) % 2) ^ this.getMaskBit(this.masktype, x, y);
 
 			if (j % 8 === 7) {
 				cws[i++] = byte;
@@ -871,7 +1115,7 @@ class QRT {
 		let chars = "";
 		let buff = 0b0;
 
-		switch (this.datatype) {
+		switch (this.info.datatype) {
 			case 2: // ALPHANUM
 				let k = 17; // <<< СЮДИ ТРЕБА ЗНАЧЕННЯ З ТАБЛИЦІ
 				let i = Math.floor(k / 8);
@@ -945,7 +1189,7 @@ class QRT {
 						trig = 1;
 						i++;
 					}
-					
+
 					if (ncws[i] >= 0b10000000) { 		// 10xxxxxx
 						if (trig--) {
 							buff <<= 6;
@@ -969,53 +1213,40 @@ class QRT {
 	goThroughDataModules (act, interval = {}) {
 		if (!act) throw new Error("Inappropriate value of act arg. was put into goThroughDataModules method!");
 
-		let _x = interval.x || this.modules - 1,
-			_y = interval.y || this.modules - 1,
+		let x = interval.x || this.modules - 1,
+			y = interval.y || this.modules - 1,
 			v = interval.v || 1,
 			j = interval.j || 0,
-			maxb = interval.maxb;
+			maxb;
 
-		if (!maxb) {
-			maxb = (this.info.dataBytes + this.info.ecBytes) * 8;
+		if (interval.maxb) {
+			maxb = Math.min(interval.maxb, (this.info.dataBytes + this.info.ecBytes) * 8);
 		} else {
-			maxb = Math.min(maxb, (this.info.dataBytes + this.info.ecBytes) * 8);
+			maxb = (this.info.dataBytes + this.info.ecBytes) * 8;
 		}
 
-		for (let x = _x; x >= 0; x -= 2) {
-			if (x === 6) x = 5;
-
-			const miny = ((x % (this.modules - 8) < 8) * 9) - ((x === 8) * 3);
-
-			if (v > 0) { // up
-				for (let y = _y - ((x < 6) * 11); y >= miny; y -= v) {
-					if (!(
-						5 <= x % 28 && x % 28 < 10 &&
-						5 <= y % 28 && y % 28 < 10
-					)) act(x, y, j++, v);
-
-					if (!(
-						5 <= x - 1 % 28 && x - 1 % 28 < 10 &&
-						5 <= y % 28 && y % 28 < 10
-					)) act(x - 1, y, j++, v);
-				}
-			} else { // down
-				for (let y = miny; y <= _y - ((x < 6) * 11); y -= v) {
-					if (!(
-						5 <= x % 28 && x % 28 < 10 &&
-						5 <= y % 28 && y % 28 < 10
-					)) act(x, y, j++, v);
-
-					if (!(
-						5 <= x - 1 % 28 && x - 1 % 28 < 10 &&
-						5 <= y % 28 && y % 28 < 10
-					)) act(x - 1, y, j++, v);
-				}
+		for (let i = x % 2; j < maxb && i < 100000; i++) {
+			if (this.matrix.x2get(x, y) < 2) {
+				act(x, y, j++, v);
 			}
 
-			v = -v;
+			if (i % 2) {
+				y -= v;
+				x++;
+
+				if (y === -1 || y === this.modules) {
+					x -= 2;
+					v = -v;
+					y -= v;
+				}
+			} else {
+				x--;
+			}
+
+			if (x === 6) x = 5;
 		}
 
-		// return {x, y, j, v};
+		return {x, y, j, v};
 	}
 
 	// goThroughDataModules Alternative: : : : : : :
@@ -1039,15 +1270,107 @@ class QRT {
 	// 		}
 	// 	}
 	// }
-	
+
 	// building - building - building - building - building - building - building
 
-	buildTQRT () {
-		let output = this.version.toString(8);
-		if (output.length === 1) output = 0 + output;
-		output += this.format5.toString(8);
-		output += this.datatype.toString(8);
+	buildTQRT (name) {
+		const olen = this.matrix.length;
+		let bstr = "";
 
-		console.log(output);
+		bstr += String.fromCharCode(this.info.version);
+		bstr += String.fromCharCode(this.format5u);
+
+		let mod = 7, num = 0o0, byte = 0b0;
+
+		for (let i = 0; i < olen; i) {
+
+			if (mod < 3) {
+				num = this.matrix[i++] % 8;
+				mod = 3 - mod;
+				byte += num >> mod;
+
+				bstr += String.fromCharCode(byte);
+
+				byte = num % (1 << mod);
+				mod = 7 - mod;
+				byte <<= mod;
+			}
+
+			num = this.matrix[i++] % 8;
+			mod -= 3;
+			byte += num << mod;
+		}
+
+		// let str = "";
+
+		// for (let k = 0; k < bstr.length; k++) {
+		// 	str += bstr[k].charCodeAt(0).toString(2).padStart(7, "0") + " , ";
+		// }
+
+		// console.log(str);
+
+		return new File([bstr], name + ".beta.tqrt", {type: "image/tqrt"});
 	}
+
+	static readTQRT = (tqrt) => new Promise ((resolve, reject) => {
+		const reader = new FileReader();
+		const indata = {};
+
+		reader.readAsArrayBuffer(tqrt);
+
+		reader.onload = () => {
+			const arrbuff = reader.result;
+			const arr = new Uint8Array(arrbuff);
+
+			indata.version = arr[0];
+
+			const format = arr[1];
+
+			if (0 <= format && format < 32) {
+				indata.ecdepth = format >> 3;
+
+				switch (indata.ecdepth) {
+					case 1:
+						indata.ecdepth = "L";
+						break;
+					case 0:
+						indata.ecdepth = "M";
+						break;
+					case 3:
+						indata.ecdepth = "Q";
+						break;
+					case 2:
+						indata.ecdepth = "H";
+				}
+
+				indata.masktype = format % 4;
+
+			} else throw new Error("Recieved file is corrupted! Inappropriate format bits of qrt was detected");
+
+			let mod = 7, j = 2;
+
+			const modules = ((indata.version * 4) + 17);
+			indata.matrix = new Uint8Array(modules ** 2).x2convert(modules);
+
+			for (let i = 0; i < indata.matrix.length; i++) {
+				if (mod < 3) {
+					indata.matrix[i] = arr[j++] % (1 << mod);
+					mod = 3 - mod;
+					indata.matrix[i] <<= mod;
+					mod = 7 - mod;
+					indata.matrix[i] += arr[j] >> mod;
+				} else {
+					mod -= 3;
+					indata.matrix[i] = (arr[j] >> mod) % 8;
+				}
+			}
+
+			indata.datatype = indata.matrix.x2get(modules - 1, modules - 1) % 2;
+			indata.datatype += (indata.matrix.x2get(modules - 2, modules - 1) % 2) << 1;
+			indata.datatype += (indata.matrix.x2get(modules - 1, modules - 2) % 2) << 2;
+			indata.datatype += (indata.matrix.x2get(modules - 2, modules - 2) % 2) << 3;
+
+			resolve(indata);
+		};
+	});
 }
