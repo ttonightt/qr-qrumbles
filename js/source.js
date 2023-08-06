@@ -1,5 +1,5 @@
 const canvas = document.getElementById("main");
-CWMap.init(document.getElementById("map"));
+// CWMap.init(document.getElementById("map"));
 
 Project.init(
 	document.getElementById("tab-navs"),
@@ -10,97 +10,97 @@ Project.init(
 
 // CONTROLS CONNECTING vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
-Controls.mask = new RadioBox("mask", value => {
-	if (QRT.current) {
+Controls.mask = new Controls.RadioBox("mask", value => {
+	if (Project.current) {
 		const res = confirm("Would you like to keep current look of this QRT?");
 		if (res) {
-			for (let i = 0; i < QRT.current.modules; i++) {
-				for (let j = 0; j < QRT.current.modules; j++) {
-					if (QRT.current.matrix.x2get(i, j) % 6 < 2) {
-						QRT.current.matrix.x2set(i, j,
-							QRT.current.matrix.x2get(i, j) ^ QRT.current.getMaskBit(i, j)
+			for (let i = 0; i < Project.current.qrt.modules; i++) {
+				for (let j = 0; j < Project.current.qrt.modules; j++) {
+					if (Project.current.qrt.matrix.x2get(i, j) % 4 < 2) {
+						Project.current.qrt.matrix.x2set(i, j,
+							Project.current.qrt.matrix.x2get(i, j) ^ Project.current.qrt.getMaskBit(i, j)
 						);
 					}
 				}
 			}
 
-			QRT.current.masktype = parseInt(value, 10);
+			Project.current.qrt.masktype = parseInt(value, 10);
 
-			for (let i = 0; i < QRT.current.modules; i++) {
-				for (let j = 0; j < QRT.current.modules; j++) {
-					if (QRT.current.matrix.x2get(i, j) % 6 < 2) {
-						QRT.current.matrix.x2set(i, j,
-							QRT.current.matrix.x2get(i, j) ^ QRT.current.getMaskBit(i, j)
+			for (let i = 0; i < Project.current.qrt.modules; i++) {
+				for (let j = 0; j < Project.current.qrt.modules; j++) {
+					if (Project.current.qrt.matrix.x2get(i, j) % 4 < 2) {
+						Project.current.qrt.matrix.x2set(i, j,
+							Project.current.qrt.matrix.x2get(i, j) ^ Project.current.qrt.getMaskBit(i, j)
 						);
 					}
 				}
 			}
 
-			QRT.current.updateCanvasX();
+			Project.current.qrt.updateCanvasX(new Rect8(0, 0, 255, 255));
 
 			// if (QRT.maskApplication === 2) {
-			// 	QRT.current.updateCanvasX();
+			// 	Project.current.qrt.updateCanvasX();
 			// }
 		}
 	}
 }, false);
 
-Controls.errcor = new RadioBox("errcor", false);
+Controls.errcor = new Controls.RadioBox("errcor", false);
 
-Controls.datatype = new RadioBox("dtype", false);
+Controls.datatype = new Controls.RadioBox("dtype", false);
 
-Controls.cwmapOverlay = new RadioBox("dtbmapover", value => {
-	switch (value) {
-		case "0":
-			CWMap.canvas.classList.remove("disabled");
-			CWMap.canvas.classList.remove("active");
-			break;
-		case "1":
-			CWMap.canvas.classList.remove("active");
-			CWMap.canvas.classList.add("disabled");
-			break;
-		case "2":
-			CWMap.canvas.classList.remove("disabled");
-			CWMap.canvas.classList.add("active");
-			break;
-	}
-}, true);
+// Controls.cwmapOverlay = new Controls.RadioBox("dtbmapover", value => {
+// 	switch (value) {
+// 		case "0":
+// 			CWMap.canvas.classList.remove("disabled");
+// 			CWMap.canvas.classList.remove("active");
+// 			break;
+// 		case "1":
+// 			CWMap.canvas.classList.remove("active");
+// 			CWMap.canvas.classList.add("disabled");
+// 			break;
+// 		case "2":
+// 			CWMap.canvas.classList.remove("disabled");
+// 			CWMap.canvas.classList.add("active");
+// 			break;
+// 	}
+// }, true);
 
-Controls.toPreview = new CheckBox("topreview", value => {
+Controls.toPreview = new Controls.CheckBox("topreview", value => {
 	document.documentElement.classList.toggle("preview", value);
 });
 
-Controls.toInvert = new CheckBox("toinvert", value => {
+Controls.toInvert = new Controls.CheckBox("toinvert", value => {
 	document.documentElement.classList.toggle("invertion", value);
 });
 
-Controls.toDecode = new Button("updatectrl-fromcanv", () => {
+Controls.toDecode = new Controls.Button("updatectrl-fromcanv", () => {
 	
 });
 
-Controls.toEncode = new Button("updatectrl-tocanv", () => {
+Controls.toEncode = new Controls.Button("updatectrl-tocanv", () => {
 	
 });
 
-Controls.automaticDecode = new CheckBox("updatectrl-fromcanv-auto", value => {
+Controls.automaticDecode = new Controls.CheckBox("updatectrl-fromcanv-auto", value => {
 	Controls.toDecode.elem.disabled = value;
 }, true);
 
-Controls.automaticEncode = new CheckBox("updatectrl-tocanv-auto", value => {
+Controls.automaticEncode = new Controls.CheckBox("updatectrl-tocanv-auto", value => {
 	Controls.toEncode.elem.disabled = value;
 }, true);
 
-Controls.savingProjectName = new InputText("proj-name-to-save");
+Controls.savingProjectName = new Controls.InputText("proj-name-to-save");
 
-Controls.saveProject = new Button("save-proj-btn", () => {
+Controls.saveProject = new Controls.Button("save-proj-btn", () => {
 	FilePortal.save(QRT.current.buildTQRT());
 });
 
-Controls.fileInput = new InputFile("proj-to-open", files => {
+Controls.fileInput = new Controls.InputFile("proj-to-open", files => {
 	FilePortal.buffer = files;
 });
 
-Controls.openFile = new Button("open-proj-btn", () => {
+Controls.openFile = new Controls.Button("open-proj-btn", () => {
 	if (FilePortal.buffer) {
 		QRT.readTQRT(FilePortal.buffer[0]).then((obj) => {
 			new QRT("tttt", obj);
@@ -110,36 +110,36 @@ Controls.openFile = new Button("open-proj-btn", () => {
 	}
 });
 
-Controls.rotateWorkbenchRight = new Button("rotate-workbench-right", () => {
-	const match = cnvP.style.transform.match(/rotateZ\(\-?[0-9]+/);
+Controls.rotateWorkbenchRight = new Controls.Button("rotate-workbench-right", () => {
+	const match = Project.canvasWrap.style.transform.match(/rotateZ\(\-?[0-9]+/);
 
 	if (match !== null) {
-		cnvP.style.transform = cnvP.style.transform.replace(/rotateZ\(\-?[0-9]+/,
+		Project.canvasWrap.style.transform = Project.canvasWrap.style.transform.replace(/rotateZ\(\-?[0-9]+/,
 			"rotateZ(" +
 			parseInt((parseInt(match[0].slice(8), 10) + 90) % 360, 10)
 		);
 	} else {
-		cnvP.style.transform += " rotateZ(90deg)";
+		Project.canvasWrap.style.transform += " rotateZ(90deg)";
 	}
 });
 
-Controls.rotateWorkbenchLeft = new Button("rotate-workbench-left", () => {
-	const match = cnvP.style.transform.match(/rotateZ\(\-?[0-9]+/);
+Controls.rotateWorkbenchLeft = new Controls.Button("rotate-workbench-left", () => {
+	const match = Project.canvasWrap.style.transform.match(/rotateZ\(\-?[0-9]+/);
 
 	if (match !== null) {
-		cnvP.style.transform = cnvP.style.transform.replace(/rotateZ\(\-?[0-9]+/,
+		Project.canvasWrap.style.transform = Project.canvasWrap.style.transform.replace(/rotateZ\(\-?[0-9]+/,
 			"rotateZ(" +
 			parseInt((parseInt(match[0].slice(8), 10) - 90) % 360, 10)
 		);
 	} else {
-		cnvP.style.transform += " rotateZ(-90deg)";
+		Project.canvasWrap.style.transform += " rotateZ(-90deg)";
 	}
 });
 
-Controls.maskApplication = new RadioBox("mskover", value => {
-	QRT.maskApplication = parseInt(value, 10);
-	if (QRT.current) QRT.current.updateCanvasX();
-}, true);
+Controls.maskApplication = new Controls.RadioBox("mskover", value => {
+	Project.current.qrt.maskApplication = parseInt(value, 10);
+	Project.current.qrt.updateCanvasX(new Rect8(0, 0, 255, 255));
+}, false);
 
 // QRT CREATION vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
@@ -147,7 +147,8 @@ Project.add("NewQRT", {
 	version: 34,
 	ecdepth: Controls.errcor.value,
 	masktype: Controls.mask.value,
-	datatype: Controls.datatype.value
+	datatype: Controls.datatype.value,
+	maskApplication: Controls.maskApplication.value
 });
 
 // window.canvasScale = Math.floor((cnvPP.clientHeight - 40) / QRT.current.modules);
@@ -170,8 +171,8 @@ Project.add("NewQRT", {
 // 	cnvP.style.width = QRT.current.modules * window.canvasScale + "px";
 // 	cnvP.style.height = QRT.current.modules * window.canvasScale + "px";
 	
-// 	cnvP.style.top = (e.clientY - 100 - ((e.clientY - 100 - parseInt(cnvP.style.top)) * coef)) + "px";
-// 	cnvP.style.left = (e.clientX - ((e.clientX - parseInt(cnvP.style.left)) * coef)) + "px";
+	// cnvP.style.top = (e.clientY - ((e.clientY - parseInt(cnvP.style.top)) * coef)) + "px";
+	// cnvP.style.left = (e.clientX - ((e.clientX - parseInt(cnvP.style.left)) * coef)) + "px";
 
 // 	CWMap.canvas.width = QRT.current.modules * window.canvasScale;
 // 	CWMap.canvas.height = QRT.current.modules * window.canvasScale;

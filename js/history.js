@@ -1,26 +1,73 @@
-class HistoryCheckPoint {
-	constructor (part, data, trigger) {
-		switch (part) {
-			case "charmap":
-
-				this.belongsTo = part;
-				if (data) {
-
+class History {
+	static BitmapArea = class {
+		constructor (mx, refmx, rect8) {
+			if (mx instanceof Uint8ArrayX2 && refmx instanceof Uint8ArrayX2 && mx.columns === refmx.columns && mx.rows === refmx.rows) {
+				if (rect8 instanceof Rect8) {
+					this.x0 = rect8[0];
+					this.y0 = rect8[1];
+					this.width = rect8[2] - rect8[0] + 1;
+					this.height = rect8[3] - rect8[1] + 1;
+				} else {
+					this.x0 = 0;
+					this.y0 = 0;
+					this.width = mx.columns;
+					this.height = mx.rows;
 				}
 
-				break;
-			case "qrtmatrix":
+				this.matrix = new Uint8ArrayX2(this.height, this.width);
 
-				this.belongsTo = part;
-
-				break;
-			case "preferences":
-
-				this.belongsTo = part;
-
-				break;
-			default:
-				throw new Error("HistoryCheckPoint must belong to such parts: charmap, qrtmatrix, preferences. You've used: " + part);
+				if (this.width === 1) {
+					for (let i = 0; i < this.height; i++) {
+						if (mx.x2get(0, i + this.y0) !== refmx.x2get(0, i + this.y0)) this.matrix.x2set(0, i, 1);
+					}
+				} else {
+					for (let i = 0; i < this.width; i++) {
+						for (let j = 0; j < this.height; j++) {
+							if (mx.x2get(i + this.x0, j + this.y0) !== refmx.x2get(i + this.x0, j + this.y0)) this.matrix.x2set(i, j, 1);
+						}
+					}
+				}
+			} else throw new Error("..."); // <<<
 		}
 	}
+
+	constructor () {
+		this.commits = [];
+		this.length = 100;
+		this.__index = 0;
+		this.__temp = 0;
+	}
+
+	push (commit) {
+		if (commit instanceof History.BitmapArea) {
+			if (this.__index < this.commits.length - 1) {
+				this.commits.splice(this.__index, this.commits.length - this.__index);
+			}
+
+			this.commits.push(commit);
+
+			if (this.commits.length > this.length) {
+				this.commits.shift();
+			} else {
+				this.__index++;
+			}
+		} else throw new Error("..."); // <<<
+	}
+
+	backup () {
+		if (this.__index > 0 && this.commits.length > 0) {
+			return this.commits[--this.__index];
+
+		} else return 0;
+	}
+
+	nextup () {
+		if (this.__index < this.commits.length) {
+			return this.commits[this.__index++];
+
+		} else return 0;
+	}
 }
+
+
+const hhh = new History();

@@ -1,3 +1,4 @@
+"use strict";
 
 class CodewordArray extends Uint8ClampedArray {
 	constructor (length) {
@@ -30,6 +31,26 @@ class Rect8 extends Uint8ClampedArray {
 	}
 }
 
+class BrushSprite {
+	constructor (sprite, fastsprite) {
+		if (sprite instanceof Uint8ArrayX2) {
+			this.sprite = sprite;
+			this.width = sprite.columns;
+			this.height = sprite.rows;
+			this.width2 = Math.floor(sprite.columns / 2);
+			this.height2 = Math.floor(sprite.rows / 2);
+		} else throw new Error("..."); // <<<
+
+		if (fastsprite instanceof Uint8ArrayX2) {
+			if (fastsprite.columns === sprite.columns && fastsprite.rows === sprite.rows) {
+				this.fastsprite = fastsprite;
+			} else throw new Error("Uint8ArrayX2 given to constructor as fastsprite has a different size than given sprite! They must be the same size");
+		} else {
+			this.fastsprite = sprite;
+		}
+	}
+}
+
 class QRT {
 	static ctx;
 
@@ -45,99 +66,172 @@ class QRT {
 		}
 	}
 
-	static palette = ["white", "black", "tomato", "red", "cyan", "blue", "violet", "purple"];
-
-	static maskApplication;
-	
-	static blueprints = {};
-
-	static getBlueprint (version) {
-
-	}
+	static palette = ["white", "black", "tomato", "red", "violet", "purple", "cyan", "blue", "#99e550", "#954242"];
 
 	static sprites = {
-		circles: [
-			new Uint8Array([
-				1,1,
-				1,1,
-			]),
+		circles: {
+			2: new BrushSprite(
+				new Uint8ArrayX2([
+					1,1,
+					1,1,
+				], 2)
+			),
 
-			new Uint8Array([
-				0,1,0,
-				1,1,1,
-				0,1,0
-			]),
+			3: new BrushSprite(
+				new Uint8ArrayX2([
+					0,1,0,
+					1,1,1,
+					0,1,0
+				], 3)
+			),
 
-			new Uint8Array([
-				0,1,1,0,
-				1,1,1,1,
-				1,1,1,1,
-				0,1,1,0
-			]),
+			4: new BrushSprite(
+				new Uint8ArrayX2([
+					0,1,1,0,
+					1,1,1,1,
+					1,1,1,1,
+					0,1,1,0
+				], 4)
+			),
 
-			new Uint8Array([
-				0,1,1,1,0,
-				1,1,1,1,1,
-				1,1,1,1,1,
-				1,1,1,1,1,
-				0,1,1,1,0
-			]),
+			5: new BrushSprite(
+				new Uint8ArrayX2([
+					0,1,1,1,0,
+					1,1,1,1,1,
+					1,1,1,1,1,
+					1,1,1,1,1,
+					0,1,1,1,0
+				], 5),
 
-			new Uint8Array([
-				0,1,1,1,1,0,
-				1,1,1,1,1,1,
-				1,1,1,1,1,1,
-				1,1,1,1,1,1,
-				1,1,1,1,1,1,
-				0,1,1,1,1,0
-			]),
+				new Uint8ArrayX2([
+					0,1,1,1,0,
+					1,1,0,1,1,
+					1,0,0,0,1,
+					1,1,0,1,1,
+					0,1,1,1,0
+				], 5)
+			),
 
-			new Uint8Array([
-				0,0,1,1,1,0,0,
-				0,1,1,1,1,1,0,
-				1,1,1,1,1,1,1,
-				1,1,1,1,1,1,1,
-				1,1,1,1,1,1,1,
-				0,1,1,1,1,1,0,
-				0,0,1,1,1,0,0
-			]),
+			6: new BrushSprite(
+				new Uint8ArrayX2([
+					0,1,1,1,1,0,
+					1,1,1,1,1,1,
+					1,1,1,1,1,1,
+					1,1,1,1,1,1,
+					1,1,1,1,1,1,
+					0,1,1,1,1,0
+				], 6),
+				
+				new Uint8ArrayX2([
+					0,1,1,1,1,0,
+					1,1,0,0,1,1,
+					1,0,0,0,0,1,
+					1,0,0,0,0,1,
+					1,1,0,0,1,1,
+					0,1,1,1,1,0
+				], 6)
+			),
 
-			new Uint8Array([
-				0,0,1,1,1,1,0,0,
-				0,1,1,1,1,1,1,0,
-				1,1,1,1,1,1,1,1,
-				1,1,1,1,1,1,1,1,
-				1,1,1,1,1,1,1,1,
-				1,1,1,1,1,1,1,1,
-				0,1,1,1,1,1,1,0,
-				0,0,1,1,1,1,0,0
-			]),
+			7: new BrushSprite(
+				new Uint8ArrayX2([
+					0,0,1,1,1,0,0,
+					0,1,1,1,1,1,0,
+					1,1,1,1,1,1,1,
+					1,1,1,1,1,1,1,
+					1,1,1,1,1,1,1,
+					0,1,1,1,1,1,0,
+					0,0,1,1,1,0,0
+				], 7),
+				
+				new Uint8ArrayX2([
+					0,0,1,1,1,0,0,
+					0,1,1,0,1,1,0,
+					1,1,0,0,0,1,1,
+					1,0,0,0,0,0,1,
+					1,1,0,0,0,1,1,
+					0,1,1,0,1,1,0,
+					0,0,1,1,1,0,0
+				], 7)
+			),
 
-			new Uint8Array([
-				0,0,0,1,1,1,0,0,0,
-				0,1,1,1,1,1,1,1,0,
-				0,1,1,1,1,1,1,1,0,
-				1,1,1,1,1,1,1,1,1,
-				1,1,1,1,1,1,1,1,1,
-				1,1,1,1,1,1,1,1,1,
-				0,1,1,1,1,1,1,1,0,
-				0,1,1,1,1,1,1,1,0,
-				0,0,0,1,1,1,0,0,0
-			]),
+			8: new BrushSprite(
+				new Uint8ArrayX2([
+					0,0,1,1,1,1,0,0,
+					0,1,1,1,1,1,1,0,
+					1,1,1,1,1,1,1,1,
+					1,1,1,1,1,1,1,1,
+					1,1,1,1,1,1,1,1,
+					1,1,1,1,1,1,1,1,
+					0,1,1,1,1,1,1,0,
+					0,0,1,1,1,1,0,0
+				], 8),
+				
+				new Uint8ArrayX2([
+					0,0,1,1,1,1,0,0,
+					0,1,1,0,0,1,1,0,
+					1,1,0,0,0,0,1,1,
+					1,0,0,0,0,0,0,1,
+					1,0,0,0,0,0,0,1,
+					1,1,0,0,0,0,1,1,
+					0,1,1,0,0,1,1,0,
+					0,0,1,1,1,1,0,0
+				], 8)
+			),
 
-			new Uint8Array([
-				0,0,0,1,1,1,1,0,0,0,
-				0,0,1,1,1,1,1,1,0,0,
-				0,1,1,1,1,1,1,1,1,0,
-				1,1,1,1,1,1,1,1,1,1,
-				1,1,1,1,1,1,1,1,1,1,
-				1,1,1,1,1,1,1,1,1,1,
-				1,1,1,1,1,1,1,1,1,1,
-				0,1,1,1,1,1,1,1,1,0,
-				0,0,1,1,1,1,1,1,0,0,
-				0,0,0,1,1,1,1,0,0,0
-			])
-		]
+			9: new BrushSprite(
+				new Uint8ArrayX2([
+					0,0,0,1,1,1,0,0,0,
+					0,1,1,1,1,1,1,1,0,
+					0,1,1,1,1,1,1,1,0,
+					1,1,1,1,1,1,1,1,1,
+					1,1,1,1,1,1,1,1,1,
+					1,1,1,1,1,1,1,1,1,
+					0,1,1,1,1,1,1,1,0,
+					0,1,1,1,1,1,1,1,0,
+					0,0,0,1,1,1,0,0,0
+				], 9),
+				
+				new Uint8ArrayX2([
+					0,0,0,1,1,1,0,0,0,
+					0,1,1,1,0,1,1,1,0,
+					0,1,0,0,0,0,0,1,0,
+					1,1,0,0,0,0,0,1,1,
+					1,0,0,0,0,0,0,0,1,
+					1,1,0,0,0,0,0,1,1,
+					0,1,0,0,0,0,0,1,0,
+					0,1,1,1,0,1,1,1,0,
+					0,0,0,1,1,1,0,0,0
+				], 9)
+			),
+
+			10: new BrushSprite(
+				new Uint8ArrayX2([
+					0,0,0,1,1,1,1,0,0,0,
+					0,0,1,1,1,1,1,1,0,0,
+					0,1,1,1,1,1,1,1,1,0,
+					1,1,1,1,1,1,1,1,1,1,
+					1,1,1,1,1,1,1,1,1,1,
+					1,1,1,1,1,1,1,1,1,1,
+					1,1,1,1,1,1,1,1,1,1,
+					0,1,1,1,1,1,1,1,1,0,
+					0,0,1,1,1,1,1,1,0,0,
+					0,0,0,1,1,1,1,0,0,0
+				], 10),
+				
+				new Uint8ArrayX2([
+					0,0,0,1,1,1,1,0,0,0,
+					0,0,1,1,0,0,1,1,0,0,
+					0,1,1,0,0,0,0,1,1,0,
+					1,1,0,0,0,0,0,0,1,1,
+					1,0,0,0,0,0,0,0,0,1,
+					1,0,0,0,0,0,0,0,0,1,
+					1,1,0,0,0,0,0,0,1,1,
+					0,1,1,0,0,0,0,1,1,0,
+					0,0,1,1,0,0,1,1,0,0,
+					0,0,0,1,1,1,1,0,0,0
+				], 10)
+			)
+		}
 	};
 
 	constructor (settings) {
@@ -172,13 +266,16 @@ class QRT {
 				throw new Error("An argument was lost or its property has inappropriate value!");
 		}
 
-		if (settings.datatype && (
-			settings.datatype == 2 ||
-			settings.datatype == 4
-		)) {
+		if (settings.datatype && (settings.datatype == 2 || settings.datatype == 4)) {
 
 			this.info.datatype = parseInt(settings.datatype, 10);
 
+		} else throw new Error("An argument was lost or its property has inappropriate value!");
+
+		if (settings.maskApplication && 0 <= settings.maskApplication && settings.maskApplication <= 2) {
+
+			this.maskApplication = parseInt(settings.maskApplication, 10);
+			//	^^^^^^^^^^^^^^^^ - sets info.maskApplication through the setter
 		} else throw new Error("An argument was lost or its property has inappropriate value!");
 
 		Object.assign(this.info, new QRTable(this.info.version, this.info.ecdepth));
@@ -191,7 +288,7 @@ class QRT {
 
 		} else {
 
-			this.matrix = new Int8Array(this.modules ** 2).x2convert(this.modules);
+			this.matrix = new Uint8ArrayX2(this.modules, this.modules);
 
 			function applySmallBaseSquareOn (mx, x0, y0, c0 = 2, c1 = 3) {
 				mx.x2set(x0 - 2, y0 - 2, c1);
@@ -415,13 +512,15 @@ class QRT {
 
 		// this.encodeECBits(this.encdata);
 
-		this.__ECStartPoint = this.applyDataOn("1".repeat(2800));
-		this.applyECDataOn("1".repeat(4000));
+		this.__ECStartPoint = this.applyDataOn("1".repeat(3000));
+		let str = "";
+		for (let i = 0; i < 4000; i++) str += String.fromCharCode(Math.round(Math.random()) + 0x30);
+		this.applyECDataOn(str);
 
 		// vvvvv PROBLEMS MAY APPEARS WHILE IMPORTING QRT vvvvv
 		for (let i = 0; i < this.modules; i++) {
 			for (let j = 0; j < this.modules; j++) {
-				if (this.matrix.x2get(i, j) % 6 < 2) {
+				if (this.matrix.x2get(i, j) % 4 < 2) {
 					this.matrix.x2set(i, j, this.matrix.x2get(i, j) ^ this.getMaskBit(i, j));
 				}
 			}
@@ -432,7 +531,7 @@ class QRT {
 		// this.encodeDataCodewords("HELLO WORLDDDDDDDDDD");
 	}
 
-	getMaskbit;
+	getMaskBit;
 
 	set masktype (value) {
 		switch (parseInt(value, 10)) {
@@ -506,7 +605,47 @@ class QRT {
 	}
 
 	get masktype () {
-		throw new Error(".masktype is not a property of QRT instances! It's a setter");
+		return this.info.masktype;
+	}
+
+	getBitColor;
+
+	set maskApplication (value) {
+		switch (value) {
+			case 0:
+				this.info.maskApplication = 0;
+				this.getBitColor = (x, y) => {
+					return this.matrix.x2get(x, y);
+				};
+				break;
+			case 1:
+				this.info.maskApplication = 1;
+				this.getBitColor = (x, y) => {
+					const bit = this.matrix.x2get(x, y);
+
+					if ((bit % 4) < 2 && this.getMaskBit(x, y)) {
+						return ((bit % 2) ^ 1) + 8;
+					} else {
+						return bit;
+					}
+				};
+				break;
+			case 2:
+				this.info.maskApplication = 2;
+				this.getBitColor = (x, y) => {
+					const bit = this.matrix.x2get(x, y);
+
+					if (bit % 4 < 2) {
+						return bit ^ this.getMaskBit(x, y);
+					} else {
+						return bit;
+					}
+				};
+		}
+	}
+
+	get maskApplication () {
+		return this.info.maskApplication;
 	}
 
 	// encoding - encoding - encoding - encoding - encoding - encoding - encoding - encoding
@@ -626,53 +765,75 @@ class QRT {
 	// updating - updating - updating - updating - updating - updating - updating - updating
 
 	updateCanvas (rect8) {
-		if (rect8 && rect8 instanceof Rect8 && 0 <= rect8[0] && rect8[0] < this.modules && 0 <= rect8[1] && rect8[1] < this.modules) {
-			for (let i = rect8[1]; i <= rect8[3]; i++) {
-				for (let j = rect8[0]; j <= rect8[2]; j++) {
-					QRT.ctx.fillStyle = QRT.palette[this.matrix.x2get(j, i) % 2];
-					QRT.ctx.fillRect(j, i, 1, 1);
+		if (rect8 instanceof Rect8 && rect8[0] < this.modules && rect8[1] < this.modules) {
+			if (rect8[2] >= this.modules) rect8[2] = this.modules;
+			if (rect8[3] >= this.modules) rect8[3] = this.modules;
+
+			if (rect8[2] - rect8[0] === 0) {
+				for (let y = rect8[1]; y <= rect8[3]; y++) {
+					QRT.ctx.fillStyle = QRT.palette[this.getBitColor(rect8[0], y) & 9];
+					QRT.ctx.fillRect(rect8[0], y, 1, 1);
 				}
-			}
-		} else {
-			for (let i = 0; i <= this.modules - 1; i++) {
-				for (let j = 0; j <= this.modules - 1; j++) {
-					QRT.ctx.fillStyle = QRT.palette[this.matrix.x2get(j, i) % 2];
-					QRT.ctx.fillRect(j, i, 1, 1);
+			} else for (let y = rect8[1]; y <= rect8[3]; y++) {
+				for (let x = rect8[0]; x <= rect8[2]; x++) {
+					QRT.ctx.fillStyle = QRT.palette[this.getBitColor(x, y) & 9];
+					QRT.ctx.fillRect(x, y, 1, 1);
 				}
 			}
 		}
 	}
 
 	updateCanvasX (rect8) {
-		if (!(rect8 && rect8 instanceof Rect8 && 0 <= rect8[0] && rect8[0] < this.modules && 0 <= rect8[1] && rect8[1] < this.modules)) {
-			rect8 = new Rect8(0, 0, this.modules - 1, this.modules - 1);
-		}
+		if (rect8 instanceof Rect8 && rect8[0] < this.modules && rect8[1] < this.modules) {
+			if (rect8[2] >= this.modules) rect8[2] = this.modules;
+			if (rect8[3] >= this.modules) rect8[3] = this.modules;
 
-		if (QRT.maskApplication === 2) {
-			for (let y = rect8[1]; y <= rect8[3]; y++) {
-				for (let x = rect8[0]; x <= rect8[2]; x++) {
-					QRT.ctx.fillStyle = QRT.palette[
-						// this.matrix.x2get(x, y)
-						(this.matrix.x2get(x, y) % 6 < 2) ? this.matrix.x2get(x, y) ^ this.getMaskBit(x, y) : this.matrix.x2get(x, y)
-					];
-					QRT.ctx.fillRect(x, y, 1, 1);
+			if (rect8[2] - rect8[0] === 0) {
+				for (let y = rect8[1]; y <= rect8[3]; y++) {
+					QRT.ctx.fillStyle = QRT.palette[this.getBitColor(rect8[0], y)];
+					QRT.ctx.fillRect(rect8[0], y, 1, 1);
 				}
-			}
-		} else {
-			for (let y = rect8[1]; y <= rect8[3]; y++) {
+			} else for (let y = rect8[1]; y <= rect8[3]; y++) {
 				for (let x = rect8[0]; x <= rect8[2]; x++) {
-					QRT.ctx.fillStyle = QRT.palette[this.matrix.x2get(x, y)];
+					QRT.ctx.fillStyle = QRT.palette[this.getBitColor(x, y)];
 					QRT.ctx.fillRect(x, y, 1, 1);
 				}
 			}
 		}
 	}
 
+	// getMatrixRect (rect8) {
+	// 	if (rect8 instanceof Rect8 && rect8[0] < this.modules && rect8[1] < this.modules) {
+	// 		if (rect8[2] >= this.modules) rect8[2] = this.modules;
+	// 		if (rect8[3] >= this.modules) rect8[3] = this.modules;
+
+	// 		if (rect8[2] - rect8[0] === 0) {
+	// 			const narr = new Uint8Array(rect8[3] - rect8[1]);
+				
+	// 			for (let i = 0; i <= rect8[3] - rect8[1]; i++) {
+	// 				narr[i] = this.matrix.x2get(rect8[0], i + rect8[1]);
+	// 			}
+				
+	// 			return narr; 
+	// 		}
+
+	// 		const narr = new Uint8ArrayX2(rect8[2] - rect8[0], rect8[3] - rect8[1]);
+
+	// 		for (let y = 0; y <= rect8[3] - rect8[1]; y++) {
+	// 			for (let x = 0; x <= rect8[2] - rect8[0]; x++) {
+	// 				narr.x2set(x, y, this.matrix.x2get(x + rect8[0], y + rect8[1]));
+	// 			}
+	// 		}
+
+	// 		return narr;
+	// 	}
+	// }
+
 	// drawing - drawing - drawing - drawing - drawing - drawing - drawing - drawing - drawing
 
 	applyPointOn (x, y, c = 1) {
 		if (this.matrix.x2get(x, y) < 2) {
-			this.matrix.x2set(x, y, c);
+			this.matrix.x2set(x, y, c ^ ((QRT.maskApplication !== 0) * this.getMaskBit(x, y)));
 		}
 	}
 
@@ -683,44 +844,104 @@ class QRT {
 		}
 	}
 
-	applyRectOn (x0, y0, x, y, fc, sc) {
-		for (x0; x0 < x; x0++) {
-			for (y0; y0 < y; y0++) {
-				if (x === 0) {
+	drawSpriteOn (x, y, brush, c) { // DONE
+		if (brush instanceof BrushSprite) {
+			QRT.ctx.fillStyle = QRT.palette[c];
 
-				}
-			}
-		}
-	}
-
-	drawLineOn (x0, y0, x, y, c, w = 1) {
-		let dx = (x - x0), dy = (y - y0);
-
-		if (dx === 0 && dy === 0) {
-			this.drawPointOn(x0, y0, c);
-			return false;
-		}
-
-		QRT.ctx.fillStyle = QRT.palette[c];
-
-		const _w = Math.floor(w / 2);
-
-		const rect = new Rect8(x0, y0, x, y, _w);
-		rect[2] -= (w & 1) ^ 1;
-		rect[3] -= (w & 1) ^ 1;
-
-		const brush = (w === 1) ? (x, y) => {
-			if (this.matrix.x2get(x, y) < 2) {
-				QRT.ctx.fillRect(x, y, 1, 1);
-			}
-		} : (x, y) => {
-			for (let i = 0; i < w; i++) {
-				for (let j = 0; j < w; j++) {
-					if (QRT.sprites.circles[w - 2][(j * w) + i] === 1 && this.matrix.x2getD(x - _w + i, y - _w + j, 2) < 2) {
-						QRT.ctx.fillRect(x - _w + i, y - _w + j, 1, 1);
+			for (let i = 0; i < brush.width; i++) {
+				for (let j = 0; j < brush.height; j++) {
+					if (brush.sprite.x2get(i, j) === 1 && this.matrix.x2get(i + x - brush.width2, y + j - brush.height2) < 2) {
+						QRT.ctx.fillRect(i + x - brush.width2, j + y - brush.height2, 1, 1);
 					}
 				}
 			}
+
+			return new Rect8(x - brush.width2, y - brush.height2, x + brush.width - brush.width2, y + brush.height - brush.height2);
+
+		} else throw new Error("..."); // <<<
+	}
+
+	applySpriteOn (x, y, brush, c) {
+		if (brush instanceof BrushSprite) {
+			for (let i = 0; i < brush.width; i++) {
+				for (let j = 0; j < brush.height; j++) {
+					if (brush.sprite.x2get(i, j) === 1 && this.matrix.x2get(i + x - brush.width2, y + j - brush.height2) < 2) {
+						this.matrix.x2set(i + x - brush.width2, j + y - brush.height2, c ^ ((QRT.maskApplication !== 0) * this.getMaskBit(x + i - brush.width2, y + j - brush.height2)));
+					}
+				}
+			}
+		} else throw new Error("..."); // <<<
+	}
+
+	drawLineOn (x0, y0, x, y, c, brush) { // DONE
+		let dx = (x - x0), dy = (y - y0);
+
+		QRT.ctx.fillStyle = QRT.palette[c];
+
+		const rect = new Rect8(x0, y0, x, y);
+
+		let apply;
+
+		if (brush instanceof BrushSprite) {
+			this.drawSpriteOn(x0, y0, brush, c);
+
+			rect[0] -= brush.width2;
+			rect[1] -= brush.height2;
+			rect[2] += brush.width2 - ((brush.width % 2) ^ 1);
+			rect[3] += brush.height2 - ((brush.height % 2) ^ 1);
+
+			if (dx === 0 && dy === 0) return rect;
+
+			const _bw = Math.abs(((dy || 1) / dx) * brush.height);
+			const _bh = Math.abs(brush.width / ((dy || 1) / dx));
+
+			let bw, bh, bx, by;
+
+			if (_bw / brush.width < _bh / brush.height) {
+				if (dx > 0) {
+					bw = brush.width;
+					bx = Math.floor((brush.width - _bw) / 2);
+				} else {
+					bw = Math.ceil((brush.width + _bw) / 2);
+					bx = 0;
+				}
+
+				bh = brush.height;
+				by = 0;
+			} else {
+				if (dy > 0) {
+					bh = brush.height;
+					by = Math.floor((brush.height - _bh) / 2);
+				} else {
+					bh = Math.ceil((brush.height + _bh) / 2);
+					by = 0;
+				}
+
+				bw = brush.width;
+				bx = 0;
+			}
+
+			apply = (x, y) => {
+				for (let i = bx; i < bw; i++) {
+					for (let j = by; j < bh; j++) {
+						if (brush.fastsprite.x2get(i, j) === 1 &&
+							this.matrix.x2getD(x - brush.width2 + i, y - brush.height2 + j, 2) < 2
+						) {
+							QRT.ctx.fillRect(x - brush.width2 + i, y - brush.height2 + j, 1, 1);
+						}
+					}
+				}
+			};
+		} else {
+			this.drawPointOn(x0, y0, c);
+
+			if (dx === 0 && dy === 0) return rect;
+
+			apply = (x, y) => {
+				if (this.matrix.x2get(x, y) < 2) {
+					QRT.ctx.fillRect(x, y, 1, 1);
+				}
+			};
 		}
 
 		if (Math.abs(dx) < Math.abs(dy)) {
@@ -734,8 +955,8 @@ class QRT {
 			}
 
 			const k = dx / dy;
-			for (y = 0; y <= dy; y++) {
-				brush(Math.round(y * k) + x0, y + y0);
+			for (y = 1; y <= dy; y++) {
+				apply(Math.round(y * k) + x0, y + y0);
 			}
 		} else {
 			if (dx < 0) {
@@ -748,36 +969,81 @@ class QRT {
 			}
 
 			const k = dy / dx;
-			for (x = 0; x <= dx; x++) {
-				brush(x + x0, Math.round(x * k) + y0);
+			for (x = 1; x <= dx; x++) {
+				apply(x + x0, Math.round(x * k) + y0);
 			}
 		}
 
 		return rect;
 	}
 
-	applyLineOn (x0, y0, x, y, c, w = 1) {
+	applyLineOn (x0, y0, x, y, c, brush) {
 		let dx = (x - x0), dy = (y - y0);
 
-		if (dx === 0 && dy === 0) {
-			this.applyPointOn(x0, y0, c);
-			return;
-		}
+		const rect = new Rect8(x0, y0, x, y);
 
-		const _w = Math.floor(w / 2);
+		let apply;
 
-		const brush = (w === 1) ? (x, y) => {
-			if (this.matrix.x2get(x, y) < 2) {
-				this.matrix.x2set(x, y, c ^ ((QRT.maskApplication === 2) * this.getMaskBit(x, y)));
+		if (brush instanceof BrushSprite) {
+			this.applySpriteOn(x0, y0, brush, c);
+
+			rect[0] -= brush.width2;
+			rect[1] -= brush.height2;
+			rect[2] += brush.width2 - ((brush.width % 2) ^ 1);
+			rect[3] += brush.height2 - ((brush.height % 2) ^ 1);
+
+			if (dx === 0 && dy === 0) return rect;
+
+			const _bw = Math.abs(((dy || 1) / dx) * brush.height);
+			const _bh = Math.abs(brush.width / ((dy || 1) / dx));
+
+			let bw, bh, bx, by;
+
+			if (_bw / brush.width < _bh / brush.height) {
+				if (dx > 0) {
+					bw = brush.width;
+					bx = Math.floor((brush.width - _bw) / 2);
+				} else {
+					bw = Math.ceil((brush.width + _bw) / 2);
+					bx = 0;
+				}
+
+				bh = brush.height;
+				by = 0;
+			} else {
+				if (dy > 0) {
+					bh = brush.height;
+					by = Math.floor((brush.height - _bh) / 2);
+				} else {
+					bh = Math.ceil((brush.height + _bh) / 2);
+					by = 0;
+				}
+
+				bw = brush.width;
+				bx = 0;
 			}
-		} : (x, y) => {
-			for (let i = 0; i < w; i++) {
-				for (let j = 0; j < w; j++) {
-					if (QRT.sprites.circles[w - 2][(j * w) + i] === 1 && this.matrix.x2getD(x - _w + i, y - _w + j, 2) < 2) {
-						this.matrix.x2set(x - _w + i, y - _w + j, c ^ ((QRT.maskApplication === 2) * this.getMaskBit(x - _w + i, y - _w + j)));
+
+			apply = (x, y) => {
+				for (let i = bx; i < bw; i++) {
+					for (let j = by; j < bh; j++) {
+						if (brush.fastsprite.x2get(i, j) === 1 &&
+							this.matrix.x2getD(x - brush.width2 + i, y - brush.height2 + j, 2) < 2
+						) {
+							this.matrix.x2set(x - brush.width2 + i, y - brush.height2 + j, c ^ ((QRT.maskApplication !== 0) * this.getMaskBit(x - brush.width2 + i, y - brush.height2 + j)));
+						}
 					}
 				}
-			}
+			};
+		} else {
+			this.applyPointOn(x0, y0, c);
+
+			if (dx === 0 && dy === 0) return rect;
+
+			apply = (x, y) => {
+				if (this.matrix.x2get(x, y) < 2) {
+					this.matrix.x2set(x, y, c ^ ((QRT.maskApplication !== 0) * this.getMaskBit(x, y)));
+				}
+			};
 		}
 
 		if (Math.abs(dx) < Math.abs(dy)) {
@@ -791,8 +1057,8 @@ class QRT {
 			}
 
 			const k = dx / dy;
-			for (y = 0; y <= dy; y++) {
-				brush(Math.round(y * k) + x0, y + y0);
+			for (y = 1; y <= dy; y++) {
+				apply(Math.round(y * k) + x0, y + y0);
 			}
 		} else {
 			if (dx < 0) {
@@ -805,10 +1071,12 @@ class QRT {
 			}
 
 			const k = dy / dx;
-			for (x = 0; x <= dx; x++) {
-				brush(x + x0, Math.round(x * k) + y0);
+			for (x = 1; x <= dx; x++) {
+				apply(x + x0, Math.round(x * k) + y0);
 			}
 		}
+
+		return rect;
 	}
 
 	drawEllipseOn (x0, y0, x, y, center = false, circle = false, c = 1) {
@@ -819,20 +1087,20 @@ class QRT {
 
 		const rect = center ? new Rect8(x0 - a, y0 - b, x0 + a, y0 + b) : new Rect8(x0, y0, x, y);
 
-		if (a % (3 - center) === a) {
-			QRT.ctx.fillRect(rect[0] + center, rect[1], a % 3, (b * (1 + center)) + center);
-			return rect;
-		} else if (b % (3 - center) === b) {
-			QRT.ctx.fillRect(rect[0], rect[1] + center, (a * (1 + center)) + center, b % 3);
-			return rect;
-		}
-
-		let _x, _y;
-
 		if (circle) {
 			a = Math.max(a, b);
 			b = a;
+		} else {
+			if (a % (3 - center) === a) {
+				QRT.ctx.fillRect(rect[0] + center, rect[1], a % 3, (b * (1 + center)) + center);
+				return rect;
+			} else if (b % (3 - center) === b) {
+				QRT.ctx.fillRect(rect[0], rect[1] + center, (a * (1 + center)) + center, b % 3);
+				return rect;
+			}
 		}
+
+		let _x, _y;
 
 		let da = 0,
 			db = 0;
@@ -858,12 +1126,12 @@ class QRT {
 			db = -(b % 1);
 			x0 += a - da;
 			y0 += b - db;
-		} else {
-			rect[0] = x0 - a + da;
-			rect[1] = y0 - b + db;
-			rect[2] = x0 + a + da;
-			rect[3] = y0 + b + db;
 		}
+
+		rect[0] = x0 - a + da;
+		rect[1] = y0 - b + db;
+		rect[2] = x0 + a + da;
+		rect[3] = y0 + b + db;
 
 		for (y = -b; y <= b; y++) {
 			x = Math.sqrt((a ** 2) - ((a * y / b) ** 2));
@@ -902,19 +1170,22 @@ class QRT {
 		let a = Math.abs(x - x0) + 1,
 			b = Math.abs(y - y0) + 1;
 
-		if (a === 1 && b === 1) {
-			this.applyPointOn(x0, y0, c);
-			return;
-		}
-
-		let _x, _y;
-
-		if (!center && a === 0 || b === 0) return;
+		const rect = center ? new Rect8(x0 - a, y0 - b, x0 + a, y0 + b) : new Rect8(x0, y0, x, y);
 
 		if (circle) {
 			a = Math.max(a, b);
 			b = a;
+		} else {
+			if (a % (3 - center) === a) {
+				QRT.ctx.fillRect(rect[0] + center, rect[1], a % 3, (b * (1 + center)) + center);
+				return rect;
+			} else if (b % (3 - center) === b) {
+				QRT.ctx.fillRect(rect[0], rect[1] + center, (a * (1 + center)) + center, b % 3);
+				return rect;
+			}
 		}
+
+		let _x, _y;
 
 		let da = 0,
 			db = 0;
@@ -942,6 +1213,11 @@ class QRT {
 			y0 += b - db;
 		}
 
+		rect[0] = x0 - a + da;
+		rect[1] = y0 - b + db;
+		rect[2] = x0 + a + da;
+		rect[3] = y0 + b + db;
+
 		for (y = -b; y <= b; y++) {
 			x = Math.sqrt((a ** 2) - ((a * y / b) ** 2));
 			_x = -Math.round(x - da) + x0;
@@ -949,11 +1225,11 @@ class QRT {
 			_y = y + db + y0;
 
 			if (this.matrix.x2getD(x, _y, 2) < 2) {
-				this.matrix.x2set(x, _y, c ^ ((QRT.maskApplication === 2) * QRT.current.getMaskBit(x, _y)));
+				this.matrix.x2set(x, _y, c ^ ((QRT.maskApplication !== 2) * this.getMaskBit(x, _y)));
 			}
 
 			if (this.matrix.x2getD(_x, _y, 2) < 2) {
-				this.matrix.x2set(_x, _y, c ^ ((QRT.maskApplication === 2) * QRT.current.getMaskBit(_x, _y)));
+				this.matrix.x2set(_x, _y, c ^ ((QRT.maskApplication !== 2) * this.getMaskBit(_x, _y)));
 			}
 		}
 
@@ -964,13 +1240,15 @@ class QRT {
 			_x = x + da + x0;
 
 			if (this.matrix.x2getD(_x, y, 2) < 2) {
-				this.matrix.x2set(_x, y, c ^ ((QRT.maskApplication === 2) * QRT.current.getMaskBit(_x, y)));
+				this.matrix.x2set(_x, y, c ^ ((QRT.maskApplication !== 2) * this.getMaskBit(_x, y)));
 			}
 
 			if (this.matrix.x2getD(_x, _y, 2) < 2) {
-				this.matrix.x2set(_x, _y, c ^ ((QRT.maskApplication === 2) * QRT.current.getMaskBit(_x, _y)));
+				this.matrix.x2set(_x, _y, c ^ ((QRT.maskApplication !== 2) * this.getMaskBit(_x, _y)));
 			}
 		}
+
+		return rect;
 	}
 
 	// data application - data application - data application - data application - data application
@@ -1015,50 +1293,50 @@ class QRT {
 
 		this.format = bits;
 
-		this.matrix.x2set(0, 8, parseInt(bits[0], 10) + 4);
-		this.matrix.x2set(8, this.modules - 1, parseInt(bits[0], 10) + 4);
+		this.matrix.x2set(0, 8, parseInt(bits[0], 10) + 6);
+		this.matrix.x2set(8, this.modules - 1, parseInt(bits[0], 10) + 6);
 
-		this.matrix.x2set(1, 8, parseInt(bits[1], 10) + 4);
-		this.matrix.x2set(8, this.modules - 2, parseInt(bits[1], 10) + 4);
+		this.matrix.x2set(1, 8, parseInt(bits[1], 10) + 6);
+		this.matrix.x2set(8, this.modules - 2, parseInt(bits[1], 10) + 6);
 
-		this.matrix.x2set(2, 8, parseInt(bits[2], 10) + 4);
-		this.matrix.x2set(8, this.modules - 3, parseInt(bits[2], 10) + 4);
+		this.matrix.x2set(2, 8, parseInt(bits[2], 10) + 6);
+		this.matrix.x2set(8, this.modules - 3, parseInt(bits[2], 10) + 6);
 
-		this.matrix.x2set(3, 8, parseInt(bits[3], 10) + 4);
-		this.matrix.x2set(8, this.modules - 4, parseInt(bits[3], 10) + 4);
+		this.matrix.x2set(3, 8, parseInt(bits[3], 10) + 6);
+		this.matrix.x2set(8, this.modules - 4, parseInt(bits[3], 10) + 6);
 
-		this.matrix.x2set(4, 8, parseInt(bits[4], 10) + 4);
-		this.matrix.x2set(8, this.modules - 5, parseInt(bits[4], 10) + 4);
+		this.matrix.x2set(4, 8, parseInt(bits[4], 10) + 6);
+		this.matrix.x2set(8, this.modules - 5, parseInt(bits[4], 10) + 6);
 
-		this.matrix.x2set(5, 8, parseInt(bits[5], 10) + 4);
-		this.matrix.x2set(8, this.modules - 6, parseInt(bits[5], 10) + 4);
+		this.matrix.x2set(5, 8, parseInt(bits[5], 10) + 6);
+		this.matrix.x2set(8, this.modules - 6, parseInt(bits[5], 10) + 6);
 
-		this.matrix.x2set(7, 8, parseInt(bits[6], 10) + 4);
-		this.matrix.x2set(8, this.modules - 7, parseInt(bits[6], 10) + 4);
+		this.matrix.x2set(7, 8, parseInt(bits[6], 10) + 6);
+		this.matrix.x2set(8, this.modules - 7, parseInt(bits[6], 10) + 6);
 
-		this.matrix.x2set(8, 8, parseInt(bits[7], 10) + 4);
-		this.matrix.x2set(this.modules - 8, 8, parseInt(bits[7], 10) + 4);
+		this.matrix.x2set(8, 8, parseInt(bits[7], 10) + 6);
+		this.matrix.x2set(this.modules - 8, 8, parseInt(bits[7], 10) + 6);
 
-		this.matrix.x2set(8, 7, parseInt(bits[8], 10) + 4);
-		this.matrix.x2set(this.modules - 7, 8, parseInt(bits[8], 10) + 4);
+		this.matrix.x2set(8, 7, parseInt(bits[8], 10) + 6);
+		this.matrix.x2set(this.modules - 7, 8, parseInt(bits[8], 10) + 6);
 
-		this.matrix.x2set(8, 5, parseInt(bits[9], 10) + 4);
-		this.matrix.x2set(this.modules - 6, 8, parseInt(bits[9], 10) + 4);
+		this.matrix.x2set(8, 5, parseInt(bits[9], 10) + 6);
+		this.matrix.x2set(this.modules - 6, 8, parseInt(bits[9], 10) + 6);
 
-		this.matrix.x2set(8, 4, parseInt(bits[10, 10]) + 4);
-		this.matrix.x2set(this.modules - 5, 8, parseInt(bits[10, 10]) + 4);
+		this.matrix.x2set(8, 4, parseInt(bits[10], 10) + 6);
+		this.matrix.x2set(this.modules - 5, 8, parseInt(bits[10], 10) + 6);
 
-		this.matrix.x2set(8, 3, parseInt(bits[11, 10]) + 4);
-		this.matrix.x2set(this.modules - 4, 8, parseInt(bits[11, 10]) + 4);
+		this.matrix.x2set(8, 3, parseInt(bits[11], 10) + 6);
+		this.matrix.x2set(this.modules - 4, 8, parseInt(bits[11], 10) + 6);
 
-		this.matrix.x2set(8, 2, parseInt(bits[12, 10]) + 4);
-		this.matrix.x2set(this.modules - 3, 8, parseInt(bits[12, 10]) + 4);
+		this.matrix.x2set(8, 2, parseInt(bits[12], 10) + 6);
+		this.matrix.x2set(this.modules - 3, 8, parseInt(bits[12], 10) + 6);
 
-		this.matrix.x2set(8, 1, parseInt(bits[13, 10]) + 4);
-		this.matrix.x2set(this.modules - 2, 8, parseInt(bits[13, 10]) + 4);
+		this.matrix.x2set(8, 1, parseInt(bits[13], 10) + 6);
+		this.matrix.x2set(this.modules - 2, 8, parseInt(bits[13], 10) + 6);
 
-		this.matrix.x2set(8, 0, parseInt(bits[14, 10]) + 4);
-		this.matrix.x2set(this.modules - 1, 8, parseInt(bits[14, 10]) + 4);
+		this.matrix.x2set(8, 0, parseInt(bits[14], 10) + 6);
+		this.matrix.x2set(this.modules - 1, 8, parseInt(bits[14], 10) + 6);
 	}
 
 	applyDataOn (data) {
@@ -1073,7 +1351,7 @@ class QRT {
 
 	applyECDataOn (ecdata) {
 		this.goThroughDataModules((x, y, j) => {
-			this.matrix.x2set(x, y, parseInt(ecdata[j - this.__ECStartPoint.j], 10) + 6);
+			this.matrix.x2set(x, y, parseInt(ecdata[j - this.__ECStartPoint.j], 10) + 4);
 		}, this.__ECStartPoint);
 	}
 
@@ -1350,7 +1628,7 @@ class QRT {
 			let mod = 7, j = 2;
 
 			const modules = ((indata.version * 4) + 17);
-			indata.matrix = new Uint8Array(modules ** 2).x2convert(modules);
+			indata.matrix = new Uint8ArrayX2(modules, modules);
 
 			for (let i = 0; i < indata.matrix.length; i++) {
 				if (mod < 3) {

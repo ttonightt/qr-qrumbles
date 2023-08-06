@@ -1,150 +1,151 @@
-class CheckBox {
-	constructor (id, trigger = false, trigImmidiately = false) {
-		this.elem = document.getElementById(id);
-		this.value = this.elem.checked ? (this.elem.value || 1) : 0;
-		this.onchange = trigger;
-		if (trigImmidiately && trigger) trigger(this.value);
-	}
 
-	set onchange (trigger) {
-		if (isFunction(trigger)) {
-			this.elem.onchange = () => {
-				this.value = this.elem.checked ? (this.elem.value || 1) : 0;
-				trigger(this.value);
-			};
-		} else {
-			this.elem.onchange = () => {
-				this.value = this.elem.checked ? (this.elem.value || 1) : 0;
-			};
+const Controls = {
+	CheckBox: class {
+		constructor (id, trigger = false, trigImmidiately = false) {
+			this.elem = document.getElementById(id);
+			this.value = this.elem.checked ? (this.elem.value || 1) : 0;
+			this.onchange = trigger;
+			if (trigImmidiately && trigger) trigger(this.value);
 		}
-	}
-}
-
-class RadioBox {
-	constructor (name, trigger = false, trigImmidiately = false) {
-		this.value = 0;
-		this.list;
-
-		if (typeof name === "string") {
-			this.list = document.getElementsByName(name);
-
-			for (let i = 0; i < this.list.length; i++) {
-				if (this.list[i].checked) this.value = this.list[i].value;
-			}
-
-			this.model = 0;
-
-		} else if (typeof name === "object") {
-			this.list = {};
-
-			for (let key in name) {
-				this.list[key] = {
-					elem: document.getElementById(name[key])
+	
+		set onchange (trigger) {
+			if (isFunction(trigger)) {
+				this.elem.onchange = () => {
+					this.value = this.elem.checked ? (this.elem.value || 1) : 0;
+					trigger(this.value);
 				};
-
-				if (this.list[key].elem.checked) {
-					this.value = this.list[key].elem.value;
-				}
+			} else {
+				this.elem.onchange = () => {
+					this.value = this.elem.checked ? (this.elem.value || 1) : 0;
+				};
 			}
-
-			this.model = 1;
 		}
-
-		this.onchange = trigger;
-		if (trigImmidiately && isFunction(trigger)) trigger(this.value);
-	}
-
-	set onchange (trigger) {
-		if (this.model) {
-			for (let key in this.list) {
-
-				if (isFunction(trigger)) {
-
-					this.list[key].elem.onchange = () => {
-
+	},
+	
+	RadioBox: class {
+		constructor (name, trigger = false, trigImmidiately = false) {
+			this.value = 0;
+			this.list;
+	
+			if (typeof name === "string") {
+				this.list = document.getElementsByName(name);
+	
+				for (let i = 0; i < this.list.length; i++) {
+					if (this.list[i].checked) this.value = this.list[i].value;
+				}
+	
+				this.model = 0;
+	
+			} else if (typeof name === "object") {
+				this.list = {};
+	
+				for (let key in name) {
+					this.list[key] = {
+						elem: document.getElementById(name[key])
+					};
+	
+					if (this.list[key].elem.checked) {
 						this.value = this.list[key].elem.value;
-						trigger(this.value);
-					};
-				} else {
-					this.list[key].elem.onchange = () => {
-						this.value = this.list[key].elem.value;
-					};
+					}
+				}
+	
+				this.model = 1;
+			}
+	
+			this.onchange = trigger;
+			if (trigImmidiately && isFunction(trigger)) trigger(this.value);
+		}
+	
+		set onchange (trigger) {
+			if (this.model) {
+				for (let key in this.list) {
+	
+					if (isFunction(trigger)) {
+	
+						this.list[key].elem.onchange = () => {
+	
+							this.value = this.list[key].elem.value;
+							trigger(this.value);
+						};
+					} else {
+						this.list[key].elem.onchange = () => {
+							this.value = this.list[key].elem.value;
+						};
+					}
+				}
+			} else {
+				for (let i = 0; i < this.list.length; i++) {
+	
+					if (isFunction(trigger)) {
+	
+						this.list[i].onchange = () => {
+							this.value = this.list[i].value;
+							trigger(this.value)
+						};
+					} else {
+						this.list[i].onchange = () => {
+							this.value = this.list[i].value;
+						};
+					}
 				}
 			}
-		} else {
-			for (let i = 0; i < this.list.length; i++) {
-
-				if (isFunction(trigger)) {
-
-					this.list[i].onchange = () => {
-						this.value = this.list[i].value;
-						trigger(this.value)
-					};
-				} else {
-					this.list[i].onchange = () => {
-						this.value = this.list[i].value;
-					};
-				}
+		}
+	},
+	
+	Button: class {
+		constructor (id, trigger = false) {
+			this.elem = document.getElementById(id);
+			this.onchange = trigger;
+		}
+	
+		set onchange (trigger) {
+			if (isFunction(trigger)) {
+				this.elem.onclick = trigger;
 			}
 		}
-	}
-}
-
-class Button {
-	constructor (id, trigger = false) {
-		this.elem = document.getElementById(id);
-		this.onchange = trigger;
-	}
-
-	set onchange (trigger) {
-		if (isFunction(trigger)) {
-			this.elem.onclick = trigger;
+	},
+	
+	InputText: class {
+		constructor (id, trigger = false, trigImmidiately = false) {
+			this.elem = document.getElementById(id);
+			this.value = this.elem.value;
+			this.onchange = trigger;
+			if (trigImmidiately && isFunction(trigger)) trigger(this.value);
+		}
+	
+		set onchange (trigger) {
+			if (isFunction(trigger)) {
+				this.elem.onchange = () => {
+					this.value = this.elem.value;
+					trigger(this.value);
+				};
+			} else {
+				this.elem.onchange = () => {
+					this.value = this.elem.value;
+				};
+			}
+		}
+	},
+	
+	InputFile: class {
+		constructor (id, trigger) {
+			this.elem = document.getElementById(id);
+			this.onchange = trigger;
+		}
+	
+		set onchange (trigger) {
+			if (isFunction(trigger)) {
+				this.elem.onchange = e => {
+					trigger(e.target.files);
+				};
+			} else throw new Error("The only argument of InputFile.prototype.onchange must be a function!");
 		}
 	}
-}
-
-class InputText {
-	constructor (id, trigger = false, trigImmidiately = false) {
-		this.elem = document.getElementById(id);
-		this.value = this.elem.value;
-		this.onchange = trigger;
-		if (trigImmidiately && isFunction(trigger)) trigger(this.value);
-	}
-
-	set onchange (trigger) {
-		if (isFunction(trigger)) {
-			this.elem.onchange = () => {
-				this.value = this.elem.value;
-				trigger(this.value);
-			};
-		} else {
-			this.elem.onchange = () => {
-				this.value = this.elem.value;
-			};
-		}
-	}
-}
-
-class InputFile {
-	constructor (id, trigger) {
-		this.elem = document.getElementById(id);
-		this.onchange = trigger;
-	}
-
-	set onchange (trigger) {
-		if (isFunction(trigger)) {
-			this.elem.onchange = e => {
-				trigger(e.target.files);
-			};
-		} else throw new Error("The only argument of InputFile.prototype.onchange must be a function!");
-	}
-}
-
-const Controls = {};
+};
 
 // TOOLS vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
-let Tools = new RadioBox({
+let Tools = new Controls.RadioBox({
 	brush: "brush-tool",
 	line: "line-tool",
 	circle: "circle-tool"
@@ -209,7 +210,7 @@ document.addEventListener("keydown", e => {
 				e.preventDefault();
 				break;
 			case "1":
-				setWorkspaceSize();
+				Project.current.fitCanvasArea();
 				break;
 			case "o":
 				popupBindings["open"].popen();
@@ -218,6 +219,13 @@ document.addEventListener("keydown", e => {
 			case "s":
 				popupBindings["save"].popen();
 				e.preventDefault();
+				break;
+			case "z":
+				Project.current.undo();
+				break;
+			case "Z":
+				Project.current.redo();
+				break;
 		}
 	}
 

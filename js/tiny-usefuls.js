@@ -298,36 +298,184 @@ Object.defineProperty(Array.prototype, "last", {
 	}
 });
 
-Int8Array.prototype.x2convert = function (cols) {
-	this.dimentions = 2;
-	this.rows = Math.ceil(this.length / cols);
-	this.columns = cols;
-	this.x2get = function (x = 0, y = 0) {
-		return this[(y * this.columns) + x];
-	};
-	this.x2getDF = function (x = 0, y = 0, wrong) {
-		const adr = (y * this.columns) + x;
-		if (0 <= adr && adr < this.length) {
-			return this[adr];
-		} else {
-			return wrong;
+class Uint8ArrayX2 extends Uint8Array {
+	static frame (arr, x0, y0, w, h) {
+		if (
+		// vvvv ARE GOOD FOR LIB NOT FOR PERSONAL PROJECT vvvv
+			// arr instanceof Uint8ArrayX2 &&
+			// typeof x0 === "number" &&
+			// x0 >= 0 &&
+			// x0 < arr.columns &&
+			// typeof y0 === "number" &&
+			// y0 >= 0 &&
+			// y0 < arr.rows &&
+			typeof w === "number" &&
+			w > 0 &&
+			typeof h === "number" &&
+			h > 0
+		) {
+			if (x0 + w >= arr.columns) w = arr.columns - x0;
+			if (y0 + h >= arr.rows) h = arr.rows - y0;
+
+			if (w === 0) {
+				const narr = new Uint8ArrayX2(h, 1);
+
+				for (let i = 0; i <= h; i++) {
+					narr[i] = arr.x2get(x0, i + x0);
+				}
+
+				return narr; 
+			}
+
+			const narr = new Uint8ArrayX2(h, w);
+
+			for (let y = 0; y <= h; y++) {
+				for (let x = 0; x <= w; x++) {
+					narr.x2set(x, y, arr.x2get(x + x0, y + y0));
+				}
+			}
+
+			return narr;
+			// let str = "";
+			// for (let i = 0; i < narr.length; i++) {
+			// 	switch (narr[i]) {
+			// 		case 0:
+			// 			str += ". ";
+			// 			break;
+			// 		case 1:
+			// 			str += "# ";
+			// 			break;
+			// 		case 2:
+			// 			str += ", ";
+			// 			break;
+			// 		case 3:
+			// 			str += "& ";
+			// 			break;
+			// 		case 4:
+			// 			str += "' ";
+			// 			break;
+			// 		case 5:
+			// 			str += "8 ";
+			// 			break;
+			// 		case 6:
+			// 			str += "` ";
+			// 			break;
+			// 		case 7:
+			// 			str += "S ";
+			// 			break;
+			// 	}
+
+			// 	if ((i + 1) % narr.columns === 0) {
+			// 		str += "\n";
+			// 	}
+			// }
+			// console.log(str);
+		} else throw new Error("..."); // <<<
+	}
+
+	static paste (orig, modf, x, y) {
+		if (orig instanceof Uint8ArrayX2 && modf instanceof Uint8ArrayX2 && typeof x === "number" && x < orig.columns && typeof y === "number" && y < orig.rows) {
+			if (x < 0) x = 0;
+			if (y < 0) y = 0;
+
+			const w = ((x + modf.columns) > orig.columns) ? modf.columns - x : modf.columns;
+			const h = ((y + modf.rows) > orig.rows) ? modf.rows - x : modf.rows;
+
+			for (let i = 0; i < w; i++) {
+				for (let j = 0; j < h; j++) {
+					orig.x2set(i + x, j + y, modf.x2get(i, j));
+				}
+			}
+		} else throw new Error("..."); // <<<
+	}
+
+	static log (arr) {
+		if (arr instanceof Uint8ArrayX2) {
+			let str = "";
+
+			for (let y = 0; y < arr.rows; y += 2) {
+				for (let x = 0; x < arr.columns; x++) {
+					if (arr.x2get(x, y)) {
+						if (arr.x2getD(x, y + 1, 0)) {
+							str += "\u2588";
+						} else {
+							str += "\u2580";
+						}
+					} else {
+						if (arr.x2getD(x, y + 1, 0)) {
+							str += "\u2584";
+						} else {
+							str += "\u00a0";
+						}
+					}
+				}
+				str += "\n";
+			}
+
+			console.log(str);
 		}
-	};
-	this.x2getD = function (x = 0, y = 0, wrong) {
+	}
+
+	constructor (arrOrows, columns) {
+		if (!columns) {
+			if (arrOrows instanceof Uint8ArrayX2) {
+				super(arrOrows.rows * arrOrows.columns);
+				this.rows = arrOrows.rows;
+				this.columns = arrOrows.columns;
+
+				for (let i = 0; i < arrOrows.length; i++) {
+					this[i] = arrOrows[i];
+				}
+			}
+		} else if (typeof columns === "number" && columns > 0) {
+
+			if (typeof arrOrows === "number" && 0 < arrOrows) {
+				super(arrOrows * columns);
+				this.rows = arrOrows;
+				this.columns = columns;
+
+			} else if (
+				// arrOrows.length > columns &&
+				(arrOrows instanceof Array ||
+				arrOrows instanceof Uint8ArrayX2 ||
+				arrOrows instanceof Int8Array ||
+				arrOrows instanceof Uint8Array ||
+				arrOrows instanceof Uint8ClampedArray)
+				) {
+				super(Math.ceil(arrOrows.length / columns) * columns);
+				this.rows = Math.ceil(arrOrows.length / columns);
+				this.columns = columns;
+	
+				for (let i = 0; i < arrOrows.length; i++) {
+					this[i] = arrOrows[i];
+				}
+			} else throw new Error("First argument is invalid or was lost!");
+
+		} else throw new Error("..."); // <<<
+	}
+
+	x2get (x = 0, y = 0) {
+		return this[(y * this.columns) + x];
+	}
+
+	x2getD (x = 0, y = 0, wrong) {
 		if (0 <= x && x < this.columns && 0 <= y && y < this.rows) {
 			return this[(y * this.columns) + x];
 		} else {
 			return wrong;
 		}
-	};
-	this.x2set = function (x = 0, y = 0, int) {
-		this[(y * this.columns) + x] = int;
-	};
-	return this;
-}
+	}
 
-Uint8Array.prototype.x2convert = Int8Array.prototype.x2convert;
-Uint16Array.prototype.x2convert = Int8Array.prototype.x2convert;
+	x2set (x = 0, y = 0, int) {
+		this[(y * this.columns) + x] = int;
+	}
+
+	x2setD (x = 0, y = 0, int) {
+		if (0 <= x && x < this.columns && 0 <= y && y < this.rows) {
+			this[(y * this.columns) + x] = int;
+		}
+	}
+}
 
 Uint16Array.prototype.inject = function (_i, arr) {
 	for (let i = 0; i < arr.length; i++) {
