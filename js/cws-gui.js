@@ -56,7 +56,6 @@ class DBMChars {
 		}
 
 		// vvvv ????
-		
 		this.box = DBMChars.container.getBoundingClientRect(); // METHOD IS WORKABLE ONLY WHEN CONTAINER IS SMALLER THAN GRANDPARENT
 
 		const __box = DBMChars.swrap.getBoundingClientRect();
@@ -208,7 +207,6 @@ class DBMChars {
 			DBMChars.eblocks[bi].textContent = "";
 
 			if (ii > 0) DBMChars.eblocks[bi].append(this.getDataToLog(bi * this.blen, this.ci));
-			
 			DBMChars.eblocks[bi].append(DBMChars.input);
 
 			DBMChars.input.value = this.chars[this.ci];
@@ -331,7 +329,7 @@ class CWMap {
 	constructor (qr) {
 		this.modules = qr.modules;
 		this.datatype = qr.info.datatype;
-		this.matrix = new Uint16Array(this.modules * (this.modules - qr.__ECStartPoint.x + 1)).x2convert(this.modules - qr.__ECStartPoint.x + 1);
+		this.matrix = new Uint16ArrayX2(this.modules, this.modules - qr.info.firstECModuleParams.x + 1);
 
 		const g1 = qr.info.g1Blocks, g2 = qr.info.g2Blocks, g1cws = qr.info.g1DataBytesPerBlock, g2cws = qr.info.g2DataBytesPerBlock;
 
@@ -375,13 +373,21 @@ class CWMap {
 			// 	// ...
 		}
 
+		let str = "";
+
+		for (const bit of this.matrix) {
+			str += bit.toString(2).padStart(16, "0") + ", ";
+		}
+
+		console.log(str);
+
 		CWMap.collect(this, "27LB"); // <<<
 
 		this.updateCanvas();
 	}
 
 	updateCanvas () {
-		const pixs = window.canvasScale;
+		const pixs = Project.current.box.scale;
 		const marg = this.modules - this.matrix.columns;
 		CWMap.ctx.fillStyle = "green";
 

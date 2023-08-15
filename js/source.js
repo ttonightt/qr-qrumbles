@@ -1,16 +1,20 @@
 const canvas = document.getElementById("main");
-// CWMap.init(document.getElementById("map"));
+CWMap.init(document.getElementById("map"));
+
+QRT.init(canvas);
 
 Project.init(
-	document.getElementById("tab-navs"),
 	canvas.parentElement.parentElement,
 	canvas.parentElement,
-	canvas
 );
 
 // CONTROLS CONNECTING vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
-Controls.mask = new Controls.RadioBox("mask", value => {
+Controls.project = new Controls.RadioBoxForm("project-tabs", "project-tab", value => {
+	console.log("e");
+});
+
+Controls.mask = new Controls.RadioBoxForm("mask", "mask", value => {
 	if (Project.current) {
 		const res = confirm("Would you like to keep current look of this QRT?");
 		if (res) {
@@ -45,9 +49,9 @@ Controls.mask = new Controls.RadioBox("mask", value => {
 	}
 }, false);
 
-Controls.errcor = new Controls.RadioBox("errcor", false);
+Controls.errcor = new Controls.RadioBoxForm("errcor", "errcor", false);
 
-Controls.datatype = new Controls.RadioBox("dtype", false);
+Controls.datatype = new Controls.RadioBoxForm("datatype", "dtype", false);
 
 // Controls.cwmapOverlay = new Controls.RadioBox("dtbmapover", value => {
 // 	switch (value) {
@@ -75,11 +79,12 @@ Controls.toInvert = new Controls.CheckBox("toinvert", value => {
 });
 
 Controls.toDecode = new Controls.Button("updatectrl-fromcanv", () => {
-	
 });
 
 Controls.toEncode = new Controls.Button("updatectrl-tocanv", () => {
-	
+});
+
+Controls.toEncodeEC = new Controls.Button("ec-toencode", () => {
 });
 
 Controls.automaticDecode = new Controls.CheckBox("updatectrl-fromcanv-auto", value => {
@@ -90,20 +95,51 @@ Controls.automaticEncode = new Controls.CheckBox("updatectrl-tocanv-auto", value
 	Controls.toEncode.elem.disabled = value;
 }, true);
 
+Controls.automaticECEncode = new Controls.CheckBox("ec-toencode-auto", value => {
+	Controls.toEncodeEC.elem.disabled = value;
+}, true);
+
 Controls.savingProjectName = new Controls.InputText("proj-name-to-save");
 
 Controls.saveProject = new Controls.Button("save-proj-btn", () => {
-	FilePortal.save(QRT.current.buildTQRT());
+	Project.current.save();
 });
 
 Controls.fileInput = new Controls.InputFile("proj-to-open", files => {
 	FilePortal.buffer = files;
+	alert("file was loaded");
 });
 
 Controls.openFile = new Controls.Button("open-proj-btn", () => {
 	if (FilePortal.buffer) {
 		QRT.readTQRT(FilePortal.buffer[0]).then((obj) => {
-			new QRT("tttt", obj);
+
+			let str = "\n\n";
+
+			for (let y = 0; y < obj.matrix.rows + 1; y += 2) {
+				for (let x = 0; x < obj.matrix.columns; x++) {
+					if (obj.matrix.x2getD(x, y, 0) % 2) {
+						if (obj.matrix.x2getD(x, y + 1, 0) % 2) {
+							str += "\u2588";
+						} else {
+							str += "\u2580";
+						}
+					} else {
+						if (obj.matrix.x2getD(x, y + 1, 0) % 2) {
+							str += "\u2584";
+						} else {
+							str += "\u00a0";
+						}
+					}
+				}
+				str += "\n";
+			}
+
+			console.log(str);
+
+			obj.maskApplication = Controls.maskApplication.value; // TEMP SOLVE
+
+			Project.add(obj.name, obj, obj.matrix);
 		});
 
 		FilePortal.buffer = 0;
@@ -136,14 +172,72 @@ Controls.rotateWorkbenchLeft = new Controls.Button("rotate-workbench-left", () =
 	}
 });
 
-Controls.maskApplication = new Controls.RadioBox("mskover", value => {
+Controls.maskApplication = new Controls.RadioBoxForm("mask-overlay", "mskover", value => {
 	Project.current.qrt.maskApplication = parseInt(value, 10);
 	Project.current.qrt.updateCanvasX(new Rect8(0, 0, 255, 255));
 }, false);
 
+document.addEventListener("keydown", e => {
+	if (e.ctrlKey) {
+		switch (e.key) {
+			case "e":
+				popupBindings["edit"].popen();
+				e.preventDefault();
+				break;
+			case "1":
+				Project.current.fitCanvasArea();
+				break;
+			case "o":
+				popupBindings["open"].popen();
+				e.preventDefault();
+				break;
+			case "s":
+				switch (Project.current.status) {
+					case 0:
+						popupBindings["save"].popen();
+						break;
+					case 2:
+						Project.current.save();
+						break;
+				}
+				e.preventDefault();
+				break;
+			case "S":
+				popupBindings["save"].popen();
+				break;
+			case "z":
+				Project.current.undo();
+				break;
+			case "Z":
+				Project.current.redo();
+				break;
+		}
+	}
+
+	// console.log(e.keyCode);
+
+	if (e.keyCode === 45) { // INS
+		DBMChars.toggleTypingMode();
+		datablocksmap.ichars.input.selecti(0, 1);
+
+		OneTitle.show(
+			document.documentElement.clientWidth / 2,
+			20,
+			"Edit typing mode is " + (DBMChars.typingMode ? "on" : "off"),
+			{pivot: 3, timeOut: 2000}
+		);
+	} else if (e.keyCode === 9) { // TAB
+		if (!datablocksmap.ichars.input.focused) e.preventDefault();
+		datablocksmap.ichars.input.focus();
+		datablocksmap.ichars.input.selecti(0, 1);
+	} else if (e.keyCode === 8 && e.target.tagName !== "INPUT") {
+		e.preventDefault();
+	}
+});
+
 // QRT CREATION vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
-Project.add("NewQRT", {
+Project.add("QRt #" + Project.list.length, {
 	version: 34,
 	ecdepth: Controls.errcor.value,
 	masktype: Controls.mask.value,
@@ -151,158 +245,32 @@ Project.add("NewQRT", {
 	maskApplication: Controls.maskApplication.value
 });
 
-// window.canvasScale = Math.floor((cnvPP.clientHeight - 40) / QRT.current.modules);
+const newTabInput = document.createElement("input");
 
-// const csMIN = window.canvasScale - 1, csMAX = window.canvasScale + 8;
-// setWorkspaceSize();
+newTabInput.id = "proj-" + Project.current.name;
+newTabInput.value = Project.current.name;
+newTabInput.name = "project-tab";
+newTabInput.type = "radio";
 
-// let _canvasScale = window.canvasScale;
+new Promise(resolve => {
+	resolve(
+		document.getElementById("project-tabs").appendChild(newTabInput)
+	);
+}).then(() => {
+	const newTabLabel = document.createElement("label");
 
-// cnvPP.onwheel = function (e) {
-// 	if (e.deltaY > 0 && window.canvasScale > csMIN) {
-// 		window.canvasScale--;
-// 	}
-// 	if (e.deltaY < 0 && window.canvasScale < csMAX) {
-// 		window.canvasScale++;
-// 	}
-// 	const coef = window.canvasScale / _canvasScale;
-// 	_canvasScale = window.canvasScale;
+	newTabInput.checked = true;
+	newTabLabel.insertAdjacentHTML("beforeend", `${Project.current.name}<i class="closer">x</i>`);
+	newTabLabel.setAttribute("for", newTabInput.id);
+	document.getElementById("project-tabs").appendChild(newTabLabel);
+});
 
-// 	cnvP.style.width = QRT.current.modules * window.canvasScale + "px";
-// 	cnvP.style.height = QRT.current.modules * window.canvasScale + "px";
-	
-	// cnvP.style.top = (e.clientY - ((e.clientY - parseInt(cnvP.style.top)) * coef)) + "px";
-	// cnvP.style.left = (e.clientX - ((e.clientX - parseInt(cnvP.style.left)) * coef)) + "px";
-
-// 	CWMap.canvas.width = QRT.current.modules * window.canvasScale;
-// 	CWMap.canvas.height = QRT.current.modules * window.canvasScale;
-// };
-
-// let mouseDown = 0;
-// let _offsetX, _offsetY;
-// let _phantomX = 1, _phantomY = 1;
-// let areaToClear = 0;
-// let _color;
-
-// cnvPP.onmousedown = e => {
-
-// 	mouseDown = e.button + 1;
-// 	_offsetX = e.offsetX;
-// 	_offsetY = e.offsetY;
-
-// 	if (mouseDown === 2) {
-// 		cnvPP.style.cursor = "move";
-// 	} else if (e.target === canvas) {
-// 		_offsetX = Math.floor(_offsetX / window.canvasScale);
-// 		_offsetY = Math.floor(_offsetY / window.canvasScale);
-// 		if (Tools.value === "brush") QRT.current.applyPointOn(_offsetX, _offsetY, (mouseDown - 3) / -2);
-// 	}
-// };
-
-// cnvPP.onmousemove = e => {
-// 	let _x = Math.floor(e.offsetX / window.canvasScale), _y = Math.floor(e.offsetY / window.canvasScale);
-
-// 	if (mouseDown === 2) {
-// 		cnvP.style.top = (e.clientY - 100 - _offsetY) + "px";
-// 		cnvP.style.left = (e.clientX - _offsetX) + "px";
-// 	} else if (e.target === canvas) {
-// 		if (mouseDown % 2) {
-// 			switch (Tools.value) {
-// 				case "brush":
-// 					QRT.current.drawLineOn(_offsetX, _offsetY, _x, _y, (mouseDown - 3) / -2, Tools.list.brush.radius, false);
-// 					QRT.current.applyLineOn(_offsetX, _offsetY, _x, _y, (mouseDown - 3) / -2, Tools.list.brush.radius, false);
-// 					_offsetX = _x;
-// 					_offsetY = _y;
-// 					break;
-// 				case "line":
-// 					if (areaToClear) QRT.current.updateCanvasX(areaToClear);
-
-// 					areaToClear = QRT.current.drawLineOn(
-// 						Math.floor(_offsetX),
-// 						Math.floor(_offsetY),
-// 						_x, _y, (mouseDown - 3) / -2, Tools.list.line.width
-// 					);
-
-// 					break;
-// 				case "circle":
-// 					if (areaToClear) QRT.current.updateCanvasX(areaToClear);
-
-// 					areaToClear = QRT.current.drawEllipseOn(
-// 						Math.floor(_offsetX),
-// 						Math.floor(_offsetY),
-// 						_x, _y, e.ctrlKey, e.shiftKey, (mouseDown - 3) / -2
-// 					);
-// 			}
-// 		} else if ((QRT.current.matrix.x2get(_x, _y) ^ QRT.current.getMaskBit(_x, _y)) === 1) {
-// 			QRT.current.drawPointOn(_phantomX, _phantomY, 0);
-// 			_phantomX = 1;
-// 			_phantomY = 1;
-// 		} else {
-// 			QRT.current.drawPointOn(_phantomX, _phantomY, 0);
-// 			QRT.current.drawPointOn(_x, _y, 1);
-// 			_phantomX = _x;
-// 			_phantomY = _y;
-// 		}
-// 	}
-
-// 	if (OneTitle.shown) {
-// 		OneTitle.hide();
-// 	}
-// };
-
-// cnvPP.onmouseup = e => {
-// 	if (mouseDown === 2) {
-// 		cnvPP.style.cursor = "";
-// 		QRT.current.drawPointOn(_phantomX, _phantomY, 0);
-// 	} else {
-// 		switch (Tools.value) {
-// 			case "line":
-// 				QRT.current.applyLineOn(Math.floor(_offsetX),
-// 										Math.floor(_offsetY),
-// 										Math.floor(e.offsetX / window.canvasScale),
-// 										Math.floor(e.offsetY / window.canvasScale),
-// 										(mouseDown - 3) / -2, Tools.list.line.width);
-// 				break;
-// 			case "circle":
-// 				QRT.current.applyEllipseOn(	Math.floor(_offsetX),
-// 											Math.floor(_offsetY),
-// 											Math.floor(e.offsetX / window.canvasScale),
-// 											Math.floor(e.offsetY / window.canvasScale),
-// 											e.ctrlKey, e.shiftKey, (mouseDown - 3) / -2);
-// 				break;
-// 		}
-// 	}
-// 	if (mouseDown != 0) {
-// 		_phantomX = 1;
-// 		_phantomY = 1;
-// 	}
-// 	mouseDown = 0;
-// };
-
-// cnvP.onmouseleave = () => {
-// 	QRT.current.drawPointOn(_phantomX, _phantomY, 0);
-// 	_phantomX = 1;
-// 	_phantomY = 1;
-// };
-
-// cnvPP.oncontextmenu = e => {
-// 	e.preventDefault();
-// };
-
-// function setWorkspaceSize () {
-	// window.canvasScale = Math.floor((cnvPP.clientHeight - 40) / QRT.current.modules);
-	// canvas.width = QRT.current.modules;
-	// canvas.height = QRT.current.modules;
-	// cnvP.style.width = QRT.current.modules * window.canvasScale + "px";
-	// cnvP.style.height = QRT.current.modules * window.canvasScale + "px";
-	// cnvP.style.top = Math.floor((cnvPP.clientHeight - (window.canvasScale * QRT.current.modules)) / 2) + "px";
-	// cnvP.style.left = Math.floor((cnvPP.clientWidth - (window.canvasScale * QRT.current.modules)) / 2) + "px";
-// }
+Controls.project.add(newTabInput);
 
 let datablocksmap;
 
 window.onload = () => {
-	// new CWMap(QRT.current);
+	new CWMap(Project.current.qrt);
 	// DBMChars.init(document.getElementById("decoded"), document.getElementById("decoded").parentElement.parentElement);
 	// new DBMPolygons(
 	// 	"",
@@ -316,43 +284,94 @@ window.onload = () => {
 // 	return e.returnValue;
 // };
 
-// ---------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------
 
-// (function () {
-// 	const g1 = 4, g2 = 3, g1cws = 6, g2cws = 7;
-// 	const arr = new Uint8Array((g1 * g1cws) + (g2 * g2cws));
+const OneTitle = {
+	elem: document.getElementById("onetitle"),
+	content: document.querySelector("#onetitle > span"),
+	shown: 0,
+	pivot: 0,
+	__timer: 0,
+	show: (x, y, message, prefs = {}) => {
+		OneTitle.pivot = prefs.pivot || OneTitle.pivot;
+		const anim = prefs.anim || "blink";
+		const timeOut = prefs.timeOut || 0;
 
-// 	let str = "";
+		OneTitle.elem.setAttribute("data-anim", anim);
+		if (message) OneTitle.content.textContent = message;
+		OneTitle.elem.classList.add("visible");
 
-// 	for (let i = 0; i < arr.length; i++) {
-// 		arr[i] = Math.round(Math.random() * 255);
-// 	}
-	
-// 	for (let i = 0; i < g1; i++) {
-// 		for (let j = 0; j < g1cws; j++) {
-// 			str += arr[(i * g1cws) + j].toString(2).padStart(8, "0") + " , ";
-// 		}
+		if (typeof x === "number" && typeof y === "number") {
+			OneTitle.elem.style.left = x - (Math.floor(OneTitle.pivot / 3) * OneTitle.elem.clientWidth / 2) + "px";
+			OneTitle.elem.style.top = y - ((OneTitle.pivot % 3) * OneTitle.elem.clientHeight / 2) + "px";
+		}
 
-// 		str += "\n";
-// 	}
-	
-// 	for (let i = 0; i < g2; i++) {
-// 		for (let j = 0; j < g2cws; j++) {
-// 			str += arr[(g1 * g1cws) + (i * g2cws) + j].toString(2).padStart(8, "0") + " , ";
-// 		}
+		if (OneTitle.__timer) {
+			clearTimeout(OneTitle.__timer);
+		}
 
-// 		str += "\n";
-// 	}
+		if (parseInt(timeOut, 10) > 50) {
+			OneTitle.__timer = setTimeout(() => {
+				OneTitle.hide();
+			}, timeOut);
+			return;
+		}
 
-// 	console.log(str);
+		OneTitle.shown = 1;
+	},
+	move: (x, y) => {
+		OneTitle.elem.style.left = x - (Math.floor(OneTitle.pivot / 3) * OneTitle.elem.clientWidth / 2) + "px";
+		OneTitle.elem.style.top = y - ((OneTitle.pivot % 3) * OneTitle.elem.clientHeight / 2) + "px";
+	},
+	log: message => {
+		OneTitle.content.textContent = message;
+	},
+	hide: () => {
+		OneTitle.elem.classList.remove("visible");
+		OneTitle.shown = 0;
+	},
+};
 
-// 	const _index = 30 * 8;
-// 	const li = _index % 8, gi = (_index - li) / 8;
-// 	const r = gi % (g1 + g2), c = (gi - r) / (g1 + g2);
-// 	const index = (g1cws * Math.min(r, g1)) + (g2cws * Math.max(0, r - g1)) + c;
+// POPUPS vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
-// 	console.log(r + ", " + c);
-// 	console.log(index);
-// 	console.logb(arr[index], 8);
-// 	console.log((arr[index] >> (7 - li)) % 2);
-// })();
+const popupElements = document.querySelectorAll("#popups .popup");
+let popupBindings = {};
+
+const popupCallers = document.querySelectorAll(".call-popup");
+
+for (let i = 0; i < popupElements.length; i++) {
+	Object.defineProperty(popupElements[i], "onpopen", {
+		set: (fnc) => {
+			if (isFunction(fnc)) {
+				popupElements[i].popen = () => {
+					fnc(popupElements[i]);
+					popupElements[i].classList.add("active");
+					popupElements[0].parentElement.classList.add("visible");
+				};
+			}
+		}
+	});
+
+	popupElements[i].popen = () => {
+		popupElements[i].classList.add("active");
+		popupElements[0].parentElement.classList.add("visible");
+	};
+
+	popupBindings[popupElements[i].getAttribute("data-popup").replaceAll("-", "")] = popupElements[i];
+	popupElements[i].querySelector("i#this-close").addEventListener("click", () => {
+		popupElements[i].classList.remove("active");
+		popupElements[0].parentElement.classList.remove("visible");
+	});
+}
+
+for (let i = 0; i < popupCallers.length; i++) {
+	const caller = popupCallers[i];
+	caller.addEventListener("click", () => {
+		popupBindings[caller.getAttribute("data-popup").replaceAll("-", "")].popen();
+		popupElements[0].parentElement.classList.add("visible");
+	});
+}
+
+popupBindings["save"].onpopen = () => {
+	if (Controls.savingProjectName.value !== Project.current.name) Controls.savingProjectName.value = Project.current.name; // ТРЕБА ПЕРЕВІРИТИ ЧИ З IF'ОМ ШВИДШЕ АНІЖ ЮЕЗ НЬОГО
+};

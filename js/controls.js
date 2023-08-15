@@ -7,7 +7,6 @@ const Controls = {
 			this.onchange = trigger;
 			if (trigImmidiately && trigger) trigger(this.value);
 		}
-	
 		set onchange (trigger) {
 			if (isFunction(trigger)) {
 				this.elem.onchange = () => {
@@ -21,118 +20,141 @@ const Controls = {
 			}
 		}
 	},
+
+	RadioBoxForm: class {
+		constructor (formid, nameOref, trigger = false, trigImmidiately = false) {
+			this.form = document.getElementById(formid);
+
+			if (this.form instanceof HTMLFormElement) {
+
+				if (typeof nameOref === "string") {
+					const radios = this.form.elements.namedItem(nameOref);
+
+					if (radios instanceof RadioNodeList) {
+						this.list = radios;
 	
-	RadioBox: class {
-		constructor (name, trigger = false, trigImmidiately = false) {
-			this.value = 0;
-			this.list;
-	
-			if (typeof name === "string") {
-				this.list = document.getElementsByName(name);
-	
-				for (let i = 0; i < this.list.length; i++) {
-					if (this.list[i].checked) this.value = this.list[i].value;
-				}
-	
-				this.model = 0;
-	
-			} else if (typeof name === "object") {
-				this.list = {};
-	
-				for (let key in name) {
-					this.list[key] = {
-						elem: document.getElementById(name[key])
-					};
-	
-					if (this.list[key].elem.checked) {
-						this.value = this.list[key].elem.value;
+						for (let i = 0; i < this.list.length; i++) {
+							if (this.list[i].checked) {
+								this.value = this.list[i].value;
+							}
+						}
+					} else if (radios instanceof HTMLInputElement && radios.type === "radio") {
+						this.list = [radios];
+
+						if (this.list[0].checked) this.value = this.list[0].value;
+					} else {
+						this.list = [];
 					}
+
+					this.listModel = 0;
+
+				} else if (typeof nameOref === "object") {
+					this.list = {};
+
+					for (const key in nameOref) {
+						const radio = this.form.elements.namedItem(key);
+
+						if (radio instanceof HTMLInputElement && radio.type === "radio") {
+							this.list[nameOref[key]] = {elem: radio};
+
+							if (radio.checked) {
+								this.value = radio.value;
+							}
+						}
+					}
+
+					this.listModel = 1;
 				}
-	
-				this.model = 1;
-			}
-	
+			} else throw new Error("..."); // <<<
+
 			this.onchange = trigger;
 			if (trigImmidiately && isFunction(trigger)) trigger(this.value);
 		}
-	
+
 		set onchange (trigger) {
-			if (this.model) {
-				for (let key in this.list) {
-	
-					if (isFunction(trigger)) {
-	
-						this.list[key].elem.onchange = () => {
-	
-							this.value = this.list[key].elem.value;
-							trigger(this.value);
-						};
-					} else {
-						this.list[key].elem.onchange = () => {
-							this.value = this.list[key].elem.value;
-						};
-					}
-				}
+			if (isFunction(trigger)) {
+				this.form.onchange = e => {
+					this.value = e.target.value;
+					trigger(this.value);
+				};
 			} else {
-				for (let i = 0; i < this.list.length; i++) {
-	
-					if (isFunction(trigger)) {
-	
-						this.list[i].onchange = () => {
-							this.value = this.list[i].value;
-							trigger(this.value)
-						};
-					} else {
-						this.list[i].onchange = () => {
-							this.value = this.list[i].value;
-						};
-					}
-				}
+				this.form.onchange = e => {
+					this.value = e.target.value;
+				};
 			}
 		}
+
+		add (input, id) {
+			if (!(input instanceof HTMLInputElement && input.type === "radio")) throw new Error("..."); // <<<
+			if (this.listModel === 1) {
+
+				if (id && id !== "") {
+					this.list[id] = {elem: input};
+
+				} else throw new Error("..."); // <<<
+			} else {
+				this.list.push(input);
+			}
+
+			if (input.checked) this.value = input.value;
+
+			this.form.appendChild(input);
+		}
 	},
-	
+
 	Button: class {
 		constructor (id, trigger = false) {
 			this.elem = document.getElementById(id);
 			this.onchange = trigger;
 		}
-	
 		set onchange (trigger) {
 			if (isFunction(trigger)) {
 				this.elem.onclick = trigger;
 			}
 		}
 	},
-	
+
 	InputText: class {
 		constructor (id, trigger = false, trigImmidiately = false) {
 			this.elem = document.getElementById(id);
-			this.value = this.elem.value;
+			this.__value = this.elem.value;
 			this.onchange = trigger;
-			if (trigImmidiately && isFunction(trigger)) trigger(this.value);
+			if (trigImmidiately && isFunction(trigger)) trigger(this.__value);
 		}
-	
+
 		set onchange (trigger) {
 			if (isFunction(trigger)) {
 				this.elem.onchange = () => {
-					this.value = this.elem.value;
+					this.__value = this.elem.value;
 					trigger(this.value);
 				};
 			} else {
 				this.elem.onchange = () => {
-					this.value = this.elem.value;
+					this.__value = this.elem.value;
 				};
 			}
 		}
+
+		set value (value) {
+			if (new RegExp(this.elem.pattern).test(value) && this.elem.minLength <= value.length) {
+
+				if (this.elem.maxLength > 0 && value.length > this.elem.maxLength) value = value.slice(0, this.elem.maxLength);
+
+				this.__value = value;
+				this.elem.value = value;
+			} else throw new Error("You tried to set invalid value statement of input through js!");
+		}
+
+		get value () {
+			return this.__value;
+		}
 	},
-	
+
 	InputFile: class {
 		constructor (id, trigger) {
 			this.elem = document.getElementById(id);
 			this.onchange = trigger;
 		}
-	
 		set onchange (trigger) {
 			if (isFunction(trigger)) {
 				this.elem.onchange = e => {
@@ -145,11 +167,11 @@ const Controls = {
 
 // TOOLS vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
-let Tools = new Controls.RadioBox({
-	brush: "brush-tool",
-	line: "line-tool",
-	circle: "circle-tool"
-}, false);
+const Tools = new Controls.RadioBoxForm("tools", {
+	"brush-tool": "brush",
+	"circle-tool": "circle",
+	"line-tool": "line"
+}, false, false);
 
 Tools.list.brush.radius = 1;
 Tools.list.line.width = 1;
@@ -197,55 +219,5 @@ Tools.list.line.elem.nextElementSibling.addEventListener("wheel", e => {
 Tools.list.line.elem.nextElementSibling.addEventListener("mouseleave", () => {
 	if (OneTitle.shown) {
 		OneTitle.hide();
-	}
-});
-
-// GLOBAL KEYBINDINGS vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-
-document.addEventListener("keydown", e => {
-	if (e.ctrlKey) {
-		switch (e.key) {
-			case "e":
-				popupBindings["edit"].popen();
-				e.preventDefault();
-				break;
-			case "1":
-				Project.current.fitCanvasArea();
-				break;
-			case "o":
-				popupBindings["open"].popen();
-				e.preventDefault();
-				break;
-			case "s":
-				popupBindings["save"].popen();
-				e.preventDefault();
-				break;
-			case "z":
-				Project.current.undo();
-				break;
-			case "Z":
-				Project.current.redo();
-				break;
-		}
-	}
-
-	// console.log(e.keyCode);
-
-	if (e.keyCode === 45) { // INS
-		DBMChars.toggleTypingMode();
-		datablocksmap.ichars.input.selecti(0, 1);
-
-		OneTitle.show(
-			document.documentElement.clientWidth / 2,
-			20,
-			"Edit typing mode is " + (DBMChars.typingMode ? "on" : "off"),
-			{pivot: 3, timeOut: 2000}
-		);
-	} else if (e.keyCode === 9) { // TAB
-		if (!datablocksmap.ichars.input.focused) e.preventDefault();
-		datablocksmap.ichars.input.focus();
-		datablocksmap.ichars.input.selecti(0, 1);
-	} else if (e.keyCode === 8 && e.target.tagName !== "INPUT") {
-		e.preventDefault();
 	}
 });

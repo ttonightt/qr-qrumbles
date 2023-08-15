@@ -556,6 +556,7 @@ input[type=file].selected + label:after {
 
 .controls-table > .fl1 {
 	flex-grow: 1;
+	flex-basis: 100%;
 }
 
 .controls-table > .fl0 {
@@ -609,6 +610,10 @@ input[type=file].selected + label:after {
 
 .controls-table label:hover:after, .controls-table label:hover:before {
 	background-color: #482f5c !important;
+}
+
+.controls-table input:disabled + label {
+	color: #150f1a7c;
 }
 
 .controls-table input:disabled + label * {

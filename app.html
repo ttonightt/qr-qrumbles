@@ -22,7 +22,7 @@
 				</div>
 				<div class="btn">Create</div>
 			</div>
-			<form>
+			<form id="new-prj-version">
 				<input type="radio" name="version" id="vrs-40">
 				<label for="vrs-40">x177</label>
 				<input type="radio" name="version" id="vrs-34" checked>
@@ -43,11 +43,11 @@
 				</div>
 				<div class="btn" id="save-proj-btn">Save</div>
 			</div>
-			<form>
-				<input type="radio" name="format" id="frm-tqrt" checked>
+			<form id="saving-prj-format">
+				<input type="radio" name="format" id="frm-tqrt" value=".tqrt" checked>
 				<label for="frm-tqrt">.tqrt</label>
-				<input type="radio" name="format" id="frm-bmp">
-				<label for="frm-bmp">.bmp</label>
+				<!-- <input type="radio" name="format" id="frm-bmp">
+				<label for="frm-bmp">.bmp</label> -->
 			</form>
 			<i id="this-close">x</i>
 		</div>
@@ -67,7 +67,7 @@
 			<h1>Edit</h1>
 			<div class="content controls-table">
 
-				<div id="mask" class="btn-container wide" content="Mask pattern">
+				<form id="mask" class="btn-container wide" content="Mask pattern">
 					<input type="radio" name="mask" id="mask-var-0" value="0">
 					<label for="mask-var-0"><img class="red-to-eca99d" src="img/m0.png" alt="0"></label>
 
@@ -91,9 +91,9 @@
 
 					<input type="radio" name="mask" id="mask-var-7" value="7">
 					<label for="mask-var-7"><img class="red-to-eca99d" src="img/m7.png" alt="7"></label>
-				</div>
+				</form>
 
-				<div id="errcor" class="btn-container" content="Error correction, %">
+				<form id="errcor" class="btn-container" content="Error correction, %">
 					<input type="radio" name="errcor" id="errcor-0" value="L" checked>
 					<label for="errcor-0">7</label>
 
@@ -105,18 +105,18 @@
 
 					<input type="radio" name="errcor" id="errcor-3" value="H">
 					<label for="errcor-3">30</label>
-				</div>
+				</form>
 
-				<div id="datatype" class="btn-container" content="Data type">
-					<input type="radio" name="dtype" id="dtype-2" value="1">
+				<form id="datatype" class="btn-container" content="Data type">
+					<input type="radio" name="dtype" id="dtype-2" value="A">
 					<label for="dtype-2">A</label>
 
-					<input type="radio" name="dtype" id="dtype-4" value="2" checked>
+					<input type="radio" name="dtype" id="dtype-4" value="B" checked>
 					<label for="dtype-4">B</label>
 
 					<!-- <input type="radio" name="dtype" id="dtype-7" value="7" checked>
 					<label for="dtype-7">U</label> -->
-				</div>
+				</form>
 
 			</div>
 			<i id="this-close">x</i>
@@ -133,7 +133,6 @@
 		<div class="popup" data-popup="help"><!-----------------------------------------HELP-->
 			<h1>Help</h1>
 			<div class="content">
-				
 			</div>
 			<i id="this-close">x</i>
 		</div>
@@ -148,11 +147,7 @@
 			<!-- <li class="call-popup separator" data-popup="about">About</li>
 			<li class="call-popup" data-popup="help">Help</li> -->
 		</ul>
-		<div class="tab-nav-wrap">
-			<ul id="tab-navs">
-				<!-- <li class="active">QRt 1<i id="this-close">x</i></li> -->
-			</ul>
-		</div>
+		<form id="project-tabs"></form>
 	</header>
 
 	<div class="workbench">
@@ -160,14 +155,14 @@
 		<div class="workspace">
 			<div class="canvas-wrap">
 				<canvas id="main"></canvas>
-				<!-- <canvas id="map"></canvas> -->
+				<canvas id="map"></canvas>
 			</div>
 
 			<div id="infocorner">0,0</div>
 		</div>
 
 		<aside>
-			<form class="tools">
+			<form id="tools">
 				<!-- <input type="radio" name="tool" id="move-tool">
 				<label for="move-tool"><img class="red-to-150f1a" src="img/move-tool.png"></label> -->
 				<input type="radio" value="brush" name="tool" id="brush-tool" checked>
@@ -190,30 +185,38 @@
 				<button id="rotate-workbench-right" class="btn"><img class="red-to-150f1a" src="img/circle-arrow-clockwise.png"></button>
 				<button id="rotate-workbench-left" class="btn"><img class="red-to-150f1a" src="img/circle-arrow-reversewise.png"></button>
 
-				<div id="mask-overlay" class="btn-container switcher" content="Mask overlay">
+				<form id="mask-overlay" class="btn-container switcher" content="Mask overlay">
 					<input type="radio" name="mskover" id="mskover-var-0" value="0">
 					<label for="mskover-var-0">0</label>
 
-					<input type="radio" name="mskover" id="mskover-var-1" value="1">
-					<label for="mskover-var-1">A</label>
+					<!-- <input type="radio" name="mskover" id="mskover-var-1" value="1">
+					<label for="mskover-var-1">A</label> -->
 
 					<input type="radio" name="mskover" id="mskover-var-2" value="2" checked>
 					<label for="mskover-var-2">X</label>
-				</div>
+				</form>
 
-				<div id="datablock-overlay" class="btn-container switcher" content="Db map overlay.">
+				<form id="datablock-overlay" class="btn-container switcher" content="Db map overlay.">
 					<input type="radio" name="dtbmapover" id="dtbmapover-var-0" value="0" checked>
 					<label for="dtbmapover-var-0">0</label>
-				
+
 					<input type="radio" name="dtbmapover" id="dtbmapover-var-1" value="1">
 					<label for="dtbmapover-var-1">V</label>
-				
+
 					<input type="radio" name="dtbmapover" id="dtbmapover-var-2" value="2">
 					<label for="dtbmapover-var-2">C</label>
-				</div>
+				</form>
 			</div>
 
 			<div class="controls-table">
+				<div id="ec-encode-controller" class="btn-container fl1">
+					<input type="button" name="ec" id="ec-toencode">
+					<label for="ec-toencode">Enc. EC</label>
+
+					<input type="checkbox" name="ec" id="ec-toencode-auto">
+					<label for="ec-toencode-auto">Auto</label>
+				</div>
+
 				<div id="update-controller" class="btn-container">
 					<input type="button" name="updatectrl" id="updatectrl-tocanv">
 					<label for="updatectrl-tocanv"><img class="red-to-150f1a" src="img/arrow-up-with-base.png" alt="A"></label>
@@ -241,12 +244,12 @@
 
 	<script src="js/tiny-usefuls.js"></script>
 	<script src="js/history.js"></script>
-	<script src="js/ui.js"></script>
+	<script src="js/prj.js"></script>
 	<script src="js/tables.js"></script>
 	<script src="js/file-saver-reader.js"></script>
 	<script src="js/controls.js"></script>
-	<script src="js/qr.js"></script>
-	<script src="js/datablock-map.js"></script>
+	<script src="js/qrt.js"></script>
+	<script src="js/cws-gui.js"></script>
 	<script src="js/source.js"></script>
 </body>
 </html>

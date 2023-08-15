@@ -1,5 +1,32 @@
 class History {
 	static BitmapArea = class {
+		static log (bmarea) {
+			if (bmarea instanceof this) {
+				let str = "";
+	
+				for (let y = 0; y < bmarea.matrix.rows; y += 2) {
+					for (let x = 0; x < bmarea.matrix.columns; x++) {
+						if (bmarea.matrix.x2get(x, y)) {
+							if (bmarea.matrix.x2getD(x, y + 1, 0)) {
+								str += "\u2588";
+							} else {
+								str += "\u2580";
+							}
+						} else {
+							if (bmarea.matrix.x2getD(x, y + 1, 0)) {
+								str += "\u2584";
+							} else {
+								str += "\u00a0";
+							}
+						}
+					}
+					str += "\n";
+				}
+
+				console.log(str);
+			}
+		}
+
 		constructor (mx, refmx, rect8) {
 			if (mx instanceof Uint8ArrayX2 && refmx instanceof Uint8ArrayX2 && mx.columns === refmx.columns && mx.rows === refmx.rows) {
 				if (rect8 instanceof Rect8) {

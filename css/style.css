@@ -116,34 +116,35 @@ header ul.actions li:after {
 	cursor: pointer;
 }
 
-header .tab-nav-wrap {
+header #project-tabs {
 	height: 35px;
 	max-width: 100%;
 	bottom: 0px;
+	padding: 0px 20px;
 	overflow-x: auto;
 	scrollbar-width: none;
+	display: flex;
+	gap: 9px;
 }
 
-header ul#tab-navs {
-	width: max-content;
-	height: 100%;
-	padding: 0px 20px;
+header #project-tabs input {
+	display: none;
 }
 
-header ul#tab-navs li {
+header #project-tabs label {
 	z-index: 0;
 	width: fit-content;
 	height: 23px;
-	margin-top: 3px;
-	padding: 6px;
+	box-shadow: 9px 0px 0px #c0948c;
+	padding: 6px 9px;
 	word-break: keep-all;
 	background-color: #cea39c;
-	box-shadow: 9px 0px 0px #b88c86;
+	color: #1a0f0c;
 	cursor: pointer;
 	float: left;
 }
 
-header ul#tab-navs li:before {
+header #project-tabs label:before {
 	content: "";
 	position: absolute;
 	top: 3px;
@@ -153,7 +154,7 @@ header ul#tab-navs li:before {
 	background-color: #cea39c;
 }
 
-header ul#tab-navs li:after {
+header #project-tabs label:after {
 	content: "";
 	position: absolute;
 	z-index: -1;
@@ -167,35 +168,41 @@ header ul#tab-navs li:after {
 	cursor: pointer;
 }
 
-header ul#tab-navs li.active {
-	margin-top: 0px;
+header #project-tabs input:checked + label {
+	left: -3px;
 	background-color: #e6bdb6;
-	box-shadow: 9px 0px 0px #c0948c;
 	cursor: default;
 }
 
-header ul#tab-navs li.active:before, header ul#tab-navs li.active:after {
+header #project-tabs input:checked + label:before, header #project-tabs input:checked + label:after {
 	background-color: #e6bdb6;
 }
 
-header ul#tab-navs li i#this-close {
+header #project-tabs label .closer {
 	display: block;
 	width: 9px;
 	height: 9px;
-	margin: 5px 0px 0px 3px;
-	padding: 3px 3px 2px 3px;
+	margin: 4px 0px 0px 3px;
+	padding: 3px 3px 3px 3px;
 	line-height: 5px;
 	font-style: normal;
+	color: #1a0f0c;
+	box-shadow: 3px 0px 0px #c0948c, 3px 3px 0px #c79b93;
+	overflow: hidden;
 	cursor: pointer;
 	float: right;
 }
 
-header ul#tab-navs li i#this-close:hover {
-	background-color: #c0948c;
+header #project-tabs label .closer:hover {
+	background-color: #b3898241;
+	box-shadow: none;
+	left: 3px;
 }
 
-header ul#tab-navs li.active i#this-close:hover {
-	background-color: #eca99d;
+header #project-tabs label .closer:active {
+	background-color: #b3898288;
+	box-shadow: inset 3px 0px 0px #ac837bb9, inset 0px 3px 0px #b68a81b9;
+	padding: 3px 0px 3px 6px;
 }
 
 .workbench {
@@ -245,7 +252,7 @@ html.preview.invertion .workspace {
 }
 
 .canvas-wrap #map {
-	display: none;
+	/* display: none; */
 	z-index: 2;
 }
 
@@ -291,7 +298,7 @@ aside {
 	float: left;
 }
 
-aside .tools {
+aside #tools {
 	position: absolute;
 	z-index: 3;
 	top: 20px;
@@ -300,11 +307,11 @@ aside .tools {
 	height: fit-content;
 }
 
-aside .tools input {
+aside #tools input {
 	display: none;
 }
 
-aside .tools label {
+aside #tools label {
 	width: calc(100% - 15px);
 	height: 27px;
 	padding: 6px 6px 6px 6px;
@@ -317,20 +324,20 @@ aside .tools label {
 	float: left;
 }
 
-aside .tools input:not(:disabled) + label:hover {
+aside #tools input:not(:disabled) + label:hover {
 	background-color: #482f5c;
 	cursor: pointer;
 }
 
-aside .tools input:first-child + label {
+aside #tools input:first-child + label {
 	box-shadow: 0px 0px 0px #25192e, inset -3px 0px 0px #0d0a1117, inset -9px 0px 0px #0d0a1117, inset -18px 0px 0px #0d0a1117, inset -30px 0px 0px #0d0a1117;
 }
 
-aside .tools label:last-child {
+aside #tools label:last-child {
 	box-shadow: inset 0px 3px 0px #2d1f38, 0px 6px 0px #2d1f38, inset -3px 0px 0px #0d0a1117, inset -9px 0px 0px #0d0a1117, inset -18px 0px 0px #0d0a1117, inset -30px 0px 0px #0d0a1117;
 }
 
-aside .tools label:before {
+aside #tools label:before {
 	content: "";
 	width: 3px;
 	height: calc(100% - 6px);
@@ -341,22 +348,22 @@ aside .tools label:before {
 	box-shadow: 0px 6px 0px #25192e;
 }
 
-aside .tools input:not(:disabled) + label:hover:before {
+aside #tools input:not(:disabled) + label:hover:before {
 	background-color: #482f5c;
 }
 
-aside .tools label img {
+aside #tools label img {
 	height: 100%;
 	image-rendering: crisp-edges;
 }
 
-aside .tools input:checked + label {
+aside #tools input:checked + label {
 	top: -6px;
 	background-color: #543869;
 	box-shadow: 0px 6px 0px #25192e;
 }
 
-aside .tools input:checked + label:before {
+aside #tools input:checked + label:before {
 	background-color: #543869;
 }
 
@@ -388,6 +395,10 @@ aside .bottombar {
 	flex-grow: 1;
 	padding: 20px;
 	overflow: scroll;
+}
+
+aside #ec-encode-controller label {
+	line-height: 33px;
 }
 
 aside #update-controller label {

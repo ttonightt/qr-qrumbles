@@ -38,7 +38,6 @@ class Uint8ArrayX2 extends Uint8Array {
 				super(Math.ceil(arrOrows.length / columns) * columns);
 				this.rows = Math.ceil(arrOrows.length / columns);
 				this.columns = columns;
-	
 				for (let i = 0; i < arrOrows.length; i++) {
 					this[i] = arrOrows[i];
 				}

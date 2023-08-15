@@ -1,81 +1,5 @@
 "use strict";
 
-const OneTitle = {
-	elem: document.getElementById("onetitle"),
-	content: document.querySelector("#onetitle > span"),
-	shown: 0,
-	pivot: 0,
-	__timer: 0,
-	show: (x, y, message, prefs = {}) => {
-		OneTitle.pivot = prefs.pivot || OneTitle.pivot;
-		const anim = prefs.anim || "blink";
-		const timeOut = prefs.timeOut || 0;
-
-		OneTitle.elem.setAttribute("data-anim", anim);
-		if (message) OneTitle.content.textContent = message;
-		OneTitle.elem.classList.add("visible");
-
-		if (typeof x === "number" && typeof y === "number") {
-			OneTitle.elem.style.left = x - (Math.floor(OneTitle.pivot / 3) * OneTitle.elem.clientWidth / 2) + "px";
-			OneTitle.elem.style.top = y - ((OneTitle.pivot % 3) * OneTitle.elem.clientHeight / 2) + "px";
-		}
-
-		if (OneTitle.__timer) {
-			clearTimeout(OneTitle.__timer);
-		}
-
-		if (parseInt(timeOut, 10) > 50) {
-			OneTitle.__timer = setTimeout(() => {
-				OneTitle.hide();
-			}, timeOut);
-			return;
-		}
-
-		OneTitle.shown = 1;
-	},
-	move: (x, y) => {
-		OneTitle.elem.style.left = x - (Math.floor(OneTitle.pivot / 3) * OneTitle.elem.clientWidth / 2) + "px";
-		OneTitle.elem.style.top = y - ((OneTitle.pivot % 3) * OneTitle.elem.clientHeight / 2) + "px";
-	},
-	log: message => {
-		OneTitle.content.textContent = message;
-	},
-	hide: () => {
-		OneTitle.elem.classList.remove("visible");
-		OneTitle.shown = 0;
-	},
-};
-
-// POPUPS vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-
-const popupElements = document.querySelectorAll("#popups .popup");
-let popupBindings = {};
-
-const popupCallers = document.querySelectorAll(".call-popup");
-
-for (let i = 0; i < popupElements.length; i++) {
-	popupElements[i].popen = () => {
-		popupElements[i].classList.add("active");
-		popupElements[0].parentElement.classList.add("visible");
-	};
-
-	popupBindings[popupElements[i].getAttribute("data-popup").replaceAll("-", "")] = popupElements[i];
-	popupElements[i].querySelector("i#this-close").addEventListener("click", () => {
-		popupElements[i].classList.remove("active");
-		popupElements[0].parentElement.classList.remove("visible");
-	});
-}
-
-for (let i = 0; i < popupCallers.length; i++) {
-	const caller = popupCallers[i];
-	caller.addEventListener("click", () => {
-		popupBindings[caller.getAttribute("data-popup").replaceAll("-", "")].classList.add("active");
-		popupElements[0].parentElement.classList.add("visible");
-	});
-}
-
-
-
 class ScalableBox {
 	constructor (parentWidth, parentHeight, width, height) {
 		this.cwidth = width;
@@ -87,10 +11,10 @@ class ScalableBox {
 
 		if (this.scale <= 0) {
 			throw new Error("Parent box must be larger than child's one!");
-		} else if (this.scale === 1) {
-			this.scalemin = this.scale;
+		} else if (this.scale < 2) {
+			this.scalemin = 1;
 		} else {
-			this.scalemin = this.scale - 1;
+			this.scalemin = this.scale - 2;
 		}
 
 		this.scalemax = this.scale + 8;
@@ -114,7 +38,6 @@ class ScalableBox {
 				} else {
 					this.scale = Math.floor((this.pwidth - 40) / this.cwidth);
 				}
-		
 				this.cx = Math.floor((this.pwidth - (this.scale * this.cwidth)) / 2);
 				this.cy = Math.floor((this.pheight - (this.scale * this.cheight)) / 2);
 			} else {
@@ -140,25 +63,28 @@ class Project {
 	static list = [];
 	static __index = -1;
 
-	static get current () {
-		if (0 <= this.__index) {
-			return this.list[this.__index];
-		} else return false;
-	}
+	static current;
 
-	static add (name, settings) {
-		this.list.push(new Project(name, settings));
+	static add (name, settings, refmx) {
+		this.current = new Project(name, settings, refmx);
+		this.list.push(this.current);
 		this.__index = this.list.length - 1;
-		this.current.tabCaller = Project.createTabCaller(this.current.name, () => {this.remove(this.__index)});
 	}
 
 	static remove (qrti) {
-		if (qrti || qrti === 0) delete this.list[qrti];
+		if (qrti || qrti === 0) {
+			if (this.__index === qrti) {
+				this.current = this.list[qrti - 1] || this.list[qrti + 1];
+			}
+			delete this.list[qrti];
+		}
 	}
 
-	static switchTo (index) {
-		if (index === this.__index) return;
-		this.__index = index;
+	static switchTo (qrti) {
+		if (qrti === this.__index) return;
+		this.__index = qrti;
+		this.current = this.list[qrti];
+
 		QRT.canvas.width = Project.current.qrt.modules;
 		QRT.canvas.height = Project.current.qrt.modules;
 		Project.canvasWrap.style.width = Project.current.box.cwidth * Project.current.box.scale + "px";
@@ -168,16 +94,10 @@ class Project {
 		// ...
 	}
 
-	static tabCallersContainer;
 	static canvasArea;
 	static canvasWrap;
 
-	static init (tabCallersContainer, canvasArea, canvasWrap, qrtCanvas) {
-		if (tabCallersContainer instanceof HTMLElement) {
-			this.tabCallersContainer = tabCallersContainer;
-		} else {
-			throw new Error("..."); // <<<
-		}
+	static init (canvasArea, canvasWrap) {
 
 		if (canvasArea instanceof HTMLElement) {
 			this.canvasArea = canvasArea;
@@ -190,8 +110,6 @@ class Project {
 		} else {
 			throw new Error("..."); // <<<
 		}
-
-		QRT.init(qrtCanvas);
 
 		// vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
@@ -245,12 +163,20 @@ class Project {
 		QRT.canvas.onmousemove = e => {
 			const bradius = Tools.list[Tools.value].radius || Tools.list[Tools.value].width || 1;
 
+			x = e.offsetX;
+			y = e.offsetY;
+
+			if (e.target === this.canvasArea) {
+				x -= this.current.box.cx;
+				y -= this.current.box.cy;
+			}
+
 			if (bradius % 2) {
-				x = Math.floor(e.offsetX / Project.current.box.scale);
-				y = Math.floor(e.offsetY / Project.current.box.scale);
+				x = Math.floor(x / this.current.box.scale);
+				y = Math.floor(y / this.current.box.scale);
 			} else {
-				x = Math.round(e.offsetX / Project.current.box.scale);
-				y = Math.round(e.offsetY / Project.current.box.scale);
+				x = Math.round(x / this.current.box.scale);
+				y = Math.round(y / this.current.box.scale);
 			}
 
 			if (Math.floor(x) === _x && Math.floor(y) === _y) return;
@@ -294,13 +220,12 @@ class Project {
 							x, y, e.ctrlKey, e.shiftKey, (mouseDown - 3) / -2
 						);
 				}
-			} else if (Tools.value === "circle" || bradius === 1) {
+			} else if (bradius === 1) {
 				this.current.qrt.updateCanvasX(area);
 				this.current.qrt.drawPointOn(x, y, 1);
 				area = new Rect8(x, y, x, y);
 			} else {
 				this.current.qrt.updateCanvasX(area);
-				// console.log(x, y, QRT.sprites.circles[Tools.list[Tools.value].radius || Tools.list[Tools.value].width]);
 				area = this.current.qrt.drawSpriteOn(x, y, QRT.sprites.circles[bradius], 1);
 			}
 
@@ -342,8 +267,8 @@ class Project {
 						this.current.qrt.applyEllipseOn(
 							Math.floor(_offsetX),
 							Math.floor(_offsetY),
-							Math.floor(e.offsetX / this.current.box.scale),
-							Math.floor(e.offsetY / this.current.box.scale),
+							x,
+							y,
 							e.ctrlKey, e.shiftKey, (mouseDown - 3) / -2
 						);
 
@@ -354,15 +279,19 @@ class Project {
 						));
 						break;
 				}
+
+				this.current.status = (this.current.status * 2) & 3;
 			}
 
-			// this.current.qrt.updateCanvasX(new Rect8(0, 0, 255, 255));
+			this.current.qrt.updateCanvasX(new Rect8(0, 0, 255, 255));
 			area = 0;
 			mouseDown = 0;
 		};
 
 		this.canvasWrap.onmouseleave = () => {
-			this.current.qrt.updateCanvasX(area);
+			if (mouseDown % 2 === 0) {
+				this.current.qrt.updateCanvasX(area);
+			}
 		};
 
 		this.canvasArea.oncontextmenu = e => {
@@ -370,18 +299,14 @@ class Project {
 		};
 	}
 
-	constructor (name, settings) {
-		if (!(Project.tabCallersContainer && Project.canvasArea && Project.canvasWrap)) {
+	constructor (name, settings, refmx) {
+		if (!(Project.canvasArea && Project.canvasWrap)) {
 			throw new Error("Project (class) was not initialize!");
 		}
 
-		if (name === "" || /^QRT\s#[0-9]+$/.test(name)) {
-			this.name = "QRT #" + parseInt(Project.list.length + 1);
-		} else {
-			this.name = name + "";
-		}
+		this.name = name + "";
 
-		this.qrt = new QRT(settings);
+		this.qrt = new QRT(settings, refmx);
 		QRT.canvas.width = this.qrt.modules;
 		QRT.canvas.height = this.qrt.modules;
 		this.qrt.updateCanvasX(new Rect8(0, 0, 255, 255));
@@ -396,6 +321,8 @@ class Project {
 		this.fitCanvasArea();
 
 		this.history = new History();
+
+		this.status = 0; // 0 - unsaved at all, 1 - saved as and up to date, 2 - saved as and modified
 	}
 
 	fitCanvasArea () {
@@ -445,17 +372,23 @@ class Project {
 		}
 	}
 
-	static createTabCaller (text, closerEvent) {
-		if (!(this.tabCallersContainer instanceof HTMLElement)) throw new Error("..."); // <<<
-		const elem = document.createElement("li");
-		elem.textContent = text;
-		const closer = document.createElement("i");
-		closer.textContent = "x";
-		closer.classList.add("closer");
-		closer.onmouseup = closerEvent;
+	save () {
+		this.name = Controls.savingProjectName.value;
 
-		elem.appendChild(closer);
+		const time = new Date();
 
-		return this.tabCallersContainer.appendChild(elem);
+		FilePortal.save(
+			this.qrt.buildTQRT(
+				this.name + "-" +
+				time.getFullYear() + "-" +
+				time.getMonth() + "-" +
+				time.getDate() + "-" +
+				time.getHours() + "-" +
+				time.getMinutes() + "-" +
+				time.getSeconds()
+			)
+		);
+
+		this.status = 1;
 	}
 }

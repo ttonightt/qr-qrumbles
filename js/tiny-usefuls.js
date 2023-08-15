@@ -445,7 +445,6 @@ class Uint8ArrayX2 extends Uint8Array {
 				super(Math.ceil(arrOrows.length / columns) * columns);
 				this.rows = Math.ceil(arrOrows.length / columns);
 				this.columns = columns;
-	
 				for (let i = 0; i < arrOrows.length; i++) {
 					this[i] = arrOrows[i];
 				}
@@ -476,6 +475,85 @@ class Uint8ArrayX2 extends Uint8Array {
 		}
 	}
 }
+
+class Uint16ArrayX2 extends Uint16Array {
+
+	constructor (arrOrows, columns) {
+		if (!columns) {
+			if (arrOrows instanceof Uint16ArrayX2) {
+				super(arrOrows.rows * arrOrows.columns);
+				this.rows = arrOrows.rows;
+				this.columns = arrOrows.columns;
+
+				for (let i = 0; i < arrOrows.length; i++) {
+					this[i] = arrOrows[i];
+				}
+			}
+		} else if (typeof columns === "number" && columns > 0) {
+
+			if (typeof arrOrows === "number" && 0 < arrOrows) {
+				super(arrOrows * columns);
+				this.rows = arrOrows;
+				this.columns = columns;
+
+			} else if (
+				// arrOrows.length > columns &&
+				(arrOrows instanceof Array ||
+				arrOrows instanceof Uint16ArrayX2 ||
+				arrOrows instanceof Int16Array ||
+				arrOrows instanceof Uint16Array ||
+				arrOrows instanceof Uint16ClampedArray)
+				) {
+				super(Math.ceil(arrOrows.length / columns) * columns);
+				this.rows = Math.ceil(arrOrows.length / columns);
+				this.columns = columns;
+				for (let i = 0; i < arrOrows.length; i++) {
+					this[i] = arrOrows[i];
+				}
+			} else throw new Error("First argument is invalid or was lost!");
+
+		} else throw new Error("..."); // <<<
+	}
+
+	x2get (x = 0, y = 0) {
+		return this[(y * this.columns) + x];
+	}
+
+	x2getD (x = 0, y = 0, wrong) {
+		if (0 <= x && x < this.columns && 0 <= y && y < this.rows) {
+			return this[(y * this.columns) + x];
+		} else {
+			return wrong;
+		}
+	}
+
+	x2set (x = 0, y = 0, int) {
+		this[(y * this.columns) + x] = int;
+	}
+
+	x2setD (x = 0, y = 0, int) {
+		if (0 <= x && x < this.columns && 0 <= y && y < this.rows) {
+			this[(y * this.columns) + x] = int;
+		}
+	}
+}
+
+console.logAsTable = (arr, cellen, padchar, separator, cols) => {
+	let str = "";
+
+	if (typeof cols === "number" && cols > 0) {
+		for (let i = 0; i < arr.length; i++) {
+			str += arr[i].toString(16).padStart(cellen, padchar) + separator;
+			if ((i + 1) % cols === 0) str += "\n";
+		}
+	} else {
+		for (let i = 0; i < arr.length; i++) {
+			str += arr[i].toString(16).padStart(cellen, padchar) + separator;
+		}
+	}
+
+	return console.log(str);
+};
 
 Uint16Array.prototype.inject = function (_i, arr) {
 	for (let i = 0; i < arr.length; i++) {

@@ -73,7 +73,6 @@ class QRTable {
 				g2DataBytesPerBlock: 16
 			}
 		},
-	
 		27: {
 			counterLength: {
 				A: 13,
@@ -116,13 +115,13 @@ class QRTable {
 				g2DataBytesPerBlock: 16
 			}
 		},
-	
 		34: {
 			counterLength: {
 				A: 13,
 				B: 16
 			},
 			L: {
+				firstECModuleParams: {x: 31, y: 127, j: 17528, v: 1},
 				dataBytes: 2191,
 				ecBytesPerBlock: 30,
 				ecBytes: 570,
@@ -159,7 +158,6 @@ class QRTable {
 				g2DataBytesPerBlock: 17
 			}
 		},
-	
 		40: {
 			counterLength: {
 				A: 13,
@@ -218,9 +216,6 @@ class QRTable {
 			default:
 				throw new Error("Inappropriate version value was detected in the argument of QRT constructor (only 20, 27, 34, 40 are allowed)");
 		}
-
-		this.alignmentRectsGap = QRTable.__table[version].alignmentRectsGap;
-		this.counterLength = QRTable.__table[version].counterLength;
 
 		for (let key in QRTable.__table[version][ec]) {
 			this[key] = QRTable.__table[version][ec][key];

@@ -40,7 +40,6 @@ function bitCoordsToPolygons (coords, parent) {
 		let _x = 0, _y = 0;
 		let p = 0, _p = p;
 		let rn = 0;
-	
 		do {
 			if (points.length === 0) {
 				if (map.x2get(x, y) === 1 && map.x2getD(x + 1, y, 0) != 2 && map.x2getD(x, y + 1, 0) != 2 && map.x2getD(x - 1, y, 0) != 2 && map.x2getD(x, y - 1, 0) != 2) {
@@ -58,12 +57,10 @@ function bitCoordsToPolygons (coords, parent) {
 					continue;
 				}
 			}
-	
 			if (map.x2getD(x + vec[1], y - vec[0]) >= 1) {	// TURNING LEFT
 				vec = [vec[1], -vec[0]];
 				rn = 0;
 			}
-	
 			if (map.x2getD(x + vec[0], y + vec[1]) >= 1) {	// IF MOVING IS POSSIBLE
 				x += vec[0];
 				y += vec[1];
@@ -95,7 +92,6 @@ function bitCoordsToPolygons (coords, parent) {
 
 	if (polygons.length > 1) {
 		elem = document.createElementNS("http://www.w3.org/2000/svg", "g");
-		
 		for (i = polygons.length - 1; i >= 0; i--) {
 			elem.appendChild(SVGPolygonElement.create(polygons[i]));
 		}
