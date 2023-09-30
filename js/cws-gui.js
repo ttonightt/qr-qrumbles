@@ -1,276 +1,94 @@
 
-class DBMChars {
-	static typingMode = 0;
-	static container;
-	static swrap;
-	static input;
-	static inputMode;
-	static posti;
-	static eblocks = [];
+class Charmap {
+	static markup;
+	static textarea;
+	static block = [];
+	static grabberLeft;
+	static grabberRight;
 
-	static init (container, swrap) {
-		this.container = container;
-		this.swrap = swrap;
+	static init (markup, textarea) {
+		this.markup = markup;
+		this.textarea = textarea;
+		this.__x = this.textarea.getBoundingClientRect().x;
+		this.__y = this.textarea.getBoundingClientRect().y;
 
-		this.container.oncontextmenu = e => {
-			e.preventDefault();
+		this.textarea.textContent = "0";
+		this.letterWidth = this.textarea.clientWidth;
+		this.letterHeight = this.textarea.clientHeight;
+		this.textarea.textContent = "";
+		this.columns = Math.floor(this.textarea.clientWidth / this.letterWidth);
+
+		document.documentElement.style.setProperty("--textarea-width", this.columns + "ch");
+
+		this.grabberLeft = document.createElement("i");
+		this.grabberRight = document.createElement("i");
+
+		let grabber, lim, _pos, pos, _textContent;
+
+		Charmap.grabberRight.onmousedown = () => {
+			grabber = 2;
+			lim = Math.floor((Charmap.grabberLeft.offsetLeft + 3) / this.letterWidth) + (Math.ceil((Charmap.grabberLeft.offsetTop - 1) / this.letterHeight) * this.columns);
+			_pos = Math.floor((Charmap.grabberRight.offsetLeft + 3) / this.letterWidth) + (Math.ceil((Charmap.grabberRight.offsetTop - 1) / this.letterHeight) * this.columns);
+			// console.log(lim);
+			// console.log(_pos);
+
+			_textContent = Charmap.textarea.textContent.slice(lim);
+
+			console.log(_textContent);
+		};
+		
+		Charmap.textarea.onmousemove = e => {
+			if (grabber === 2) {
+				pos = Math.floor((e.clientX - this.__x) / this.letterWidth) + (Math.floor((e.clientY - this.__y) / this.letterHeight) * this.columns);
+				// console.log(pos);
+				Charmap.grabberRight.previousElementSibling.textContent = _textContent.slice(0, pos - lim);
+				Charmap.grabberRight.nextElementSibling.textContent = _textContent.slice(0, pos - lim);
+			}
 		};
 
-		this.input = document.createElement("input");
-		this.input.type = "text";
-		this.input.maxLength = 1;
-		this.input.size = 1;
-		this.input.required = true;
-		DBMChars.input.pattern = "^.|\\n|\\r|\\u2028|\\u2029$";
-
-		this.posti = document.createElement("i");
-
-		this.input.selecti = (a = this.input.size, b = a) => {
-			this.input.selectionStart = a;
-			this.input.selectionEnd = b;
-		};
+		window.addEventListener("mouseup", () => {
+			grabber = 0;
+		});
 	}
 
-	static resizeContent (len) {
-		if (len < this.len)  {
-			// ...
-		} else if (len > this.len) {
-			// ...
-		}
+	constructor (data) {
+		this.restructure(data);
+
+		// Charmap.textarea.append(Charmap.grabberLeft, Charmap.ps[0], Charmap.grabberRight);
 	}
 
-	static toggleTypingMode () {
-		DBMChars.typingMode ^= 1;
-	}
+	restructure (dblocks) {
+		if (!(dblocks instanceof Array)) throw new Error("..."); // <<<
 
-	constructor (data, dbs, blen, padTo = data.length) {
-		this.dbs = dbs;	//		  ^^^^^^^^^^^^^^^^^^^
-		this.clen = padTo; // <<< ТРЕБА ЗРОБИТИ ПЕРЕВІРКУ НА ПРАВИЛЬНІСТЬ ДОВЖИНИ ДАНИХ ТА ВИНЕСТИ ЇЇ У КЛАСС QR
-
-		switch (blen) {
-			case 1: case 2:
-				this.blen = blen;
-				break;
-			default:
-				throw new Error("Only values 1 or 2 are allowed");
-		}
-
-		// vvvv ????
-		this.box = DBMChars.container.getBoundingClientRect(); // METHOD IS WORKABLE ONLY WHEN CONTAINER IS SMALLER THAN GRANDPARENT
-
-		const __box = DBMChars.swrap.getBoundingClientRect();
-
-		this.box = {
-			x: this.box.x,
-			y: this.box.y,
-			owidth: __box.width,
-			oheight: __box.height,
-			sheight: DBMChars.swrap.scrollHeight,
-			iwidth: this.box.width,
-			iheight: this.box.height,
-			left: this.box.left - __box.left,
-			right: __box.right - this.box.right,
-			top: this.box.top - __box.top,
-			bottom: DBMChars.swrap.scrollHeight - this.box.height - this.box.top + __box.top
-		};
-
-		// vvvv SETTING UP THE DATA vvvv
-
-		this.chars = "";
-
-		if (data instanceof Uint16Array) {
-			for (let i = 0; i < this.clen; i++) {
-				this.chars += String.fromCharCodeS(data[i] || 0x30);
-			}
-		} else if (typeof data === "string") {
-			for (let i = 0; i < this.clen; i++) {
-				this.chars += data[i] || "0";
-			}
-		}
-
-		if (this.dbs < DBMChars.eblocks.length) {
-			for (let i = DBMChars.eblocks.length; i > this.dbs; i--) {
-				DBMChars.eblocks.pop();
-				DBMChars.container.lastChild.remove();
-			}
-		} else if (this.dbs > DBMChars.eblocks.length) {
-			for (let i = DBMChars.eblocks.length; i < this.dbs; i++) {
-				const elem = document.createElement("p");
-				DBMChars.eblocks.push(elem);
-				DBMChars.container.appendChild(elem);
-			}
-		}
-
-		if (this.blen === 2) {
-			for (let i = 0, j = 0; j < this.clen; i++, j += 2) {
-
-				const elem = DBMChars.eblocks[i];
-				elem.textContent = this.chars[j] + (this.chars[j + 1] || "");
-
-				elem.onmouseup = () => {
-					const selection = getSelection();
-
-					if (selection.anchorNode === selection.focusNode && selection.anchorOffset === selection.focusOffset) {
-						this.relocateInputTo((i * this.blen) + selection.anchorOffset);
-					} else {
-						// ...
-					}
+		if (Charmap.block.length < dblocks.length) {
+			for (let i = Charmap.block.length; i < dblocks.length; i++) {
+				Charmap.block[i] = {
+					p: document.createElement("p")
 				};
 			}
-		} else if (this.blen === 1) {
-			for (let i = 0; i < this.dbs; i++) {
-				const elem = document.createElement("p");
-				elem.textContent = this.chars[i];
-				DBMChars.container.appendChild(elem);
+		} else if (Charmap.block.length > dblocks.length) Charmap.block.splice(dblocks.length, Charmap.block.length - dblocks.length);
+
+		let len = 0;
+
+		for (let i = 0; i < dblocks.length; i++) {
+
+			Charmap.block[i].p.textContent = dblocks[i].chars;
+
+			len += dblocks[i].chars.length;
+
+			Charmap.block[i].p.setAttribute("encoding", dblocks[i].encoding);
+
+			Charmap.block[i].p.onclick = () => {
+				Charmap.block[i].p.before(Charmap.grabberLeft);
+				Charmap.block[i].p.after(Charmap.grabberRight);
+			};
+
+			Charmap.textarea.appendChild(Charmap.block[i].p);
+
+			if (Charmap.textarea.textContent.length % Charmap.columns === 0) {
+				Charmap.textarea.appendChild(document.createElement("wbr"));
 			}
 		}
-
-		// vvvv INPUT EVENTS vvvv
-
-		this.ci = -1;
-
-		let keyDown = 0;
-
-		DBMChars.input.onkeydown = e => {
-			keyDown = e.key;
-
-			if (keyDown === "ArrowRight" && DBMChars.input.selectionEnd === DBMChars.input.value.length) {
-
-				this.relocateInput(this.ci + 1, e.ctrlKey);
-				DBMChars.input.selecti(0, DBMChars.input.size);
-				this.showInput(false);
-				e.preventDefault();
-
-			} else if (keyDown === "ArrowLeft" && DBMChars.input.selectionStart === 0) {
-
-				this.relocateInput(this.ci - !e.ctrlKey, e.ctrlKey);
-				DBMChars.input.selecti(0, DBMChars.input.size);
-				this.showInput(false);
-				e.preventDefault();
-
-			} else if (keyDown === "Escape") {
-				DBMChars.input.blur();
-			} else if (DBMChars.typingMode && keyDown === "Backspace" && this.ci === 0) {
-				e.preventDefault();
-			}
-		};
-
-		DBMChars.input.oninput = () => {
-			this.changeChar(this.ci, DBMChars.input.value, DBMChars.input._value === "");
-			DBMChars.input._value = DBMChars.input.value; // КОЛИ БУДЕ ГОТОВА "ІСТОРІЯ ЗМІН" МОЖНА (В ТЕОРІЇ) БУДЕ БРАТИ ПОПЕРЕДНЄ ЗНАЧЕННЯ ЗВІДТИ
-
-			if (DBMChars.inputMode && DBMChars.input.validity.valid) {
-				DBMChars.posti.textContent = String.fromCharCode(parseInt(DBMChars.input.value.replace("u", ""), 16));
-			}
-
-			if (DBMChars.typingMode) {
-				if (keyDown === "Delete") {
-					this.relocateInput(this.ci);
-				} else if (keyDown === "Backspace") {
-					this.relocateInput(this.ci - 1);
-				} else {
-					this.relocateInput(this.ci + 1);
-				}
-
-				DBMChars.input.selecti(0, DBMChars.input.size);
-			}
-		};
-	}
-
-	changeChar (i, char, between = false) {
-		if (char === "") {
-			this.chars = this.chars.slice(0, i) + this.chars.slice(i + 1, this.len);
-			if (this.chars.length < this.len) this.chars += "0";
-		} else {
-			this.chars = this.chars.slice(0, i) + char + this.chars.slice(i + !between, this.len);
-		}
-	}
-
-	relocateInputTo (i, between = false, mode = false) {
-		i = Math.fitinter(0, i, this.clen);
-
-		if (this.ci === i) return;
-
-		if (this.ci !== -1) {
-			const bi = Math.floor(this.ci / this.blen);
-			DBMChars.eblocks[bi].textContent = this.getDataToLog(bi * this.blen, (bi + 1) * this.blen);
-		}
-
-		this.ci = i;
-
-		const bi = Math.floor(this.ci / this.blen), ii = this.ci % this.blen;
-
-		// if (between) {
-		// 	this.changeChar(this.ci, "0", true);
-		// 	DBMChars.input.value = "0";
-		// } else {
-			DBMChars.eblocks[bi].textContent = "";
-
-			if (ii > 0) DBMChars.eblocks[bi].append(this.getDataToLog(bi * this.blen, this.ci));
-			DBMChars.eblocks[bi].append(DBMChars.input);
-
-			DBMChars.input.value = this.chars[this.ci];
-
-			if (ii < this.blen - 1) DBMChars.eblocks[bi].append(this.getDataToLog(this.ci + 1, (bi + 1) * this.blen));
-		// }
-
-		// if (DBMChars.inputMode !== mode) {
-		// 	DBMChars.inputMode = mode;
-
-		// 	if (mode) {
-		// 		DBMChars.input.value = "u" + DBMChars.input.value.charCodeAt(0).toString(16).padStart(4, "0");
-		// 		DBMChars.input.size = 5;
-		// 		DBMChars.input.maxLength = 5;
-		// 		DBMChars.input.classList.add("big");
-		// 		DBMChars.input.pattern = "^[uU]{0,1}[0-9a-fA-F]{1,4}$";
-		// 	} else {
-		// 		DBMChars.input.size = 1;
-		// 		DBMChars.input.maxLength = 1;
-		// 		DBMChars.input.classList.remove("big");
-		// 		DBMChars.input.pattern = "^.|\\n|\\r|\\u2028|\\u2029$";
-
-		// 		DBMChars.posti.textContent = "";
-		// 	}
-		// }
-	}
-
-	showInput (type = true) {
-		const sy = (Math.floor(this.ci / this.cols) * DBMChars.letterHeight) + this.box.top;
-
-		if (type) {
-			DBMChars.swrap.scroll(0,
-				sy - Math.round(this.box.oheight / 2) + Math.round(DBMChars.letterHeight / 2)
-			);
-		} else if (sy + DBMChars.letterHeight > this.box.oheight + DBMChars.swrap.scrollTop) {
-			DBMChars.swrap.scroll(0,
-				sy - this.box.oheight + DBMChars.letterHeight
-			);
-		} else if (sy < DBMChars.swrap.scrollTop) {
-			DBMChars.swrap.scroll(0,
-				sy
-			);
-		}
-	}
-
-	getDataToLog (a = 0, b = this.clen) {
-		if (a === b) return "";
-		if (b - a === 1) return this.chars[a];
-
-		let str = "";
-		for (let i = a; i < b; i++) {
-			if (this.chars[i] === " ") {
-				str += "\u00a0";
-			} else {
-				str += this.chars[i];
-			}
-		}
-		return str;
-	}
-}
-
-class BitMapWorkbench {
-	constructor () {
-
 	}
 }
 
@@ -278,27 +96,16 @@ class CWMap {
 	static canvas;
 	static ctx;
 
-	static init (canvas) {
-		this.canvas = canvas;
-		this.ctx = canvas.getContext("2d");
-
-		// let _cw = -1;
-
-		// this.canvas.onmousemove = e => {
-		// 	const cw = (this.current.matrix.x2getD(
-		// 		Math.floor(e.offsetX / window.canvasScale) - this.current.modules + this.current.matrix.columns,
-		// 		Math.floor(e.offsetY / window.canvasScale),
-		// 		-1
-		// 	) % 4096) - 1;
-
-		// 	if (_cw !== cw) {
-		// 		console.log(cw);
-
-		// 		_cw = cw;
-		// 	}
-
-		// 	// OneTitle.move(e.clientX, e.clientY);
-		// };
+	static init (ctx) {
+		if (ctx instanceof CanvasRenderingContext2D) {
+			this.ctx = ctx;
+			this.canvas = this.ctx.canvas;
+		} else if (ctx instanceof HTMLCanvasElement) {
+			this.canvas = ctx;
+			this.ctx = ctx.getContext("2d");
+		} else {
+			throw new Error("..."); // <<<
+		}
 	}
 
 	static collection = {};
@@ -318,8 +125,8 @@ class CWMap {
 		this.__index = index;
 	}
 
-	static getCW (x, y) {
-		const bin12 = this.matrix.x2getD(x, y, 4095) % 4096;
+	getCW (x, y) {
+		const bin12 = this.matrix.x2getD(x - this.modules + this.matrix.columns, y, 0) % 4096;
 
 		if (bin12 > 2956) return -1; // 2956 means quantity of codewords in version 40 with L errcor level (the highest)
 
@@ -358,9 +165,12 @@ class CWMap {
 				break;
 			case 4:
 				qr.goThroughDataModules((x, y, j) => {
+					const _i = Math.floor(j / 8);
+					const r = _i % (g1 + g2);
+
 					xs[j % 8] = x - this.modules + this.matrix.columns;
 					ys[j % 8] = y;
-					fs[j % 8] = Math.floor(j / 8) + 1;
+					fs[j % 8] = (g1cws * Math.min(r, g1)) + (g2cws * Math.max(0, r - g1)) + ((_i - r) / (g1 + g2)) + 1;
 
 					if (j % 8 === 7) {
 						this.cwBitsCoordsToMX(xs, ys, fs);
@@ -382,26 +192,23 @@ class CWMap {
 		console.log(str);
 
 		CWMap.collect(this, "27LB"); // <<<
-
-		this.updateCanvas();
 	}
 
-	updateCanvas () {
-		const pixs = Project.current.box.scale;
+	updateCanvas (scale) {
 		const marg = this.modules - this.matrix.columns;
 		CWMap.ctx.fillStyle = "green";
 
 		for (let x = 0; x < this.matrix.columns; x++) {
 			for (let y = 0; y < this.matrix.rows; y++) {
-
+				
 				const type = this.matrix.x2get(x, y) >> 14;
 
 				if (type % 2) {
-					CWMap.ctx.fillRect(((x + marg) * pixs) - 1, (y * pixs) - 1, 2, pixs + 2);
+					CWMap.ctx.fillRect(((x + marg) * scale) - 1, (y * scale) - 1, 2, scale + 2);
 				}
 
 				if ((type >> 1) % 2) {
-					CWMap.ctx.fillRect(((x + marg) * pixs) - 1, ((y + 1) * pixs) - 1, pixs + 2, 2);
+					CWMap.ctx.fillRect(((x + marg) * scale) - 1, ((y + 1) * scale) - 1, scale + 2, 2);
 				}
 			}
 		}

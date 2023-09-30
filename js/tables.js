@@ -37,6 +37,7 @@ class QRTable {
 				B: 16
 			},
 			L: {
+				firstECModuleParams: {j: 6888, v: -1, x: 21, y: 66},
 				dataBytes: 861,
 				ecBytesPerBlock: 28,
 				ecBytes: 224,
@@ -164,6 +165,7 @@ class QRTable {
 				B: 16
 			},
 			L: {
+				firstECModuleParams: {j: 23648, v: -1, x: 38, y: 137},
 				dataBytes: 2956,
 				ecBytesPerBlock: 30,
 				ecBytes: 750,

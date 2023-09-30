@@ -34,203 +34,6 @@ Math.binlen = function (bx) {
 	return Math.floor(Math.log2(bx)) + 1;
 }
 
-const Alphanumerical = {
-
-	fromCharCode (code) {
-		switch (code) {
-			case 0:
-				return "0";
-			case 1:
-				return "1";
-			case 2:
-				return "2";
-			case 3:
-				return "3";
-			case 4:
-				return "4";
-			case 5:
-				return "5";
-			case 6:
-				return "6";
-			case 7:
-				return "7";
-			case 8:
-				return "8";
-			case 9:
-				return "9";
-			case 10:
-				return "A";
-			case 11:
-				return "B";
-			case 12:
-				return "C";
-			case 13:
-				return "D";
-			case 14:
-				return "E";
-			case 15:
-				return "F";
-			case 16:
-				return "G";
-			case 17:
-				return "H";
-			case 18:
-				return "I";
-			case 19:
-				return "J";
-			case 20:
-				return "K";
-			case 21:
-				return "L";
-			case 22:
-				return "M";
-			case 23:
-				return "N";
-			case 24:
-				return "O";
-			case 25:
-				return "P";
-			case 26:
-				return "Q";
-			case 27:
-				return "R";
-			case 28:
-				return "S";
-			case 29:
-				return "T";
-			case 30:
-				return "U";
-			case 31:
-				return "V";
-			case 32:
-				return "W";
-			case 33:
-				return "X";
-			case 34:
-				return "Y";
-			case 35:
-				return "Z";
-			case 36:
-				return " ";
-			case 37:
-				return "$";
-			case 38:
-				return "%";
-			case 39:
-				return "*";
-			case 40:
-				return "+";
-			case 41:
-				return "-";
-			case 42:
-				return ".";
-			case 43:
-				return "/";
-			case 44:
-				return ":";
-			default:
-				throw new Error("Code of alphanumerical char cannot be greater that 44");
-		}
-	},
-
-	charCode (char) {
-		switch (char[0]) {
-			case "0":
-				return 0;
-			case "1":
-				return 1;
-			case "2":
-				return 2;
-			case "3":
-				return 3;
-			case "4":
-				return 4;
-			case "5":
-				return 5;
-			case "6":
-				return 6;
-			case "7":
-				return 7;
-			case "8":
-				return 8;
-			case "9":
-				return 9;
-			case "A":
-				return 10;
-			case "B":
-				return 11;
-			case "C":
-				return 12;
-			case "D":
-				return 13;
-			case "E":
-				return 14;
-			case "F":
-				return 15;
-			case "G":
-				return 16;
-			case "H":
-				return 17;
-			case "I":
-				return 18;
-			case "J":
-				return 19;
-			case "K":
-				return 20;
-			case "L":
-				return 21;
-			case "M":
-				return 22;
-			case "N":
-				return 23;
-			case "O":
-				return 24;
-			case "P":
-				return 25;
-			case "Q":
-				return 26;
-			case "R":
-				return 27;
-			case "S":
-				return 28;
-			case "T":
-				return 29;
-			case "U":
-				return 30;
-			case "V":
-				return 31;
-			case "W":
-				return 32;
-			case "X":
-				return 33;
-			case "Y":
-				return 34;
-			case "Z":
-				return 35;
-			case " ":
-				return 36;
-			case "$":
-				return 37;
-			case "%":
-				return 38;
-			case "*":
-				return 39;
-			case "+":
-				return 40;
-			case "-":
-				return 41;
-			case ".":
-				return 42;
-			case "/":
-				return 43;
-			case ":":
-				return 44;
-			default:
-				throw new Error("Only following chars can be converted into code: \"0-9A-Z $%*+-./:\"");
-		}
-	}
-}
-
 String.fromCharCodeS = function (code) {
 	if ((0 <= code && code <= 0x1f) || (0x7f <= code && code <= 0x9f)) {
 		code = 0xfffd;
@@ -275,6 +78,16 @@ String.prototype.decodeAsASCII2 = function () { // MUST BE INTAGRATED INTO QR CL
 
 	return res;
 }
+
+String.sjoin = (arr, func) => {
+	let str = "";
+
+	for (let i = 0; i < arr.length; i++) {
+		str += func(arr[i]);
+	}
+
+	return str;
+};
 
 isFunction = func => {
 	return !!(func && func.constructor && func.call && func.apply);
@@ -415,6 +228,18 @@ class Uint8ArrayX2 extends Uint8Array {
 			console.log(str);
 		}
 	}
+	
+	static reflectByDiagonal (arr) {
+		if (arr instanceof Uint8ArrayX2) {
+			const narr = new Uint8ArrayX2(arr.columns, arr.rows);
+
+			for (let x = 0; x < arr.columns; x++) {
+				for (let y = 0; y < arr.rows; y++) {
+					narr.x2set(y, x, arr.x2get(x, y));
+				}
+			}
+		} else throw new Error("..."); // <<<
+	}
 
 	constructor (arrOrows, columns) {
 		if (!columns) {
@@ -543,12 +368,12 @@ console.logAsTable = (arr, cellen, padchar, separator, cols) => {
 
 	if (typeof cols === "number" && cols > 0) {
 		for (let i = 0; i < arr.length; i++) {
-			str += arr[i].toString(16).padStart(cellen, padchar) + separator;
-			if ((i + 1) % cols === 0) str += "\n";
+			str += arr[i].toString(10).padStart(cellen, padchar) + separator;
+			if ((i + 1) % cols === 0) str += "\n\n";
 		}
 	} else {
 		for (let i = 0; i < arr.length; i++) {
-			str += arr[i].toString(16).padStart(cellen, padchar) + separator;
+			str += arr[i].toString(10).padStart(cellen, padchar) + separator;
 		}
 	}
 
@@ -583,7 +408,3 @@ SVGPolygonElement.create = (points) => {
 
 	return elem;
 };
-
-function lineWidthCompensator (w, angle) {
-	return w * (1 + Math.abs(0.33 * Math.sin(angle * 2)));
-}

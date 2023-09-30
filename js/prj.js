@@ -1,11 +1,13 @@
 "use strict";
 
 class ScalableBox {
-	constructor (parentWidth, parentHeight, width, height) {
+	constructor (parentWidth, parentHeight, width, height, parentX = 0, parentY = 0) {
 		this.cwidth = width;
 		this.cheight = height;
 		this.pwidth = parentWidth;
 		this.pheight = parentHeight;
+		this.px = parentX;
+		this.py = parentY;
 
 		this.toScale(1);
 
@@ -67,6 +69,15 @@ class Project {
 
 	static add (name, settings, refmx) {
 		this.current = new Project(name, settings, refmx);
+
+		QRT.canvas.width = this.current.qrt.modules;
+		QRT.canvas.height = this.current.qrt.modules;
+		this.current.qrt.updateCanvas(new Rect8(0, 0, 255, 255));
+
+		// CWMap.canvas.width = this.current.qrt.modules * this.current.box.scale;
+		// CWMap.canvas.height = this.current.qrt.modules * this.current.box.scale;
+		// this.current.cwmap.updateCanvas(this.current.box.scale);
+
 		this.list.push(this.current);
 		this.__index = this.list.length - 1;
 	}
@@ -80,7 +91,7 @@ class Project {
 		}
 	}
 
-	static switchTo (qrti) {
+	static switchTo (qrti) { // UNUSED YET
 		if (qrti === this.__index) return;
 		this.__index = qrti;
 		this.current = this.list[qrti];
@@ -114,7 +125,7 @@ class Project {
 		// vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
 		this.canvasArea.onwheel = e => {
-			Project.current.box.toScale(Project.current.box.scale - Math.sign(e.deltaY), e.clientX, e.clientY - 100);
+			Project.current.box.toScale(Project.current.box.scale - Math.sign(e.deltaY), e.clientX - this.current.box.px, e.clientY - this.current.box.py);
 
 			this.canvasWrap.style.width = Project.current.box.cwidth * Project.current.box.scale + "px";
 			this.canvasWrap.style.height = Project.current.box.cheight * Project.current.box.scale + "px";
@@ -128,9 +139,11 @@ class Project {
 		let area = 0;
 		let _matrix;
 
-		this.canvasArea.onmousedown = e => {
+		QRT.canvas.onmousedown = e => {
 
 			mouseDown = e.button + 1;
+			// _offsetX = e.clientX - this.current.box.px - this.current.box.cx;
+			// _offsetY = e.clientY - this.current.box.py - this.current.box.cy;
 			_offsetX = e.offsetX;
 			_offsetY = e.offsetY;
 
@@ -138,15 +151,15 @@ class Project {
 
 			if (mouseDown === 2) {
 				this.canvasArea.style.cursor = "move";
-			} else if (e.target === QRT.canvas) {
+			} else {
 				const bradius = Tools.list[Tools.value].radius || Tools.list[Tools.value].width || 1;
 
 				if (bradius % 2) {
-					_offsetX = Math.floor(e.offsetX / Project.current.box.scale);
-					_offsetY = Math.floor(e.offsetY / Project.current.box.scale);
+					_offsetX = Math.floor(_offsetX / Project.current.box.scale);
+					_offsetY = Math.floor(_offsetY / Project.current.box.scale);
 				} else {
-					_offsetX = Math.round(e.offsetX / Project.current.box.scale);
-					_offsetY = Math.round(e.offsetY / Project.current.box.scale);
+					_offsetX = Math.round(_offsetX / Project.current.box.scale);
+					_offsetY = Math.round(_offsetY / Project.current.box.scale);
 				}
 
 				if (Tools.value === "brush") {
@@ -163,13 +176,10 @@ class Project {
 		QRT.canvas.onmousemove = e => {
 			const bradius = Tools.list[Tools.value].radius || Tools.list[Tools.value].width || 1;
 
+			// x = e.clientX - this.current.box.px - this.current.box.cx;
+			// y = e.clientY - this.current.box.py - this.current.box.cy;
 			x = e.offsetX;
 			y = e.offsetY;
-
-			if (e.target === this.canvasArea) {
-				x -= this.current.box.cx;
-				y -= this.current.box.cy;
-			}
 
 			if (bradius % 2) {
 				x = Math.floor(x / this.current.box.scale);
@@ -185,9 +195,9 @@ class Project {
 			_y = y;
 
 			if (mouseDown === 2) {
-				this.current.box.toMove(e.clientY - 100 - _offsetY, e.clientX - _offsetX);
-				this.canvasWrap.style.top = this.current.box.cx + "px";
-				this.canvasWrap.style.left = this.current.box.cy + "px";
+				this.current.box.toMove(e.clientX - this.current.box.px - _offsetX, e.clientY - this.current.box.py - _offsetY);
+				this.canvasWrap.style.top = this.current.box.cy + "px";
+				this.canvasWrap.style.left = this.current.box.cx + "px";
 			} else if (mouseDown % 2) {
 				switch (Tools.value) {
 					case "brush":
@@ -202,7 +212,7 @@ class Project {
 						area[3] = Math.max(area[3], rect[3]);
 						break;
 					case "line":
-						if (area) this.current.qrt.updateCanvasX(area);
+						if (area) this.current.qrt.updateCanvas(area);
 
 						area = this.current.qrt.drawLineOn(
 							Math.floor(_offsetX),
@@ -212,7 +222,7 @@ class Project {
 
 						break;
 					case "circle":
-						if (area) this.current.qrt.updateCanvasX(area);
+						if (area) this.current.qrt.updateCanvas(area);
 
 						area = this.current.qrt.drawEllipseOn(
 							Math.floor(_offsetX),
@@ -221,23 +231,28 @@ class Project {
 						);
 				}
 			} else if (bradius === 1) {
-				this.current.qrt.updateCanvasX(area);
+				this.current.qrt.updateCanvas(area);
 				this.current.qrt.drawPointOn(x, y, 1);
 				area = new Rect8(x, y, x, y);
 			} else {
-				this.current.qrt.updateCanvasX(area);
+				this.current.qrt.updateCanvas(area);
 				area = this.current.qrt.drawSpriteOn(x, y, QRT.sprites.circles[bradius], 1);
 			}
+			/*} else if (e.target === CWMap.canvas) {
+				// console.log(x, y);
+				const cw = Project.current.cwmap.getCW(x, y);
+				// console.log(cw);
+			}*/
 
 			if (OneTitle.shown) {
 				OneTitle.hide();
 			}
 		};
 
-		this.canvasArea.onmouseup = e => {
+		window.onmouseup = e => {
 			if (mouseDown === 2) {
 				this.canvasArea.style.cursor = "";
-			} else {
+			} else if (mouseDown !== 0) {
 				switch (Tools.value) {
 					case "brush":
 						this.current.history.push(new History.BitmapArea(
@@ -255,7 +270,6 @@ class Project {
 							(mouseDown - 3) / -2,
 							QRT.sprites.circles[Tools.list.line.width]
 						);
-
 
 						this.current.history.push(new History.BitmapArea(
 							this.current.qrt.matrix,
@@ -281,16 +295,17 @@ class Project {
 				}
 
 				this.current.status = (this.current.status * 2) & 3;
-			}
 
-			this.current.qrt.updateCanvasX(new Rect8(0, 0, 255, 255));
-			area = 0;
-			mouseDown = 0;
+				this.current.qrt.applyECDataOn(this.current.qrt.encodeECCodewords(QRT.uninterleave(this.current.qrt.scanDataFrom(), this.current.qrt.info.g1Blocks, this.current.qrt.info.g2Blocks, this.current.qrt.info.g1DataBytesPerBlock)));
+				this.current.qrt.updateCanvas(new Rect8(0, 0, 255, 255));
+				area = 0;
+				mouseDown = 0;
+			}
 		};
 
 		this.canvasWrap.onmouseleave = () => {
 			if (mouseDown % 2 === 0) {
-				this.current.qrt.updateCanvasX(area);
+				this.current.qrt.updateCanvas(area);
 			}
 		};
 
@@ -306,19 +321,47 @@ class Project {
 
 		this.name = name + "";
 
-		this.qrt = new QRT(settings, refmx);
-		QRT.canvas.width = this.qrt.modules;
-		QRT.canvas.height = this.qrt.modules;
-		this.qrt.updateCanvasX(new Rect8(0, 0, 255, 255));
+		// this.qrt = new QRT(settings, refmx);
 
-		this.box = new ScalableBox(
-			Project.canvasArea.clientWidth,
-			Project.canvasArea.clientHeight,
-			QRT.canvas.width,
-			QRT.canvas.height
-		);
+		this.data = [
+			{
+				encoding: "Latin1",
+				chars: "Hello WOrldDDx*&6:]]Hello WOrldDDx*&6:]]Hello WOrldDDx*&6:]]"
+			},
+			{
+				encoding: "Num",
+				chars: "Hello WOrldDDx*&6:]]Hell  WOrldDDx*&6:]]Hello WOrldDDx*&6:]]"
+			},
+			{
+				encoding: "Win1251",
+				chars: "Hello WOr"
+			},
+			{
+				encoding: "Alphanum",
+				chars: "ALPLPPALPPPPPPP"
+			},
+			{
+				encoding: "Latin2",
+				chars: "Hello WOrldDDx12***&;6:]]Hello WOrldDDx*&6:]]Hello WOrlAD"
+			},
+			{
+				encoding: "Num",
+				chars: "0000210391281401202000023850285308200082350828571282488388382488247712737727471241241480120"
+			}
+		]; // CodewordArray.decode(this.qrt.scanDataFrom())
 
-		this.fitCanvasArea();
+		// this.box = new ScalableBox(
+		// 	Project.canvasArea.clientWidth,
+		// 	Project.canvasArea.clientHeight,
+		// 	this.qrt.modules,
+		// 	this.qrt.modules,
+		// 	Project.canvasArea.getBoundingClientRect().left,
+		// 	Project.canvasArea.getBoundingClientRect().top
+		// );
+
+		// this.fitCanvasArea();
+
+		this.charmap = new Charmap(this.data);
 
 		this.history = new History();
 
@@ -331,7 +374,6 @@ class Project {
 		Project.canvasWrap.style.height = this.box.scale * this.box.cheight + "px";
 		Project.canvasWrap.style.left = this.box.cx + "px";
 		Project.canvasWrap.style.top = this.box.cy + "px";
-		// CWMap canvas ...
 	}
 
 	undo () {
@@ -349,7 +391,7 @@ class Project {
 					}
 				}
 			}
-			Project.current.qrt.updateCanvasX(new Rect8(0, 0, 255, 255));
+			Project.current.qrt.updateCanvas(new Rect8(0, 0, 255, 255));
 		}
 	}
 
@@ -368,7 +410,7 @@ class Project {
 					}
 				}
 			}
-			Project.current.qrt.updateCanvasX(new Rect8(0, 0, 255, 255));
+			Project.current.qrt.updateCanvas(new Rect8(0, 0, 255, 255));
 		}
 	}
 

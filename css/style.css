@@ -248,11 +248,10 @@ html.preview.invertion .workspace {
 	width: 100%;
 	height: 100%;
 	image-rendering: crisp-edges;
-	background-color: white;
 }
 
 .canvas-wrap #map {
-	/* display: none; */
+	display: none;
 	z-index: 2;
 }
 
@@ -418,70 +417,173 @@ aside .decoded-wrap {
 	width: 100%;
 	margin: -3px;
 	padding: 6px;
-	background-image: linear-gradient(#3a2649 100%, #3a2649 100%), linear-gradient(45deg, #3a2649 25%, transparent 25%), linear-gradient(-45deg, #3a2649 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #3a2649 75%), linear-gradient(-45deg, transparent 75%, #3a2649 75%);
-	background-repeat: no-repeat, repeat, repeat, repeat, repeat;
-	background-size: calc(100% - 12px) calc(100% - 12px), 6px 6px, 6px 6px, 6px 6px, 6px 6px;
-	background-position: 6px 6px, 0px 0px, 0px 3px, 3px -3px, -3px 0px;
+	background-image: linear-gradient(45deg, #3a2649 25%, transparent 25%), linear-gradient(-45deg, #3a2649 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #3a2649 75%), linear-gradient(-45deg, transparent 75%, #3a2649 75%);
+	background-size: 6px 6px, 6px 6px, 6px 6px, 6px 6px;
+	background-position: 0px 0px, 0px 3px, 3px -3px, -3px 0px;
 }
 
-aside .decoded-wrap #decoded {
-	width: 100%;
-	padding: 0px;
-	border: none;
-	border-radius: 0px;
+#charmap-textarea {
+	width: var(--textarea-width);
+	overflow-x: clip;
 	float: left;
-	word-break: break-all;
 }
 
-aside .decoded-wrap #decoded, aside .decoded-wrap #decoded > * {
+#charmap-textarea:empty {
+	width: 100% !important;
+}
+
+#charmap-textarea, #charmap-textarea > * {
 	color: #150f1a;
 	font-size: 18px;
-	line-height: 28px;
+	line-height: 27px;
 	font-weight: 600;
 	font-family: "Ubuntu Mono";
 }
 
-aside #decoded p {
+#charmap-textarea p {
 	display: inline;
-	padding: 5px 0px;
+	padding: 4px 0px;
+	background-image: linear-gradient(90deg, #3a2649 1ch, #2d1f38 1ch);
+	background-size: 2ch 100%;
+	background-repeat: repeat-x;
+	word-break: break-all;
+	word-wrap: break-word;
+	white-space: break-spaces;
+	line-break: anywhere;
 	cursor: pointer;
-	position: relative;
 }
 
-aside #decoded p:nth-child(2n) {
-	background-color: #402c50;
+#charmap-textarea p:last-of-type {
+	box-shadow: 1px 1px 0px 1px #482f5c;
 }
 
-aside #decoded p:hover {
-	background-color: #eca99d5b;
+#charmap-textarea p:empty {
+	display: none;
 }
 
-/* aside #decoded i {
-	display: inline;
-	font-style: normal;
-}
-
-aside #decoded i:after {
-	position: absolute;
-	display: block;
+#charmap-textarea p::before {
 	content: "";
-	left: 1px;
-	top: 2px;
-	width: 0px;
-	height: 0px;
-	border-top: 4px solid #eca99d;
-	border-left: 4px solid transparent;
-	border-right: 4px solid transparent;
-	border-bottom: none;
-	box-shadow: 0px -2px 0px #eca99d;
+	position: absolute;
+	z-index: 1;
+	inset: 0px 0px -1px 0px;
+	width: 300px;
+	transform: translateX(-100%);
+	border-bottom: 2px solid #482f5c;
+	pointer-events: none;
 }
 
-aside #decoded i:after {
-	left: unset;
-	right: 1px;
-} */
+#charmap-textarea p:first-of-type::before, #charmap-textarea br + p::before {
+	content: none;
+}
 
-aside #decoded input {
+#charmap-textarea p::after {
+	content: attr(encoding);
+	position: absolute;
+	inset: -1px -1ch -1px -1px;
+	font-family: pixeloid;
+	font-weight: 900;
+	font-size: 9px;
+	line-height: 16px;
+	color: transparent;
+	word-break: keep-all;
+	word-wrap: normal;
+	border: 2px solid #482f5c;
+	border-right-width: 0px;
+	border-bottom-width: 0px;
+	pointer-events: none;
+}
+
+#charmap-textarea p:hover::after {
+	text-shadow: 0px -2em 0px #eca99d;
+}
+
+#charmap-textarea p:first-of-type::after {
+	left: 0px;
+	border: none;
+}
+
+#charmap-textarea wbr + p::after, #charmap-textarea wbr + i + p::after {
+	content: none;
+}
+
+#charmap-textarea wbr + i + p::before {
+	content: attr(encoding);
+	font-family: pixeloid;
+	font-weight: 900;
+	font-size: 9px;
+	line-height: 16px;
+	text-align: right;
+	color: red;
+	word-break: keep-all;
+	word-wrap: normal;
+}
+
+#charmap-textarea wbr + i + p:hover::before {
+	text-shadow: 0px -2em 0px #eca99d;
+}
+
+#charmap-textarea p:hover {
+	color: #eca99d;
+	/* z-index: 2;
+	box-shadow: 1px 1px 0px 1px #eca99d; */
+}	
+
+#charmap-textarea p:hover::before {
+	display: block;
+}
+
+#charmap-textarea p[encoding=Alphanum] {
+	background-image: linear-gradient(90deg, #3a2649 2ch, #2d1f38 2ch);
+	background-size: 4ch 100%;
+}
+
+#charmap-textarea p[encoding=Num] {
+	background-image: linear-gradient(90deg, #3a2649 3ch, #2d1f38 3ch);
+	background-size: 6ch 100%;
+}
+
+#charmap-textarea i {
+	z-index: 2;
+	position: absolute;
+	margin: -1px -3px;
+	width: 6px;
+	height: 1em;
+	padding: 5px 0px;
+	background-color: #150f1a;
+	cursor: col-resize;
+}
+
+#charmap-textarea i:first-of-type {
+	box-shadow: inset -1px 0px 0px 2px #eca99d, inset 0px 6px 0px #eca99d, inset 0px -6px 0px #eca99d;
+}
+
+#charmap-textarea i:first-of-type::before {
+	content: "";
+	position: absolute;
+	inset: 3px 100% 3px -3px;
+	background-color: #eca99d;
+}
+
+#charmap-textarea i:last-of-type {
+	box-shadow: inset 1px 0px 0px 2px #eca99d, inset 0px 6px 0px #eca99d, inset 0px -6px 0px #eca99d;
+}
+
+#charmap-textarea i:last-of-type::after {
+	content: "";
+	position: absolute;
+	inset: 3px -3px 3px 100%;
+	background-color: #eca99d;
+}
+
+#charmap-textarea i:first-child, #charmap-textarea i:last-child {
+	display: none;
+}
+
+#charmap-textarea i:first-of-type + p {
+	box-shadow: inset 0px 0px 0px 1em #eca99d42;
+}
+
+#charmap-textarea input {
 	display: inline;
 	width: 1ch;
 	height: 18px;
@@ -496,21 +598,21 @@ aside #decoded input {
 	float: none;
 }
 
-/* aside #decoded input:not(:focus) {
+/* #charmap-textarea input:not(:focus) {
 	position: absolute;
 	z-index: 1;
 } */
 
-aside #decoded input:not(:valid) {
+#charmap-textarea input:not(:valid) {
 	background-color: #7b1734 !important;
 }
 
-aside #decoded input::selection {
+#charmap-textarea input::selection {
 	background-color: #eca99d;
 	color: #150f1a;
 }
 
-aside #decoded input.big {
+#charmap-textarea input.big {
 	position: absolute;
 	width: 5ch;
 	margin-left: calc(-2ch - 3px);
@@ -522,15 +624,7 @@ aside #decoded input.big {
 	box-shadow: 0px 0px 0px 1px #eca99d;
 }
 
-aside #decoded input.big ~ i {
-	color: #150f1a !important;
-}
-
-aside #decoded input.big ~ i:after {
-	box-shadow: none;
-}
-
-/* aside #decoded input.big:focus {
+/* #charmap-textarea input.big:focus {
 	width: auto;
 	padding: 3px;
 	background-color: #2d1f38;

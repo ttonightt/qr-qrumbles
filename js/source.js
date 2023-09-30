@@ -1,5 +1,7 @@
 const canvas = document.getElementById("main");
-CWMap.init(document.getElementById("map"));
+
+// CWMap.init(document.getElementById("map"));
+Charmap.init(document.getElementById("charmap-markup"), document.getElementById("charmap-textarea"));
 
 QRT.init(canvas);
 
@@ -16,36 +18,17 @@ Controls.project = new Controls.RadioBoxForm("project-tabs", "project-tab", valu
 
 Controls.mask = new Controls.RadioBoxForm("mask", "mask", value => {
 	if (Project.current) {
-		const res = confirm("Would you like to keep current look of this QRT?");
-		if (res) {
-			for (let i = 0; i < Project.current.qrt.modules; i++) {
-				for (let j = 0; j < Project.current.qrt.modules; j++) {
-					if (Project.current.qrt.matrix.x2get(i, j) % 4 < 2) {
-						Project.current.qrt.matrix.x2set(i, j,
-							Project.current.qrt.matrix.x2get(i, j) ^ Project.current.qrt.getMaskBit(i, j)
-						);
-					}
-				}
-			}
+		const algo = confirm("Would you like to keep current look of this QRT (OK) or its data (Cancel)?");
 
+		if (!algo) {
+			Project.current.qrt.maskApplication = !Project.current.qrt.maskApplication * 2;
 			Project.current.qrt.masktype = parseInt(value, 10);
-
-			for (let i = 0; i < Project.current.qrt.modules; i++) {
-				for (let j = 0; j < Project.current.qrt.modules; j++) {
-					if (Project.current.qrt.matrix.x2get(i, j) % 4 < 2) {
-						Project.current.qrt.matrix.x2set(i, j,
-							Project.current.qrt.matrix.x2get(i, j) ^ Project.current.qrt.getMaskBit(i, j)
-						);
-					}
-				}
-			}
-
-			Project.current.qrt.updateCanvasX(new Rect8(0, 0, 255, 255));
-
-			// if (QRT.maskApplication === 2) {
-			// 	Project.current.qrt.updateCanvasX();
-			// }
+			Project.current.qrt.maskApplication = !Project.current.qrt.maskApplication * 2;
+		} else {
+			Project.current.qrt.masktype = parseInt(value, 10);
 		}
+
+		Project.current.qrt.updateCanvas(new Rect8(0, 0, 255, 255));
 	}
 }, false);
 
@@ -53,7 +36,7 @@ Controls.errcor = new Controls.RadioBoxForm("errcor", "errcor", false);
 
 Controls.datatype = new Controls.RadioBoxForm("datatype", "dtype", false);
 
-// Controls.cwmapOverlay = new Controls.RadioBox("dtbmapover", value => {
+// Controls.cwmapOverlay = new Controls.RadioBoxForm("datablock-overlay", "dtbmapover", value => {
 // 	switch (value) {
 // 		case "0":
 // 			CWMap.canvas.classList.remove("disabled");
@@ -174,7 +157,7 @@ Controls.rotateWorkbenchLeft = new Controls.Button("rotate-workbench-left", () =
 
 Controls.maskApplication = new Controls.RadioBoxForm("mask-overlay", "mskover", value => {
 	Project.current.qrt.maskApplication = parseInt(value, 10);
-	Project.current.qrt.updateCanvasX(new Rect8(0, 0, 255, 255));
+	Project.current.qrt.updateCanvas(new Rect8(0, 0, 255, 255));
 }, false);
 
 document.addEventListener("keydown", e => {
@@ -204,12 +187,15 @@ document.addEventListener("keydown", e => {
 				break;
 			case "S":
 				popupBindings["save"].popen();
+				e.preventDefault();
 				break;
 			case "z":
 				Project.current.undo();
+				e.preventDefault();
 				break;
 			case "Z":
 				Project.current.redo();
+				e.preventDefault();
 				break;
 		}
 	}
@@ -238,10 +224,10 @@ document.addEventListener("keydown", e => {
 // QRT CREATION vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
 Project.add("QRt #" + Project.list.length, {
-	version: 34,
+	version: 20,
 	ecdepth: Controls.errcor.value,
 	masktype: Controls.mask.value,
-	datatype: Controls.datatype.value,
+	datatype: 7, // Controls.datatype.value
 	maskApplication: Controls.maskApplication.value
 });
 
@@ -270,7 +256,6 @@ Controls.project.add(newTabInput);
 let datablocksmap;
 
 window.onload = () => {
-	new CWMap(Project.current.qrt);
 	// DBMChars.init(document.getElementById("decoded"), document.getElementById("decoded").parentElement.parentElement);
 	// new DBMPolygons(
 	// 	"",

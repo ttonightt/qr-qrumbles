@@ -22,7 +22,7 @@
 				</div>
 				<div class="btn">Create</div>
 			</div>
-			<form id="new-prj-version">
+			<form class="flagged" id="new-prj-version">
 				<input type="radio" name="version" id="vrs-40">
 				<label for="vrs-40">x177</label>
 				<input type="radio" name="version" id="vrs-34" checked>
@@ -43,7 +43,7 @@
 				</div>
 				<div class="btn" id="save-proj-btn">Save</div>
 			</div>
-			<form id="saving-prj-format">
+			<form class="flagged" id="saving-prj-format">
 				<input type="radio" name="format" id="frm-tqrt" value=".tqrt" checked>
 				<label for="frm-tqrt">.tqrt</label>
 				<!-- <input type="radio" name="format" id="frm-bmp">
@@ -236,7 +236,9 @@
 
 			<div class="bottombar controls-table">
 				<div class="decoded-wrap">
-					<div id="decoded"></div>
+					<div id="charmap-textarea">
+						<!-- <i>|</i><p class="double" encoding="Alphanum">WORLD:HELLO WORDS:H</p><i>|</i><p encoding="Win1251">elloҐї&nbsp;World!</p><p class="triple" encoding="Num">0128081238164512621128312736182645124851725467152745716</p> -->
+					</div>
 				</div>
 			</div>
 		</aside>
@@ -248,8 +250,9 @@
 	<script src="js/tables.js"></script>
 	<script src="js/file-saver-reader.js"></script>
 	<script src="js/controls.js"></script>
+	<script src="js/cws-gui.js"></script> <!-- MUST BE AFTER THE QRT.JS!!!!! -->
+	<script src="js/cwrd.js"></script>
 	<script src="js/qrt.js"></script>
-	<script src="js/cws-gui.js"></script>
 	<script src="js/source.js"></script>
 </body>
 </html>
