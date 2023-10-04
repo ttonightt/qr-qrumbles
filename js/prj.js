@@ -330,7 +330,7 @@ class Project {
 			},
 			{
 				encoding: "Num",
-				chars: "Hello WOrldDDx*&6:]]Hell  WOrldDDx*&6:]]Hello WOrldDDx*&6:]]"
+				chars: "Hello WOrldDDx*&6:]]Hell  WOrldDDx*&6:]]Hel¶lo WOrldDDx*&6:]]"
 			},
 			{
 				encoding: "Win1251",
@@ -342,7 +342,7 @@ class Project {
 			},
 			{
 				encoding: "Latin2",
-				chars: "Hello WOrldDDx12***&;6:]]Hello WOrldDDx*&6:]]Hello WOrlAD"
+				chars: "Hello WOrldDDx12***&;6:]]Hello WOrldDDx*&6:]]Hello WOrlADfhajshdfakfashfdkahsfk"
 			},
 			{
 				encoding: "Num",

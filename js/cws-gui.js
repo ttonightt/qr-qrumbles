@@ -2,11 +2,12 @@
 class Charmap {
 	static markup;
 	static textarea;
-	static block = [];
+	static ps;
 	static grabberLeft;
 	static grabberRight;
 
 	static init (markup, textarea) {
+		this.ps = [];
 		this.markup = markup;
 		this.textarea = textarea;
 		this.__x = this.textarea.getBoundingClientRect().x;
@@ -23,35 +24,180 @@ class Charmap {
 		this.grabberLeft = document.createElement("i");
 		this.grabberRight = document.createElement("i");
 
-		let grabber, lim, _pos, pos, _textContent;
+		let grabber, offset, _offset = 0, _textContent, i, maxi;
+
+		Charmap.grabberLeft.onmousedown = () => {
+			grabber = 1;
+
+			_textContent = Charmap.textarea.textContent;
+			maxi = this.__focused.childIndex;
+
+			Charmap.textarea.classList.add("disabled");
+		};
 
 		Charmap.grabberRight.onmousedown = () => {
 			grabber = 2;
-			lim = Math.floor((Charmap.grabberLeft.offsetLeft + 3) / this.letterWidth) + (Math.ceil((Charmap.grabberLeft.offsetTop - 1) / this.letterHeight) * this.columns);
-			_pos = Math.floor((Charmap.grabberRight.offsetLeft + 3) / this.letterWidth) + (Math.ceil((Charmap.grabberRight.offsetTop - 1) / this.letterHeight) * this.columns);
-			// console.log(lim);
-			// console.log(_pos);
 
-			_textContent = Charmap.textarea.textContent.slice(lim);
+			_textContent = Charmap.textarea.textContent;
+			maxi = this.__focused.childIndex;
 
-			console.log(_textContent);
+			Charmap.textarea.classList.add("disabled");
 		};
 		
 		Charmap.textarea.onmousemove = e => {
-			if (grabber === 2) {
-				pos = Math.floor((e.clientX - this.__x) / this.letterWidth) + (Math.floor((e.clientY - this.__y) / this.letterHeight) * this.columns);
-				// console.log(pos);
-				Charmap.grabberRight.previousElementSibling.textContent = _textContent.slice(0, pos - lim);
-				Charmap.grabberRight.nextElementSibling.textContent = _textContent.slice(0, pos - lim);
+
+			if (grabber === 0) return;
+
+			offset = Math.floor((e.clientX - this.__x) / this.letterWidth) + (Math.floor((e.clientY - this.__y) / this.letterHeight) * this.columns);
+
+			if (offset - _offset === 0) return;
+
+			offset = Math.min(offset, this.ps.last.textEndOffset);
+
+			if (Charmap.__mode) {
+				if (grabber === 2) {
+
+					if (offset <= this.__focused.textOffset) {
+						offset = this.__focused.textOffset + 1;
+					}
+
+					if (_offset < offset) {
+
+						for (i = this.__focused.childIndex + 1; this.ps[i].textEndOffset < offset; i++) {
+
+							this.ps[i].textContent = "";
+						}
+
+						maxi = i;
+					} else {
+
+						for (i = maxi; this.ps[i].textOffset > offset; i--) {
+	
+							this.ps[i].textContent = _textContent.slice(this.ps[i].textOffset, this.ps[i].textEndOffset);
+						}
+					}
+
+					if (i === this.__focused.childIndex) {
+
+						this.ps[i + 1].textContent = _textContent.slice(offset, this.ps[i + 1].textEndOffset);
+					} else {
+
+						this.ps[i].textContent = _textContent.slice(offset, this.ps[i].textEndOffset);
+					}
+
+					this.__focused.textContent = _textContent.slice(this.__focused.textOffset, offset);
+					
+				} else if (grabber === 1) {
+
+					if (offset >= this.__focused.textEndOffset) {
+						offset = this.__focused.textEndOffset - 1;
+					}
+
+					if (_offset > offset) {
+
+						for (i = maxi; this.ps[i].textEndOffset < offset; i++) {
+
+							this.ps[i].textContent = _textContent.slice(this.ps[i].textOffset, this.ps[i].textEndOffset);
+						}
+
+					} else {
+
+						for (i = this.__focused.childIndex - 1; this.ps[i].textOffset > offset; i--) {
+
+							this.ps[i].textContent = "";
+						}
+
+						maxi = i;
+					}
+
+					if (i === this.__focused.childIndex) {
+
+						this.ps[i - 1].textContent = _textContent.slice(this.ps[i - 1].textOffset, offset);
+					} else {
+
+						this.ps[i].textContent = _textContent.slice(this.ps[i].textOffset, offset);
+					}
+
+					this.__focused.textContent = _textContent.slice(offset, this.__focused.textEndOffset);
+				}
+			} else {
+				if (grabber === 2) {
+
+					if (offset <= this.__focused.textOffset) {
+						offset = this.__focused.textOffset + 1;
+					}
+
+					if (_offset < offset) {
+
+						for (i = this.ps.length - 1; this.ps[i].textOffset + (offset - this.__focused.textEndOffset) > this.ps.last.textEndOffset; i--) {
+
+							this.ps[i].textContent = "";
+						}
+
+						maxi = i;
+					} else {
+
+						if (offset < this.__focused.textEndOffset) {
+
+							this.ps.last.textContent
+
+						} else {
+							for (i = maxi; this.ps[i].textEndOffset + (offset - this.__focused.textEndOffset) < this.ps.last.textEndOffset; i++) {
+
+								this.ps[i].textContent = _textContent.slice(this.ps[i].textOffset, this.ps[i].textEndOffset);
+							}
+						}
+					}
+
+					if (offset < this.__focused.textEndOffset) {
+
+						this.ps[i].textContent = _textContent.slice(this.ps[i].textOffset, this.ps.last.textEndOffset) + " ".repeat(this.__focused.textEndOffset - offset);
+
+						this.__focused.textContent = _textContent.slice(this.__focused.textOffset, offset);
+					} else {
+						this.ps[i].textContent = _textContent.slice(this.ps[i].textOffset, this.ps.last.textEndOffset - (offset - this.__focused.textEndOffset));
+
+						this.__focused.textContent = _textContent.slice(this.__focused.textOffset, this.__focused.textEndOffset) + " ".repeat(offset - this.__focused.textEndOffset);
+					}
+					
+				} else if (grabber === 1) {
+
+				}
 			}
+
+			_offset = offset;
 		};
 
 		window.addEventListener("mouseup", () => {
-			grabber = 0;
+			if (grabber) {
+				grabber = 0;
+	
+				Charmap.textarea.classList.remove("disabled");
+			} else {
+				Charmap.grabberLeft.remove();
+				Charmap.grabberRight.remove();
+			}
 		});
 	}
 
-	constructor (data) {
+	static rescan () {
+		// for (let i = 0; i < ) {
+
+		// }
+	}
+
+	static __mode = 0;
+
+	static set mode (value) {
+		switch (value) {
+			case 0: case 1:
+				this.__mode = value;
+				this.textarea.classList.toggle("ins");
+		}
+	}
+
+	constructor (data, length) {
+		this.length = length;
 		this.restructure(data);
 
 		// Charmap.textarea.append(Charmap.grabberLeft, Charmap.ps[0], Charmap.grabberRight);
@@ -60,35 +206,49 @@ class Charmap {
 	restructure (dblocks) {
 		if (!(dblocks instanceof Array)) throw new Error("..."); // <<<
 
-		if (Charmap.block.length < dblocks.length) {
-			for (let i = Charmap.block.length; i < dblocks.length; i++) {
-				Charmap.block[i] = {
-					p: document.createElement("p")
+		if (Charmap.ps.length < dblocks.length) {
+
+			for (let i = Charmap.ps.length; i < dblocks.length; i++) {
+				Charmap.ps[i] = document.createElement("p");
+
+				Charmap.ps[i].onclick = () => {
+					Charmap.__focused = Charmap.ps[i];
+	
+					Charmap.ps[i].before(Charmap.grabberLeft);
+					Charmap.ps[i].after(Charmap.grabberRight);
+					Charmap.grabberLeft.textOffset = Charmap.ps[i].textOffset;
+					Charmap.grabberRight.textOffset = Charmap.ps[i].textOffset + Charmap.ps[i].textContent.length;
 				};
 			}
-		} else if (Charmap.block.length > dblocks.length) Charmap.block.splice(dblocks.length, Charmap.block.length - dblocks.length);
 
-		let len = 0;
+		} else if (Charmap.ps.length > dblocks.length) Charmap.ps.splice(dblocks.length, Charmap.ps.length - dblocks.length);
 
-		for (let i = 0; i < dblocks.length; i++) {
+		let len = 0, i;
 
-			Charmap.block[i].p.textContent = dblocks[i].chars;
+		this.length = 0;
+
+		for (i = 0; i < dblocks.length; i++) {
+
+			Charmap.ps[i].textContent = dblocks[i].chars;
+			this.length += dblocks[i].chars.length;
+
+			Charmap.ps[i].childIndex = i;
+
+			Charmap.ps[i].textOffset = len;
 
 			len += dblocks[i].chars.length;
 
-			Charmap.block[i].p.setAttribute("encoding", dblocks[i].encoding);
+			Charmap.ps[i].textEndOffset = len;
 
-			Charmap.block[i].p.onclick = () => {
-				Charmap.block[i].p.before(Charmap.grabberLeft);
-				Charmap.block[i].p.after(Charmap.grabberRight);
-			};
+			Charmap.ps[i].setAttribute("encoding", dblocks[i].encoding);
 
-			Charmap.textarea.appendChild(Charmap.block[i].p);
-
-			if (Charmap.textarea.textContent.length % Charmap.columns === 0) {
-				Charmap.textarea.appendChild(document.createElement("wbr"));
-			}
+			Charmap.textarea.appendChild(Charmap.ps[i]);
 		}
+
+		// const pad = document.createElement("p");
+		// pad.textContent = "1230710ba178def1237f13b1a3e138763a124921764812467612743187264981796481247124671628468162468686";
+		// pad.setAttribute("encoding", "Term");
+		// Charmap.textarea.appendChild(pad);
 	}
 }
 

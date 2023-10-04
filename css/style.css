@@ -420,6 +420,7 @@ aside .decoded-wrap {
 	background-image: linear-gradient(45deg, #3a2649 25%, transparent 25%), linear-gradient(-45deg, #3a2649 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #3a2649 75%), linear-gradient(-45deg, transparent 75%, #3a2649 75%);
 	background-size: 6px 6px, 6px 6px, 6px 6px, 6px 6px;
 	background-position: 0px 0px, 0px 3px, 3px -3px, -3px 0px;
+	align-self: flex-start;
 }
 
 #charmap-textarea {
@@ -438,6 +439,15 @@ aside .decoded-wrap {
 	line-height: 27px;
 	font-weight: 600;
 	font-family: "Ubuntu Mono";
+	word-break: break-all;
+	word-wrap: break-word;
+	white-space: break-spaces;
+	line-break: anywhere;
+}
+
+#charmap-textarea.disabled > * {
+	user-select: none;
+	cursor: col-resize;
 }
 
 #charmap-textarea p {
@@ -446,16 +456,12 @@ aside .decoded-wrap {
 	background-image: linear-gradient(90deg, #3a2649 1ch, #2d1f38 1ch);
 	background-size: 2ch 100%;
 	background-repeat: repeat-x;
-	word-break: break-all;
-	word-wrap: break-word;
-	white-space: break-spaces;
-	line-break: anywhere;
 	cursor: pointer;
 }
 
-#charmap-textarea p:last-of-type {
+/* #charmap-textarea p:last-of-type {
 	box-shadow: 1px 1px 0px 1px #482f5c;
-}
+} */
 
 #charmap-textarea p:empty {
 	display: none;
@@ -493,13 +499,17 @@ aside .decoded-wrap {
 	pointer-events: none;
 }
 
-#charmap-textarea p:hover::after {
+#charmap-textarea:not(.disabled) p:hover::after {
 	text-shadow: 0px -2em 0px #eca99d;
 }
 
 #charmap-textarea p:first-of-type::after {
 	left: 0px;
 	border: none;
+}
+
+#charmap-textarea:not(.disabled) p:hover {
+	box-shadow: inset 0px 0px 0px 1em #eca99d2d;
 }
 
 #charmap-textarea wbr + p::after, #charmap-textarea wbr + i + p::after {
@@ -518,21 +528,15 @@ aside .decoded-wrap {
 	word-wrap: normal;
 }
 
-#charmap-textarea wbr + i + p:hover::before {
+#charmap-textarea:not(.disabled) wbr + i + p:hover::before {
 	text-shadow: 0px -2em 0px #eca99d;
 }
 
-#charmap-textarea p:hover {
-	color: #eca99d;
-	/* z-index: 2;
-	box-shadow: 1px 1px 0px 1px #eca99d; */
-}	
-
-#charmap-textarea p:hover::before {
-	display: block;
+#charmap-textarea p[encoding=Term] {
+	opacity: 0.5;
 }
 
-#charmap-textarea p[encoding=Alphanum] {
+#charmap-textarea p[encoding=Alphanum], #charmap-textarea p[encoding=Term] {
 	background-image: linear-gradient(90deg, #3a2649 2ch, #2d1f38 2ch);
 	background-size: 4ch 100%;
 }
@@ -553,8 +557,16 @@ aside .decoded-wrap {
 	cursor: col-resize;
 }
 
+#charmap-textarea.ins i {
+	background-color: transparent;
+}
+
 #charmap-textarea i:first-of-type {
 	box-shadow: inset -1px 0px 0px 2px #eca99d, inset 0px 6px 0px #eca99d, inset 0px -6px 0px #eca99d;
+}
+
+#charmap-textarea.ins i:first-of-type {
+	box-shadow: inset 2px 0px 0px 2px #eca99d, inset 0px 6px 0px #eca99d, inset 0px -6px 0px #eca99d;
 }
 
 #charmap-textarea i:first-of-type::before {
@@ -568,6 +580,10 @@ aside .decoded-wrap {
 	box-shadow: inset 1px 0px 0px 2px #eca99d, inset 0px 6px 0px #eca99d, inset 0px -6px 0px #eca99d;
 }
 
+#charmap-textarea.ins i:last-of-type {
+	box-shadow: inset -2px 0px 0px 2px #eca99d, inset 0px 6px 0px #eca99d, inset 0px -6px 0px #eca99d;
+}
+
 #charmap-textarea i:last-of-type::after {
 	content: "";
 	position: absolute;
@@ -579,8 +595,17 @@ aside .decoded-wrap {
 	display: none;
 }
 
+#charmap-textarea.disabled i {
+	pointer-events: none;
+}
+
 #charmap-textarea i:first-of-type + p {
-	box-shadow: inset 0px 0px 0px 1em #eca99d42;
+	box-shadow: inset 0px 0px 0px 1em #eca99d2d;
+	cursor: grab;
+}
+
+#charmap-textarea:not(.disabled) i:first-of-type + p:hover {
+	box-shadow: inset 0px 0px 0px 1em #eca99d54;
 }
 
 #charmap-textarea input {

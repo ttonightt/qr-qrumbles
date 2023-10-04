@@ -160,6 +160,10 @@ Controls.maskApplication = new Controls.RadioBoxForm("mask-overlay", "mskover", 
 	Project.current.qrt.updateCanvas(new Rect8(0, 0, 255, 255));
 }, false);
 
+const Keybindings = {
+	ins: false,
+};
+
 document.addEventListener("keydown", e => {
 	if (e.ctrlKey) {
 		switch (e.key) {
@@ -202,9 +206,8 @@ document.addEventListener("keydown", e => {
 
 	// console.log(e.keyCode);
 
-	if (e.keyCode === 45) { // INS
-		DBMChars.toggleTypingMode();
-		datablocksmap.ichars.input.selecti(0, 1);
+	if (e.key === "Insert") {
+		Charmap.mode = Charmap.mode ^ 1;
 
 		OneTitle.show(
 			document.documentElement.clientWidth / 2,
