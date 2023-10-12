@@ -67,7 +67,7 @@
 			<h1>Edit</h1>
 			<div class="content controls-table">
 
-				<form id="mask" class="btn-container wide" content="Mask pattern">
+				<form id="mask" class="cassette-switch wide" content="Mask pattern">
 					<input type="radio" name="mask" id="mask-var-0" value="0">
 					<label for="mask-var-0"><img class="red-to-eca99d" src="img/m0.png" alt="0"></label>
 
@@ -93,7 +93,7 @@
 					<label for="mask-var-7"><img class="red-to-eca99d" src="img/m7.png" alt="7"></label>
 				</form>
 
-				<form id="errcor" class="btn-container" content="Error correction, %">
+				<form id="errcor" class="cassette-switch" content="Error correction, %">
 					<input type="radio" name="errcor" id="errcor-0" value="L" checked>
 					<label for="errcor-0">7</label>
 
@@ -107,7 +107,7 @@
 					<label for="errcor-3">30</label>
 				</form>
 
-				<form id="datatype" class="btn-container" content="Data type">
+				<form id="datatype" class="cassette-switch" content="Data type">
 					<input type="radio" name="dtype" id="dtype-2" value="A">
 					<label for="dtype-2">A</label>
 
@@ -169,75 +169,159 @@
 				<label for="select-tool"><img class="red-to-150f1a" src="img/select-tool.png"></label> -->
 			</form>
 
-			<div class="topbar controls-table">
+			<section class="topbar controls-table">
 				<input type="checkbox" name="toinvert" id="toinvert">
-				<label class="btn" for="toinvert">I</label>
+				<label class="btn square" for="toinvert">I</label>
 
 				<input type="checkbox" name="topreview" id="topreview">
 				<label class="btn" for="topreview">Pre.</label>
 
-				<button id="rotate-workbench-right" class="btn"><img class="red-to-150f1a" src="img/circle-arrow-clockwise.png"></button>
-				<button id="rotate-workbench-left" class="btn"><img class="red-to-150f1a" src="img/circle-arrow-reversewise.png"></button>
+				<button id="rotate-workbench-right" class="square"><img class="red-to-150f1a" src="img/circle-arrow-clockwise.png" width="18px"></button>
+				<button id="rotate-workbench-left" class="square"><img class="red-to-150f1a" src="img/circle-arrow-reversewise.png" width="18px"></button>
 
-				<form id="mask-overlay" class="btn-container switcher" content="Mask overlay">
+				<form id="mask-overlay" class="cassette-switch highlight compact" content="Mask overlay">
 					<input type="radio" name="mskover" id="mskover-var-0" value="0">
 					<label for="mskover-var-0">0</label>
-
-					<!-- <input type="radio" name="mskover" id="mskover-var-1" value="1">
-					<label for="mskover-var-1">A</label> -->
 
 					<input type="radio" name="mskover" id="mskover-var-2" value="2" checked>
 					<label for="mskover-var-2">X</label>
 				</form>
 
-				<form id="datablock-overlay" class="btn-container switcher" content="Db map overlay.">
-					<input type="radio" name="dtbmapover" id="dtbmapover-var-0" value="0" checked>
+				<form id="datablock-overlay" class="cassette-switch highlight compact" content="Db map overlay.">
+					<input type="radio" name="dtbmapover" id="dtbmapover-var-0" value="0" checked disabled>
 					<label for="dtbmapover-var-0">0</label>
 
-					<input type="radio" name="dtbmapover" id="dtbmapover-var-1" value="1">
+					<input type="radio" name="dtbmapover" id="dtbmapover-var-1" value="1" disabled>
 					<label for="dtbmapover-var-1">V</label>
 
-					<input type="radio" name="dtbmapover" id="dtbmapover-var-2" value="2">
+					<input type="radio" name="dtbmapover" id="dtbmapover-var-2" value="2" disabled>
 					<label for="dtbmapover-var-2">C</label>
 				</form>
-			</div>
+			</section>
 
-			<div class="controls-table">
-				<div id="ec-encode-controller" class="btn-container fl1">
+			<section class="middlebar controls-table">
+				<div id="ec-encode-controller" class="cassette-switch">
 					<input type="button" name="ec" id="ec-toencode">
-					<label for="ec-toencode">Enc. EC</label>
+					<label for="ec-toencode"><img class="red-to-150f1a" src="img/ec-bits.png" alt="A" width="18px"></label>
 
 					<input type="checkbox" name="ec" id="ec-toencode-auto">
 					<label for="ec-toencode-auto">Auto</label>
 				</div>
 
-				<div id="update-controller" class="btn-container">
+				<div id="update-controller" class="cassette-switch">
 					<input type="button" name="updatectrl" id="updatectrl-tocanv">
-					<label for="updatectrl-tocanv"><img class="red-to-150f1a" src="img/arrow-up-with-base.png" alt="A"></label>
+					<label for="updatectrl-tocanv"><img class="red-to-150f1a" src="img/arrow-up-with-base.png" alt="A" width="18px"></label>
 
 					<input type="checkbox" name="updatectrl" id="updatectrl-tocanv-auto">
 					<label for="updatectrl-tocanv-auto">Auto</label>
 				</div>
 
-				<div id="update-controller" class="btn-container">
+				<div id="update-controller" class="cassette-switch">
 					<input type="button" name="updatectrl" id="updatectrl-fromcanv">
-					<label for="updatectrl-fromcanv"><img class="red-to-150f1a" src="img/arrow-down-with-base.png" alt="A"></label>
+					<label for="updatectrl-fromcanv"><img class="red-to-150f1a" src="img/arrow-down-with-base.png" alt="A" width="18px"></label>
 
 					<input type="checkbox" name="updatectrl" id="updatectrl-fromcanv-auto">
 					<label for="updatectrl-fromcanv-auto">Auto</label>
 				</div>
-			</div>
+			</section>
 
-			<div class="bottombar controls-table">
-				<!-- <button class="btn" id="charmap-mode">Arrange encodings</button> -->
+			<section class="bottombar controls-table">
+
+				<button id="charmap-mode" class="static-color"></button>
+
 				<div class="decoded-wrap">
 					<div id="charmap-textarea">
 						<!-- <i>|</i><p class="double" encoding="Alphanum">WORLD:HELLO WORDS:H</p><i>|</i><p encoding="Win1251">elloҐї&nbsp;World!</p><p class="triple" encoding="Num">0128081238164512621128312736182645124851725467152745716</p> -->
 					</div>
 				</div>
-			</div>
+
+				<div class="markup-controller">
+
+					<div class="btn">+</div>
+
+					<div class="cassette-switch">
+						<button>NUM</button>
+	
+						<input type="text" id="charcode" maxlength="4" pattern="" placeholder="xxxx">
+	
+						<button>
+							<img src="img/tridown.png" class="red-to-150f1a" height="12px">
+						</button>
+					</div>
+
+					<div class="btn">Cancel</div>
+				</div>
+			</section>
 		</aside>
 	</div>
+
+	<!-- <div class="chartable">
+		<div class="closer">></div>
+		<table cellspacing="0" cellpadding="0">
+			<colgroup>
+				<col span="1">
+				<col span="1" class="selected">
+				<col span="1">
+				<col span="1">
+				<col span="1">
+				<col span="1">
+			</colgroup>
+			<tbody>
+				<tr>
+					<td></td>
+					<td>Code</td>
+					<td><label for="chartable-col1" class="vertical"><mark>HarmonyOS</mark> default QR-scanner</label></td>
+					<td><label for="chartable-col2" class="vertical"><mark>iOS</mark> Camera</label></td>
+					<td><label for="chartable-col3" class="vertical"><mark>labelure Android</mark> Default QR-Scanner</label></td>
+					<td><label for="chartable-col4" class="vertical"><mark>MIUI</mark> Default QR-Scanner</label></td>
+				</tr>
+				<tr>
+					<td>a</td>
+					<td>a0</td>
+					<td>\t</td>
+					<td></td>
+					<td></td>
+					<td></td>
+				</tr>
+				<tr>
+					<td></td>
+					<td>a1</td>
+					<td>.</td>
+					<td>!</td>
+					<td>?</td>
+					<td>\n</td>
+				</tr>
+				<tr class="group">
+					<td>
+						<p>Ї</p>
+						<p>Ґ</p>
+					</td>
+					<td>
+						<p>a3</p>
+						<p>b4</p>
+					</td>
+					<td></td>
+					<td>
+						\t
+					</td>
+					<td>
+						\n
+					</td>
+					<td>
+						!
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div> -->
+
+	<menu>
+		<h1>Encoding</h1>
+		<li>Latin-1</li>
+		<li>Latin-2</li>
+		<li>Windows-1250</li>
+		<li>Windows-1251</li>
+	</menu>
 
 	<script src="js/tiny-usefuls.js"></script>
 	<script src="js/history.js"></script>

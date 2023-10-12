@@ -1,7 +1,8 @@
+"use strict";
+
 const canvas = document.getElementById("main");
 
 // CWMap.init(document.getElementById("map"));
-Charmap.init(document.getElementById("charmap-markup"), document.getElementById("charmap-textarea"));
 
 QRT.init(canvas);
 
@@ -160,6 +161,14 @@ Controls.maskApplication = new Controls.RadioBoxForm("mask-overlay", "mskover", 
 	Project.current.qrt.updateCanvas(new Rect8(0, 0, 255, 255));
 }, false);
 
+Controls.charmapMode = new Controls.Button("charmap-mode", () => {
+	Controls.charmapMode.value ^= 1;
+	Controls.charmapMode.elem.textContent = Controls.charmapMode.value ? "Edit Chars" : "Edit Data Markup";
+});
+
+Controls.charmapMode.value = 0;
+Controls.charmapMode.elem.textContent = "Edit Data Markup";
+
 const Keybindings = {
 	ins: false,
 };
@@ -209,12 +218,12 @@ document.addEventListener("keydown", e => {
 	if (e.key === "Insert") {
 		Charmap.mode = Charmap.mode ^ 1;
 
-		OneTitle.show(
-			document.documentElement.clientWidth / 2,
-			20,
-			"Edit typing mode is " + (DBMChars.typingMode ? "on" : "off"),
-			{pivot: 3, timeOut: 2000}
-		);
+		// OneTitle.show(
+		// 	document.documentElement.clientWidth / 2,
+		// 	20,
+		// 	"Edit typing mode is " + (DBMChars.typingMode ? "on" : "off"),
+		// 	{pivot: 3, timeOut: 2000}
+		// );
 	} else if (e.keyCode === 9) { // TAB
 		if (!datablocksmap.ichars.input.focused) e.preventDefault();
 		datablocksmap.ichars.input.focus();
@@ -226,47 +235,39 @@ document.addEventListener("keydown", e => {
 
 // QRT CREATION vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
-Project.add("QRt #" + Project.list.length, {
-	version: 20,
-	ecdepth: Controls.errcor.value,
-	masktype: Controls.mask.value,
-	datatype: 7, // Controls.datatype.value
-	maskApplication: Controls.maskApplication.value
+window.addEventListener("load", () => {
+	Charmap.init(document.getElementById("charmap-markup"), document.getElementById("charmap-textarea"));
+
+	Project.add("QRt #" + Project.list.length, {
+		version: 20,
+		ecdepth: Controls.errcor.value,
+		masktype: Controls.mask.value,
+		datatype: 7, // Controls.datatype.value
+		maskApplication: Controls.maskApplication.value
+	});
 });
 
-const newTabInput = document.createElement("input");
+// const newTabInput = document.createElement("input");
 
-newTabInput.id = "proj-" + Project.current.name;
-newTabInput.value = Project.current.name;
-newTabInput.name = "project-tab";
-newTabInput.type = "radio";
+// newTabInput.id = "proj-" + Project.current.name;
+// newTabInput.value = Project.current.name;
+// newTabInput.name = "project-tab";
+// newTabInput.type = "radio";
 
-new Promise(resolve => {
-	resolve(
-		document.getElementById("project-tabs").appendChild(newTabInput)
-	);
-}).then(() => {
-	const newTabLabel = document.createElement("label");
+// new Promise(resolve => {
+// 	resolve(
+// 		document.getElementById("project-tabs").appendChild(newTabInput)
+// 	);
+// }).then(() => {
+// 	const newTabLabel = document.createElement("label");
 
-	newTabInput.checked = true;
-	newTabLabel.insertAdjacentHTML("beforeend", `${Project.current.name}<i class="closer">x</i>`);
-	newTabLabel.setAttribute("for", newTabInput.id);
-	document.getElementById("project-tabs").appendChild(newTabLabel);
-});
+// 	newTabInput.checked = true;
+// 	newTabLabel.insertAdjacentHTML("beforeend", `${Project.current.name}<i class="closer">x</i>`);
+// 	newTabLabel.setAttribute("for", newTabInput.id);
+// 	document.getElementById("project-tabs").appendChild(newTabLabel);
+// });
 
-Controls.project.add(newTabInput);
-
-let datablocksmap;
-
-window.onload = () => {
-	// DBMChars.init(document.getElementById("decoded"), document.getElementById("decoded").parentElement.parentElement);
-	// new DBMPolygons(
-	// 	"",
-	// 	2,
-	// 	QRT.current.info
-	// );
-	// new DBMChars();
-};
+// Controls.project.add(newTabInput);
 
 // window.onbeforeunload = e => {
 // 	return e.returnValue;

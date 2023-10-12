@@ -330,7 +330,7 @@ class Project {
 			},
 			{
 				encoding: "Num",
-				chars: "Hello WOrldDDx*&6:]]Hell  WOrldDDx*&6:]]Hel¶lo WOrldDDx*&6:]]"
+				chars: " Hello WOrldDDx*&6:]]Hell  WOrldDDx*&6:]]Hel¶lo WOrldDDx*&6:]]"
 			},
 			{
 				encoding: "Win1251",
@@ -342,12 +342,20 @@ class Project {
 			},
 			{
 				encoding: "Latin2",
-				chars: "Hello WOrldDDx12***&;6:]]Hello WOrldDDx*&6:]]Hello WOrlADfhajshdfakfashfdkahsfk"
+				chars: "Hello WOrldDDx12***&;6:]]Hello WOrldDDx*&6:]]Hello WOrlADfhajshdfakfashfdkahsffwaegwe"
 			},
 			{
 				encoding: "Num",
-				chars: "0000210391281401202000023850285308200082350828571282488388382488247712737727471241241480120"
-			}
+				chars: "000021039128140120200002385028530820123145215126163165145134324124123215126141241209128512051240040"
+			},
+			{
+				encoding: "Num",
+				chars: "1241"
+			},
+			// {
+			// 	encoding: "Latin2",
+			// 	chars: "Hello WOrldDDx12***&;6:]]Hello WOrldDDx*&6:]]Hello WOrlADfhajshdfakfashfdkahsfkgdfgs"
+			// }
 		]; // CodewordArray.decode(this.qrt.scanDataFrom())
 
 		// this.box = new ScalableBox(

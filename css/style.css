@@ -71,6 +71,8 @@ header ul.actions li {
 	padding: 2px 7px 2px 10px;
 	background-color: #e6bdb6;
 	color: #1a0f0c;
+	font-size: 23px;
+	letter-spacing: 0.5px;
 	text-shadow: 3px 0px #eca99d;
 	cursor: pointer;
 }
@@ -353,7 +355,6 @@ aside #tools input:not(:disabled) + label:hover:before {
 
 aside #tools label img {
 	height: 100%;
-	image-rendering: crisp-edges;
 }
 
 aside #tools input:checked + label {
@@ -379,53 +380,59 @@ aside .topbar, aside .topbar + * {
 	border-bottom: 3px dotted #74548d;
 }
 
-aside #rotate-workbench-right img,
-aside #rotate-workbench-left img {
-	width: 15px;
-	image-rendering: crisp-edges;
-}
-
 aside .topbar input[type=checkbox]:checked + label {
 	top: 6px;
 	box-shadow: inset 0px 3px 0px #25192e, 6px 0px 0px #eca99d, -6px 0px 0px #eca99d, 0px 0px 0px 3px #eca99d;
 }
 
-aside .bottombar {
-	flex-grow: 1;
-	padding: 20px;
-	overflow: scroll;
+aside .middlebar {
+	justify-content: space-around;
 }
 
-aside #ec-encode-controller label {
-	line-height: 33px;
-}
-
-aside #update-controller label {
-	line-height: 33px;
-}
-
-aside #update-controller input[type=button] + label {
+aside .middlebar .cassette-switch {
 	flex-grow: 0;
 }
 
-aside #update-controller label img {
-	width: 21px;
-	image-rendering: crisp-edges;
+aside .bottombar {
+	flex-grow: 1;
+	flex-shrink: 1;
+	flex-wrap: nowrap;
+	padding: 20px;
+	flex-direction: column;
+	align-items: stretch;
+	overflow: hidden;
+}
+
+aside .bottombar form {
+	padding: 0px 6px;
+}
+
+aside .bottombar form input:checked + label {
+	z-index: 1;
 }
 
 aside .decoded-wrap {
-	width: 100%;
+	flex-grow: 1;
 	margin: -3px;
 	padding: 6px;
+	justify-self: stretch;
 	background-image: linear-gradient(45deg, #3a2649 25%, transparent 25%), linear-gradient(-45deg, #3a2649 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #3a2649 75%), linear-gradient(-45deg, transparent 75%, #3a2649 75%);
 	background-size: 6px 6px, 6px 6px, 6px 6px, 6px 6px;
 	background-position: 0px 0px, 0px 3px, 3px -3px, -3px 0px;
-	align-self: flex-start;
+	scrollbar-width: none;
+	overflow-y: scroll;
 }
+
+/* aside .decoded-wrap form {
+	position: absolute;
+	left: 0px;
+	bottom: 100%;
+} */
 
 #charmap-textarea {
 	width: var(--textarea-width);
 	overflow-x: clip;
+	/* overflow-y: scroll; */
 	float: left;
 }
 
@@ -447,7 +454,7 @@ aside .decoded-wrap {
 
 #charmap-textarea.disabled > * {
 	user-select: none;
-	cursor: col-resize;
+	cursor: col-resize !important;
 }
 
 #charmap-textarea p {
@@ -608,6 +615,19 @@ aside .decoded-wrap {
 	box-shadow: inset 0px 0px 0px 1em #eca99d54;
 }
 
+#charmap-textarea b {
+	display: none;
+	font-weight: 600;
+}
+
+#charmap-textarea.disabled b {
+	display: initial;
+}
+
+#charmap-textarea p::selection {
+	background-color: #eca99d;
+}
+
 #charmap-textarea input {
 	display: inline;
 	width: 1ch;
@@ -637,22 +657,168 @@ aside .decoded-wrap {
 	color: #150f1a;
 }
 
-#charmap-textarea input.big {
-	position: absolute;
-	width: 5ch;
-	margin-left: calc(-2ch - 3px);
-	background-color: #3a2649;
-	margin-top: -1.5em;
-	padding: 3px;
-	color: #eca99d;
-
-	box-shadow: 0px 0px 0px 1px #eca99d;
+.bottombar .markup-controller {
+	display: flex;
+	gap: 1.4em;
 }
 
-/* #charmap-textarea input.big:focus {
-	width: auto;
+.bottombar .cassette-switch button:first-child {
+	writing-mode: vertical-lr;
+	width: 1em;
+	height: unset;
+	align-self: stretch;
+	font-family: pixeloid;
+	text-align: center;
+	font-size: 1rem;
+}
+
+.bottombar .cassette-switch input {
+	min-width: 4ch;
+}
+
+.bottombar .cassette-switch button { 
+	padding-left: 0.25em;
+	padding-right: 0.25em;
+}
+
+menu {
+	position: fixed;
+	top: 200px;
+	left: 300px;
+	background-color: #e6bdb6;
+	font-size: 16px;
+	padding: 0px 0px 3px 0px;
+}
+
+menu::before {
+	content: "";
+	position: absolute;
+	inset: 3px 100% 3px -3px;
+	background-color: #e6bdb6;
+}
+
+menu::after {
+	content: "";
+	position: absolute;
+	inset: 3px -3px 0px 100%;
+	background-color: #e6bdb6;
+}
+
+menu h1 {
+	z-index: 1;
+	font-size: 1em;
+	font-family: "Ubuntu Mono";
+	line-height: 1.2em;
 	padding: 3px;
-	background-color: #2d1f38;
-	color: #eca99d;
-	margin: 0px calc(-4px - 3ch);
-} */
+	color: #fff0ee;
+	background-color: #eca99d;
+	box-shadow: 4.5px 1.5px 0px -1.5px #eca99d, -4.5px 1.5px 0px -1.5px #eca99d;
+	margin-bottom: 3px;
+}
+
+menu li {
+	list-style: none;
+	line-height: 1em;
+	font-family: "Ubuntu Mono";
+	padding: 3px;
+	cursor: pointer;
+}
+
+menu li:hover {
+	background-color: #eca99d;
+}
+
+select::after {
+	content: "";
+	position: absolute;
+	inset: 0px;
+	z-index: 1;
+	background-color: red;
+}
+
+.chartable {
+	position: fixed;
+	z-index: 10;
+	top: 0px;
+	right: 0px;
+	bottom: 0px;
+	background-color: #e6bdb6;
+}
+
+.chartable .closer {
+	position: absolute;
+	z-index: 1;
+	top: 0px;
+	left: -6px;
+	width: 1em;
+	height: 1em;
+	padding: 0.25em;
+	font-size: 3rem;
+	letter-spacing: -0.2ch;
+	line-height: 1em;
+	text-align: center;
+	background-color: #e6bdb6;
+	border-color: #eca99d;
+	border-style: solid;
+	border-width: 0px 6px 6px 6px;
+	color: #150f1a;
+	cursor: pointer;
+}
+
+table {
+	font-size: 2rem;
+}
+
+table * {
+	font-size: 1em;
+	font-family: "Ubuntu Mono";
+	color: #150f1a;
+}
+
+col:nth-child(2n) {
+	background-color: #eca99d;
+}
+
+col.selected {
+	background-color: #150f1a;
+}
+
+colgroup input {
+	display: none;
+}
+
+colgroup input:checked + col {
+	background-color: #150f1a;
+}
+
+table tr.group td > * {
+	margin-bottom: 1em;
+}
+
+table tr:not(.group, :first-of-type):hover, table tr.group td > *:hover {
+	background-color: #150f1a;
+}
+
+table tr.group td > *:last-child {
+	margin-bottom: 0px;
+}
+
+table td, table th {
+	padding: 0.5em;
+	text-align: center;
+	vertical-align: bottom;
+}
+
+table .vertical {
+	display: block;
+	text-align: left;
+	max-height: 18vw;
+	writing-mode: vertical-rl;
+	transform: rotateZ(180deg);
+}
+
+table mark {
+	padding: 3px 0px;
+	background-color: #150f1a;
+	color: white;
+}

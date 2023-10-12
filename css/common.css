@@ -1,36 +1,3 @@
-body {
-	background-color: var(--background);
-	width: 100vw;
-	height: 100vh;
-	overflow: hidden;
-}
-
-:root {
-	--background: #74548d;
-	--sidebar-bcg: #543869;
-
-	--contrast: 0.6;
-	--invertion: 0;
-
-	--svg-pattern-color1: #4220a0;
-	--svg-pattern-color2: #d81355;
-
-	--decoded-str: "!";
-	--decoded-x: 0ch;
-	--decoded-y: 0em;
-}
-
-html.preview:root {
-	--contrast: 1;
-}
-
-html.invertion:root {
-	--invertion: 1;
-}
-
-/* #main {
-	width: ;
-} */
 
 @font-face {
 	font-family: pikopixel;
@@ -50,6 +17,12 @@ html.invertion:root {
 }
 
 @font-face {
+	font-family: doab8m;
+	font-weight: 900;
+	src: url(../../ttonightt-official/fonts/doa8bm.ttf);
+}
+
+@font-face {
 	font-family: "Noto Mono";
 	src: url(../NotoSansMono-VariableFont_wdth\,wght.ttf);
 }
@@ -59,15 +32,45 @@ html.invertion:root {
 	src: url(../unifont-15.0.06.ttf);
 }
 
+:root {
+	--background: #74548d;
+	--sidebar-bcg: #543869;
+
+	--contrast: 0.6;
+	--invertion: 0;
+
+	--svg-pattern-color1: #4220a0;
+	--svg-pattern-color2: #d81355;
+}
+
+html.preview:root {
+	--contrast: 1;
+}
+
+html.invertion:root {
+	--invertion: 1;
+}
+
+html {
+	font-size: 9px;
+}
+
+body {
+	background-color: var(--background);
+	width: 100vw;
+	height: 100vh;
+	overflow: hidden;
+}
+
 * {
-	font-family: pikopixel;
-	font-size: 23px;
-	list-style: none;
+	font-family: doab8m;
+	font-weight: 900;
 	position: relative;
 	margin: 0px;
 }
 
-ul {
+ul, ol {
+	list-style: none;
 	padding: 0px;
 }
 
@@ -83,6 +86,10 @@ canvas {
 	display: block;
 }
 
+img {
+	image-rendering: crisp-edges;
+}
+
 .red-to-eca99d {
 	filter: hue-rotate(9deg) saturate(0.38) brightness(4.75);
 }
@@ -92,82 +99,86 @@ canvas {
 	/* background-color: hwb(276 6% 90%); */
 }
 
-.btn {
-	display: block !important;
-	width: fit-content;
-	line-height: 23px;
-	padding: 8px 12px;
-	background-color: #3a2649;
+/* BUTTONS  BUTTONS  BUTTONS  BUTTONS  BUTTONS  BUTTONS  BUTTONS  BUTTONS  BUTTONS */
+
+.btn, button {
+	display: block;
+	box-sizing: content-box;
+	font-size: 1em;
+	line-height: 1.2em;
+	height: 1em;
+	padding: 0.5em;
 	text-align: center;
 	color: #150f1a;
+	background-color: #3a2649;
 	box-shadow: 0px 6px 0px #25192e;
 	border: none;
+	user-select: none;
+	flex-shrink: 0;
 	float: left;
-}
-
-.btn:disabled {
-	pointer-events: none;
-	opacity: 0.8;
-}
-
-.btn.vertical {
-	width: 23px;
-	writing-mode: vertical-lr;
-	height: fit-content;
-	padding: 12px 8px;
-}
-
-.btn::selection {
-	background-color: transparent;
-	color: inherit;
-}
-
-.btn:hover {
-	background-color: #482f5c;
 	cursor: pointer;
 }
 
-.btn:before {
-	content: "";
-	position: absolute;
-	top: 3px;
-	left: -3px;
-	width: 3px;
-	height: calc(100% - 6px);
-	background-color: #3a2649;
-	box-shadow: 0px 6px 0px #25192e;
-}
-
-.btn:hover:after, .btn:hover:before {
+.btn:hover, button:hover {
 	background-color: #482f5c;
 }
 
-.btn:after {
+.btn:before, button:before {
 	content: "";
 	position: absolute;
-	top: 3px;
-	right: -3px;
-	width: 3px;
-	height: calc(100% - 6px);
+	inset: 3px 100% 3px -3px;
 	background-color: #3a2649;
 	box-shadow: 0px 6px 0px #25192e;
 }
 
-.btn:active {
+.btn:after, button:after {
+	content: "";
+	position: absolute;
+	inset: 3px -3px 3px 100%;
+	background-color: #3a2649;
+	box-shadow: 0px 6px 0px #25192e;
+}
+
+.btn:hover:after, button:hover:after, .btn:hover:before, button:hover:before {
+	background-color: #482f5c;
+}
+
+.btn:active, button:active {
 	top: 6px;
 	color: #eca99d;
 }
 
-.btn:active, .btn:active:before, .btn:active:after {
+.btn:active, button:active, .btn:active:before, button:active:before, .btn:active:after, button:active:after {
 	box-shadow: inset 0px 3px 0px #2d1f38;
 }
 
-input[type=checkbox] + label.btn:hover:active {
+.btn.square, button.square {
+	width: 1em;
+	flex-basis: 1em;
+}
+
+.btn.compact, button.compact {
+	padding: 0.3em;
+}
+
+.btn.static-color, button.static-color {
+	color: #150f1a;
+}
+
+input[type=checkbox] + label.btn:hover:active, input[type=radio] + label.btn:hover:active {
 	color: inherit;
 }
 
-input[type=checkbox]:checked + label.btn:hover {
+input[type=checkbox]:checked + label.btn:hover, input[type=radio]:checked + label.btn:hover {
 	color: #eca99d;
+}
+
+select {
+	width: 1ch;
+	box-sizing: content-box;
+	color: red;
+	appearance: none;
+	border: none;
 }
 
 .input-wrap {
@@ -208,14 +219,14 @@ input {
 	display: block;
 	position: relative;
 	width: calc(100% - 24px);
-	height: 19px;
-	padding: 7px 12px;
+	height: 1em;
+	padding: 0.5em;
 	background-color: #3a2649;
 	color: #150f1a;
 	box-shadow: 0px 6px 0px #25192e;
 	font-family: "Ubuntu Mono", monospace;
 	font-weight: 600;
-	font-size: 18px;
+	font-size: 2rem;
 	border: none;
 	float: left;
 }
@@ -238,7 +249,7 @@ input:focus {
 	color: #eca99d;
 }
 
-input[type=file] {
+/* input[type=file] {
 	display: none;
 }
 
@@ -298,6 +309,187 @@ input[type=file].selected + label:before {
 
 input[type=file].selected + label:after {
 	box-shadow: 0px 6px 0px #25192e, 3px 9px 0px #eca99d, 3px -3px 0px #eca99d;
+} */
+
+.controls-table {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	font-size: 2rem;
+	gap: 1.4em;
+}
+
+.cassette-switch {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+}
+
+.controls-table > .cassette-switch {
+	flex: 1;
+}
+
+/* .cassette-switch:not([content = ""]):before {
+	content: attr(content);
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	width: max-content;
+	height: 0px;
+	font-size: 16px;
+	line-height: 14px;
+	color: #25192e;
+	overflow: hidden;
+	transition: 0.16s steps(4, end);
+	pointer-events: none;
+} */
+
+/* .cassette-switch:not([content = ""]):hover:before {
+	height: 16px;
+	top: -16px;
+} */
+
+.cassette-switch.highlight {
+	box-shadow: 0px 6px 0px 3px #eca99d;
+}
+
+.controls-table > .fl1, .cassette-switch > .fl1 {
+	flex-grow: 1;
+	flex-basis: 100%;
+}
+
+.controls-table > .fl0, .cassette-switch > .fl0 {
+	flex-grow: 0;
+}
+
+.controls-table > .wide {
+	flex: 1 100% 0;
+}
+
+.cassette-switch input[type="checkbox"], .cassette-switch input[type="radio"], .cassette-switch input[type="button"], /* BUTTON INPUT ТРЕБА ЛІКВІДУВАТИ */
+.controls-table input[type="checkbox"], .controls-table input[type="radio"], .controls-table input[type="button"] {
+	display: none;
+}
+
+.cassette-switch button:last-child::before, .cassette-switch .btn:last-child::before {
+	content: none;
+}
+
+.cassette-switch button:first-child::after, .cassette-switch .btn:first-child::after {
+	content: none;
+}
+
+.cassette-switch label {
+	display: block;
+	padding: 0.5em;
+	font-size: 2rem;
+	height: 1em;
+	color: #150f1a;
+	text-align: center;
+	background-color: #3a2649;
+	box-shadow: 0px 6px 0px #25192e;
+	flex-grow: 1;
+	/* flex-basis: content; */
+	user-select: none;
+	cursor: pointer;
+}
+
+.cassette-switch label:hover {
+	background-color: #482f5c;
+}
+
+.cassette-switch label:hover:after, .cassette-switch label:hover:before {
+	background-color: #482f5c !important;
+}
+
+.cassette-switch.compact label, .cassette-switch.compact button, .cassette-switch.compact .btn, .cassette-switch.compact input {
+	padding: 0.3em;
+}
+
+.cassette-switch label.square {
+	width: 1em;
+}
+
+.cassette-switch input:disabled + label {
+	pointer-events: none;
+	color: #150f1a7c;
+}
+
+.cassette-switch input:disabled + label * {
+	opacity: 0.5;
+}
+
+.cassette-switch input:first-child + label:before {
+	content: "";
+	position: absolute;
+	inset: 3px 100% 3px -3px;
+	background-color: #3a2649;
+	box-shadow: 0px 6px 0px #25192e;
+}
+
+.cassette-switch label:last-child:after {
+	content: "";
+	position: absolute;
+	inset: 3px -3px 3px 100%;
+	background-color: #3a2649;
+	box-shadow: 0px 6px 0px #25192e;
+}
+
+.cassette-switch.highlight input:first-child + label {
+	box-shadow: 0px 6px 0px #25192e, -6px 6px 0px #eca99d;
+}
+
+.cassette-switch.highlight input + label:last-child {
+	box-shadow: 0px 6px 0px #25192e, 6px 6px 0px #eca99d;
+}
+
+.cassette-switch label img {
+	display: block;
+	image-rendering: pixelated;
+}
+
+input:checked + label,
+input:not(:disabled):active + label {
+	top: 6px;
+}
+
+.cassette-switch :checked + label,
+.cassette-switch :not(:disabled):active + label {
+	box-shadow: inset 4px 3px 0px #2d1f38;
+}
+
+.cassette-switch input:checked + label + input:checked + label,
+.cassette-switch input:not(:disabled):active + label + input:checked + label,
+.cassette-switch input:checked + label + input:not(:disabled):active + label {
+	box-shadow: inset 0px 3px 0px #2d1f38;
+}
+
+.controls-table .highlight input:not(:disabled):active + label,
+.controls-table .highlight input:checked + label {
+	box-shadow: inset 4px 3px 0px #2d1f38, 0px -3px 0px #eca99d;
+}
+
+.controls-table input:first-child:checked + label,
+.controls-table input:first-child:not(:disabled):active + label {
+	box-shadow: inset 0px 3px 0px #2d1f38;
+}
+
+.controls-table input:checked + label:before,
+.controls-table input:not(:disabled):active + label:before,
+.controls-table input:checked + label:after,
+.controls-table input:not(:disabled):active + label:after {
+	box-shadow: inset 0px 3px 0px #2d1f38;
+}
+
+.cassette-switch.highlight input:first-child:checked + label,
+.cassette-switch.highlight input:first-child:active + label {
+	box-shadow: inset 0px 3px 0px #2d1f38, -6px 0px 0px #eca99d, 0px -3px 0px #eca99d;
+}
+
+.cassette-switch.highlight input:checked + label:last-child,
+.cassette-switch.highlight input:active + label:last-child {
+	box-shadow: inset 0px 3px 0px #2d1f38, 6px 0px 0px #eca99d, 0px -3px 0px #eca99d;
 }
 
 #popups {
@@ -371,7 +563,7 @@ form.flagged label {
 	width: calc(100% - 10px);
 	height: 21px;
 	text-align: center;
-	font-size: 21px;
+	font-size: 2rem;
 	padding: 12px 12px 12px 6px;
 	line-height: 23px;
 	margin-bottom: 9px;
@@ -429,7 +621,7 @@ form.flagged label:after {
 	width: 9px;
 	height: 9px;
 	padding: 3px;
-	font-size: 23px;
+	font-size: 2rem;
 	line-height: 6px;
 	color: #fae1db;
 	font-style: normal;
@@ -523,191 +715,4 @@ form.flagged label:after {
 		left: 0px;
 		opacity: 1;
 	}
-}
-
-.controls-table {
-	display: flex;
-	flex-direction: row !important;
-	flex-wrap: wrap;
-	align-items: stretch;
-	justify-content: start;
-	gap: 24px !important;
-}
-
-.controls-table > .btn-container {
-	flex: 1;
-	display: flex;
-	flex-direction: row;
-	align-items: stretch;
-	flex-wrap: no-wrap;
-}
-
-.controls-table > .btn-container[content |= ""]:before { /* <<< ТРЕБА УТОЧНИТИ ЯКИЙ ОПЕРАТОР CSS ВІДПОВІДАЄ ОПЕРАТОРУ != У JS*/
-	content: attr(content);
-	position: absolute;
-	top: 0px;
-	left: 0px;
-	width: max-content;
-	height: 0px;
-	font-size: 16px;
-	line-height: 14px;
-	color: #25192e;
-	overflow: hidden;
-	transition: 0.16s steps(4, end);
-	pointer-events: none;
-}
-
-.controls-table > .btn-container:hover:before {
-	height: 16px;
-	top: -16px;
-}
-
-.controls-table > .btn-container.switcher {
-	box-shadow: 0px 6px 0px 3px #eca99d;
-}
-
-.controls-table > .fl1 {
-	flex-grow: 1;
-	flex-basis: 100%;
-}
-
-.controls-table > .fl0 {
-	flex-grow: 0;
-}
-
-.controls-table > .btn.lesspad {
-	flex-basis: 23px;
-	line-height: 30px;
-	padding: 0px 0px 0px 3px;
-}
-
-.controls-table > .btn-container.wide, .controls-table > .btn.wide {
-	flex-basis: 100%;
-}
-
-.controls-table > .btn-container#errcor {
-	flex-grow: 2;
-}
-
-.controls-table > .btn + .btn-container{
-	align-self: flex-end;
-}
-
-.controls-table .btn.vertical {
-	width: 23px;
-}
-
-.controls-table input {
-	display: none;
-}
-
-.controls-table label {
-	flex-grow: 1;
-	flex-basis: content;
-	display: block;
-	background-color: #3a2649;
-	box-shadow: 0px 6px 0px #25192e;
-	text-align: center;
-	color: #150f1a;
-	cursor: pointer;
-}
-
-.controls-table label:not(.btn) {
-	line-height: 30px;
-}
-
-.controls-table label:hover {
-	background-color: #482f5c;
-}
-
-.controls-table label:hover:after, .controls-table label:hover:before {
-	background-color: #482f5c !important;
-}
-
-.controls-table input:disabled + label {
-	color: #150f1a7c;
-}
-
-.controls-table input:disabled + label * {
-	opacity: 0.5;
-}
-
-.controls-table input:first-child + label:before {
-	content: "";
-	position: absolute;
-	top: 3px;
-	left: -3px;
-	width: 3px;
-	height: calc(100% - 6px);
-	background-color: #3a2649;
-	box-shadow: 0px 6px 0px #25192e;
-}
-
-.controls-table label:last-child:after {
-	content: "";
-	position: absolute;
-	top: 3px;
-	right: -3px;
-	width: 3px;
-	height: calc(100% - 6px);
-	background-color: #3a2649;
-	box-shadow: 0px 6px 0px #25192e;
-}
-
-.controls-table .switcher input:first-child + label:before {
-	box-shadow: 0px 6px 0px #25192e, -3px 3px 0px #eca99d, -3px 9px 0px #eca99d;
-}
-
-.controls-table .switcher label:last-child:after {
-	box-shadow: 0px 6px 0px #25192e, 3px 3px 0px #eca99d, 3px 9px 0px #eca99d;
-}
-
-.controls-table label img {
-	display: block;
-	width: calc(100% - 12px);
-	padding: 6px;
-	image-rendering: pixelated;
-}
-
-.controls-table .btn-container input:checked + label,
-.controls-table .btn-container input:not(:disabled):active + label {
-	top: 6px;
-	box-shadow: inset 4px 3px 0px #2d1f38;
-}
-
-.controls-table .btn-container input:checked + label + input:checked + label,
-.controls-table .btn-container input:not(:disabled):active + label + input:checked + label,
-.controls-table .btn-container input:checked + label + input:not(:disabled):active + label {
-	box-shadow: inset 0px 3px 0px #2d1f38;
-}
-
-.controls-table .switcher input:not(:disabled):active + label,
-.controls-table .switcher input:checked + label {
-	box-shadow: inset 4px 3px 0px #2d1f38, 0px -3px 0px #eca99d;
-}
-
-.controls-table input:first-child:checked + label,
-.controls-table input:first-child:not(:disabled):active + label {
-	box-shadow: inset 0px 3px 0px #2d1f38;
-}
-
-.controls-table .switcher input:first-child:checked + label {
-	box-shadow: inset 0px 3px 0px #2d1f38, 0px -3px 0px #eca99d;
-}
-
-.controls-table input:checked + label:before,
-.controls-table input:not(:disabled):active + label:before,
-.controls-table input:checked + label:after,
-.controls-table input:not(:disabled):active + label:after {
-	box-shadow: inset 0px 3px 0px #2d1f38;
-}
-
-.controls-table .switcher input:first-child:checked + label:before,
-.controls-table .switcher input:first-child:not(:disabled):active + label:before {
-	box-shadow: inset 0px 3px 0px #2d1f38, -3px -3px 0px #eca99d, -3px 3px 0px #eca99d;
-}
-
-.controls-table .switcher input:checked + label:last-child:after,
-.controls-table .switcher input:not(:disabled):active + label:last-child:after {
-	box-shadow: inset 0px 3px 0px #2d1f38, 3px -3px 0px #eca99d, 3px 3px 0px #eca99d;
 }

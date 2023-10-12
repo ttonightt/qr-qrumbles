@@ -8,10 +8,9 @@ class Charmap {
 
 	static init (markup, textarea) {
 		this.ps = [];
+		this.padp = document.createElement("b");
 		this.markup = markup;
 		this.textarea = textarea;
-		this.__x = this.textarea.getBoundingClientRect().x;
-		this.__y = this.textarea.getBoundingClientRect().y;
 
 		this.textarea.textContent = "0";
 		this.letterWidth = this.textarea.clientWidth;
@@ -21,10 +20,26 @@ class Charmap {
 
 		document.documentElement.style.setProperty("--textarea-width", this.columns + "ch");
 
+		this.__x = this.textarea.getBoundingClientRect().x;
+		this.__y = this.textarea.getBoundingClientRect().y;
+
 		this.grabberLeft = document.createElement("i");
 		this.grabberRight = document.createElement("i");
 
-		let grabber, offset, _offset = 0, _textContent, i, maxi;
+		let grabber = 0,
+			offset,
+			_offset = 0,
+			_textContent,
+			i,
+			maxi,
+			__bits,
+			_bits,
+			maxoffset,
+			_scrollTop;
+
+		// Charmap.textarea.parentElement.scroll = function () {};
+		// Charmap.textarea.parentElement.scrollTo = function () {};
+		// Charmap.textarea.parentElement.scrollBy = function () {};
 
 		Charmap.grabberLeft.onmousedown = () => {
 			grabber = 1;
@@ -32,6 +47,7 @@ class Charmap {
 			_textContent = Charmap.textarea.textContent;
 			maxi = this.__focused.childIndex;
 
+			this.padp.textContent = "";
 			Charmap.textarea.classList.add("disabled");
 		};
 
@@ -41,18 +57,88 @@ class Charmap {
 			_textContent = Charmap.textarea.textContent;
 			maxi = this.__focused.childIndex;
 
+			__bits = 0;
+
+			switch (this.__focused.encoding) {
+				case "Alphanum":
+					__bits += (Math.floor(this.__focused.textContent.length / 2) * 11) + ((this.__focused.textContent.length % 2) * 6);
+					break;
+				case "Num":
+					__bits += Math.floor(this.__focused.textContent.length / 3) * 10;
+
+					if (__bits % 3 === 2) {
+						__bits += 7;
+					} else if (__bits % 3 === 1) {
+						__bits += 4;
+					}
+					break;
+				default:
+					__bits += this.__focused.textContent.length * 8;
+			}
+
+			_bits = 0;
+
+			for (i = 0; i < this.__focused.childIndex; i++) {
+
+				switch (this.ps[i].encoding) {
+					case "Alphanum":
+						_bits += (Math.floor(this.ps[i].textContent.length / 2) * 11) + ((this.ps[i].textContent.length % 2) * 6);
+						break;
+					case "Num":
+						_bits += Math.floor(this.ps[i].textContent.length / 3) * 10;
+	
+						if (_bits % 3 === 2) {
+							_bits += 7;
+						} else if (_bits % 3 === 1) {
+							_bits += 4;
+						}
+						break;
+					default:
+						_bits += this.ps[i].textContent.length * 8;
+				}
+			}
+
+			_bits = this.bits - _bits;
+
+			maxoffset = this.__focused.textOffset;
+
+			switch (this.ps[i].encoding) {
+				case "Alphanum":
+					maxoffset += Math.floor(_bits / 11) * 2;
+
+					if (_bits % 11 >= 6) {
+						maxoffset++;
+					}
+					break;
+				case "Num":
+					maxoffset += Math.floor(_bits / 10) * 3;
+
+					if (_bits % 10 >= 4) {
+						maxoffset++;
+					} else if (_bits % 10 >= 7) {
+						maxoffset += 2;
+					}
+					break;
+				default:
+					maxoffset += Math.floor(_bits / 8);
+					break;
+			}
+
+			// maxoffset--;
+			this.padp.textContent = "";
 			Charmap.textarea.classList.add("disabled");
 		};
-		
+
 		Charmap.textarea.onmousemove = e => {
 
 			if (grabber === 0) return;
 
-			offset = Math.floor((e.clientX - this.__x) / this.letterWidth) + (Math.floor((e.clientY - this.__y) / this.letterHeight) * this.columns);
+			offset = Math.floor((e.clientX - this.__x) / this.letterWidth) + (Math.floor((e.clientY - this.__y + this.textarea.parentElement.scrollTop) / this.letterHeight) * this.columns);
 
-			if (offset - _offset === 0) return;
+			if (offset - _offset === 0 || offset > maxoffset) return;
+			console.log(offset, maxoffset);
 
-			offset = Math.min(offset, this.ps.last.textEndOffset);
+			_scrollTop = this.textarea.parentElement.scrollTop;
 
 			if (Charmap.__mode) {
 				if (grabber === 2) {
@@ -127,43 +213,163 @@ class Charmap {
 						offset = this.__focused.textOffset + 1;
 					}
 
-					if (_offset < offset) {
+					// if (_offset < offset) {
 
-						for (i = this.ps.length - 1; this.ps[i].textOffset + (offset - this.__focused.textEndOffset) > this.ps.last.textEndOffset; i--) {
+					// 	for (i = this.ps.length - 1; this.ps[i].textOffset + (offset - this.__focused.textEndOffset) > this.ps.last.textEndOffset; i--) {
 
-							this.ps[i].textContent = "";
-						}
+					// 		this.ps[i].textContent = "";
+					// 	}
 
-						maxi = i;
-					} else {
+					// 	maxi = i;
+					// } else {
 
-						if (offset < this.__focused.textEndOffset) {
+					// 	for (i = maxi; i < this.ps.length - 1 && this.ps[i].textEndOffset + (offset - this.__focused.textEndOffset) < this.ps.last.textEndOffset; i++) {
 
-							this.ps.last.textContent
-
-						} else {
-							for (i = maxi; this.ps[i].textEndOffset + (offset - this.__focused.textEndOffset) < this.ps.last.textEndOffset; i++) {
-
-								this.ps[i].textContent = _textContent.slice(this.ps[i].textOffset, this.ps[i].textEndOffset);
-							}
-						}
-					}
+					// 		this.ps[i].textContent = _textContent.slice(this.ps[i].textOffset, this.ps[i].textEndOffset);
+					// 	}
+					// }
 
 					if (offset < this.__focused.textEndOffset) {
 
-						this.ps[i].textContent = _textContent.slice(this.ps[i].textOffset, this.ps.last.textEndOffset) + " ".repeat(this.__focused.textEndOffset - offset);
+						// this.ps[i].textContent = _textContent.slice(this.ps[i].textOffset, this.ps.last.textEndOffset) + " ".repeat(this.__focused.textEndOffset - offset);
 
 						this.__focused.textContent = _textContent.slice(this.__focused.textOffset, offset);
 					} else {
-						this.ps[i].textContent = _textContent.slice(this.ps[i].textOffset, this.ps.last.textEndOffset - (offset - this.__focused.textEndOffset));
+						// this.ps[i].textContent = _textContent.slice(this.ps[i].textOffset, this.ps.last.textEndOffset - (offset - this.__focused.textEndOffset));
 
 						this.__focused.textContent = _textContent.slice(this.__focused.textOffset, this.__focused.textEndOffset) + " ".repeat(offset - this.__focused.textEndOffset);
 					}
-					
+
 				} else if (grabber === 1) {
 
+					if (offset >= this.__focused.textEndOffset) {
+						offset = this.__focused.textEndOffset - 1;
+					}
+
+					// if (_offset < offset) {
+
+					// 	for (i = maxi; i > 0 && this.ps[i].textOffset > this.__focused.textOffset - offset; i--) {
+
+					// 		this.ps[i].textContent = _textContent.slice(this.ps[i].textOffset, this.ps[i].textEndOffset);
+					// 	}
+
+					// } else {
+
+					// 	if (offset < this.__focused.textOffset) {
+
+					// 		for (i = 0; this.ps[i].textEndOffset < this.__focused.textOffset - offset; i++) {
+	
+					// 			this.ps[i].textContent = "";
+					// 		}
+					// 	}
+	
+					// 	maxi = i;
+					// }
+
+					if (offset > this.__focused.textOffset) {
+
+						// this.ps[i].textContent = " ".repeat(offset - this.__focused.textOffset) + _textContent.slice(0, this.ps[i].textEndOffset);
+
+						this.__focused.textContent = _textContent.slice(offset, this.__focused.textEndOffset);
+					} else {
+
+						// this.ps[i].textContent = _textContent.slice(this.__focused.textOffset - offset, this.ps[i].textEndOffset);
+
+						this.__focused.textContent = " ".repeat(this.__focused.textOffset - offset) + _textContent.slice(this.__focused.textOffset, this.__focused.textEndOffset);
+					}
 				}
 			}
+
+			_bits = __bits;
+
+			switch (this.__focused.encoding) {
+				case "Alphanum":
+					_bits -= (Math.floor(this.__focused.textContent.length / 2) * 11) + ((this.__focused.textContent.length % 2) * 6);
+					break;
+				case "Num":
+					_bits -= Math.floor(this.__focused.textContent.length / 3) * 10;
+
+					if (this.__focused.textContent.length % 3 === 2) {
+						_bits -= 7;
+					} else if (this.__focused.textContent.length % 3 === 1) {
+						_bits -= 4;
+					}
+					break;
+				default:
+					_bits -= this.__focused.textContent.length * 8;
+					break;
+			}
+
+			i = this.ps.length - 1;
+
+			let pad = 0;
+
+			if (_bits < 0) {
+
+				do {
+					const len = this.ps[i].textEndOffset - this.ps[i].textOffset;
+
+					switch (this.ps[i].encoding) {
+						case "Alphanum":
+							_bits += (Math.floor(len / 2) * 11) + ((len % 2) * 6);
+							break;
+						case "Num":
+							_bits += Math.floor(len / 3) * 10;
+		
+							if (len % 3 === 2) {
+								_bits += 7;
+							} else if (len % 3 === 1) {
+								_bits += 4;
+							}
+							break;
+						default:
+							_bits += len * 8;
+							break;
+					}
+
+					pad += len;
+					this.ps[i].textContent = "";
+
+					i--;
+				} while (_bits < 0);
+
+				console.log(_bits);
+
+				i++;
+				let bits_ = 0;
+
+				switch (this.ps[i].encoding) {
+					case "Alphanum":
+						bits_ += Math.floor(_bits / 11) * 2;
+
+						if (_bits % 11 >= 6) {
+							bits_++;
+						}
+						break;
+					case "Num":
+						bits_ += Math.floor(_bits / 10) * 3;
+
+						if (_bits % 10 >= 4) {
+							bits_++;
+						} else if (_bits % 10 >= 7) {
+							bits_ += 2;
+						}
+						break;
+					default:
+						bits_ += Math.floor(_bits / 8);
+						break;
+				}
+
+				this.ps[i].textContent = _textContent.substr(this.ps[i].textOffset, bits_);
+
+				pad -= bits_;
+
+				this.padp.textContent = " ".repeat(pad);
+			} else if (_bits > 0) {
+
+			}
+
+			this.textarea.parentElement.scrollTop = _scrollTop;
 
 			_offset = offset;
 		};
@@ -196,11 +402,31 @@ class Charmap {
 		}
 	}
 
-	constructor (data, length) {
-		this.length = length;
+	constructor (data) {
 		this.restructure(data);
+		Charmap.bits = 0;
 
-		// Charmap.textarea.append(Charmap.grabberLeft, Charmap.ps[0], Charmap.grabberRight);
+		for (let i = 0; i < Charmap.ps.length; i++) {
+			switch (Charmap.ps[i].encoding) {
+				case "Alphanum":
+					Charmap.bits += (Math.floor(Charmap.ps[i].textContent.length / 2) * 11) + ((Charmap.ps[i].textContent.length % 2) * 6);
+					break;
+				case "Num":
+					Charmap.bits += Math.floor(Charmap.ps[i].textContent.length / 3) * 10;
+
+					if (Charmap.bits % 3 === 2) {
+						Charmap.bits += 7;
+					} else if (Charmap.bits % 3 === 1) {
+						Charmap.bits += 4;
+					}
+					break;
+				default:
+					Charmap.bits += Charmap.ps[i].textContent.length * 8;
+					break;
+			}
+		}
+
+		Charmap.bits = Math.ceil(Charmap.bits / 8) * 8;
 	}
 
 	restructure (dblocks) {
@@ -236,14 +462,17 @@ class Charmap {
 
 			Charmap.ps[i].textOffset = len;
 
-			len += dblocks[i].chars.length;
+			len += dblocks[i].chars.length;	
 
 			Charmap.ps[i].textEndOffset = len;
 
+			Charmap.ps[i].encoding = dblocks[i].encoding; // ТРЕБА ЗРОБИТИ SETTER НА ENCODING
 			Charmap.ps[i].setAttribute("encoding", dblocks[i].encoding);
 
 			Charmap.textarea.appendChild(Charmap.ps[i]);
 		}
+
+		Charmap.textarea.append(Charmap.padp);
 
 		// const pad = document.createElement("p");
 		// pad.textContent = "1230710ba178def1237f13b1a3e138763a124921764812467612743187264981796481247124671628468162468686";
