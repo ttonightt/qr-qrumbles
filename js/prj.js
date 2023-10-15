@@ -330,6 +330,10 @@ class Project {
 			},
 			{
 				encoding: "Num",
+				chars: "1271"
+			},
+			{
+				encoding: "Num",
 				chars: " Hello WOrldDDx*&6:]]Hell  WOrldDDx*&6:]]Hel¶lo WOrldDDx*&6:]]"
 			},
 			{
@@ -338,7 +342,7 @@ class Project {
 			},
 			{
 				encoding: "Alphanum",
-				chars: "ALPLPPALPPPPPPP"
+				chars: "ALPLPPALPPPPPI"
 			},
 			{
 				encoding: "Latin2",
@@ -350,8 +354,8 @@ class Project {
 			},
 			{
 				encoding: "Num",
-				chars: "1241"
-			},
+				chars: "1251"
+			}
 			// {
 			// 	encoding: "Latin2",
 			// 	chars: "Hello WOrldDDx12***&;6:]]Hello WOrldDDx*&6:]]Hello WOrlADfhajshdfakfashfdkahsfkgdfgs"

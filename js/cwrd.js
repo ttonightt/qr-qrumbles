@@ -49,7 +49,7 @@ const Windows1250 = {
 };
 
 class CodewordArray extends Uint8ClampedArray {
-	
+
 	encode (cws, datarr, counterref, offset) {
 		if (!(cws instanceof CodewordArray) || counterref.N === undefined || counterref.A === undefined || counterref.B === undefined) throw new Error("..."); // <<<
 
@@ -98,9 +98,9 @@ class CodewordArray extends Uint8ClampedArray {
 
 			switch (datarr[i].encoding) { // ADD BASE ENCODING INDICATOR AND CHAR COUNTER
 				case "latin1": case "latin2": case "windows1250": case "windows1251":
-					
+
 					_encoding = datarr[i].encoding;
-					
+
 				case "byte":
 
 					buff = (buff << 4) + 0b0100;

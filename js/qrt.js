@@ -656,7 +656,7 @@ class QRT {
 			case value:
 				break;
 			case 1: // UNDONE !!!!!!!!!!!!!!!!!!!!!!
-				
+
 				break;
 			case 0: case 2:
 				for (let y = 0; y < this.matrix.rows; y++) {
@@ -1624,7 +1624,7 @@ class QRT {
 				i = Math.floor(k / 8);
 
 				// console.log(((cws[0] << 8)).toString(2).padStart(this.info.counterLength + 4, "0"));
-				
+
 				k %= 8;
 
 				if (k === 0) {
@@ -1739,16 +1739,16 @@ class QRT {
 					num = (this.matrix.x2get(x, y) ^ ((this.maskApplication === 0) * this.getMaskBit(x, y))) % 8;
 					mod = 3 - mod;
 					byte += num >> mod;
-	
+
 					bstr += String.fromCharCode(byte);
-	
+
 					byte = num % (1 << mod);
 					mod = 7 - mod;
 					byte <<= mod;
-	
+
 					continue;
 				}
-	
+
 				num = this.matrix.x2get(x, y) % 8;
 				mod -= 3;
 				byte += num << mod;

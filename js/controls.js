@@ -32,7 +32,7 @@ const Controls = {
 
 					if (radios instanceof RadioNodeList) {
 						this.list = radios;
-	
+
 						for (let i = 0; i < this.list.length; i++) {
 							if (this.list[i].checked) {
 								this.value = this.list[i].value;

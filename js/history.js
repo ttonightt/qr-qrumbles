@@ -3,7 +3,7 @@ class History {
 		static log (bmarea) {
 			if (bmarea instanceof this) {
 				let str = "";
-	
+
 				for (let y = 0; y < bmarea.matrix.rows; y += 2) {
 					for (let x = 0; x < bmarea.matrix.columns; x++) {
 						if (bmarea.matrix.x2get(x, y)) {

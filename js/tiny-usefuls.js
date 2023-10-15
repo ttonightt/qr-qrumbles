@@ -228,7 +228,7 @@ class Uint8ArrayX2 extends Uint8Array {
 			console.log(str);
 		}
 	}
-	
+
 	static reflectByDiagonal (arr) {
 		if (arr instanceof Uint8ArrayX2) {
 			const narr = new Uint8ArrayX2(arr.columns, arr.rows);
