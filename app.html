@@ -11,7 +11,7 @@
 	<!-- К'юарт [кйуарт] -->
 </head>
 <body>
-	<div id="onetitle"><span>Brush radius: 50</span></div>
+	<div id="onetitle"><span></span></div>
 
 	<div id="popups">
 		<div class="popup" data-popup="new" id="creator-menu"><!-------------------------NEW-->
@@ -105,17 +105,6 @@
 
 					<input type="radio" name="errcor" id="errcor-3" value="H">
 					<label for="errcor-3">30</label>
-				</form>
-
-				<form id="datatype" class="cassette-switch" content="Data type">
-					<input type="radio" name="dtype" id="dtype-2" value="A">
-					<label for="dtype-2">A</label>
-
-					<input type="radio" name="dtype" id="dtype-4" value="B" checked>
-					<label for="dtype-4">B</label>
-
-					<!-- <input type="radio" name="dtype" id="dtype-7" value="7" checked>
-					<label for="dtype-7">U</label> -->
 				</form>
 
 			</div>
@@ -235,21 +224,26 @@
 					</div>
 				</div>
 
-				<div class="markup-controller">
+				<div class="controls-table" id="markup-controllers">
 
 					<div class="btn">+</div>
 
-					<div class="cassette-switch">
-						<button>NUM</button>
-
-						<input type="text" id="charcode" maxlength="4" pattern="" placeholder="xxxx">
-
-						<button>
-							<img src="img/tridown.png" class="red-to-150f1a" height="12px">
-						</button>
-					</div>
+					<input type="list" id="charmap-block-encoding" style="display: none;">
+					<label for="charmap-block-encoding" class="btn">
+						<span>Numerical</span>
+					</label>
 
 					<div class="btn">Cancel</div>
+				</div>
+
+				<div class="cassette-switch" id="charedit-controllers">
+					<button>L-2</button>
+
+					<input type="text" id="charcode" maxlength="4" pattern="" style="width: 4ch" placeholder="xxxx">
+
+					<button>
+						<img src="img/tridown.png" class="red-to-150f1a" height="12px">
+					</button>
 				</div>
 			</section>
 		</aside>
@@ -315,8 +309,10 @@
 		</table>
 	</div> -->
 
-	<menu>
+	<menu class="global-list" data-globalist="1">
 		<h1>Encoding</h1>
+		<li>Numerical</li>
+		<li>Alphanumerical</li>
 		<li>Latin-1</li>
 		<li>Latin-2</li>
 		<li>Windows-1250</li>

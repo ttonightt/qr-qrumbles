@@ -5,6 +5,35 @@ class Charmap {
 	static ps;
 	static grabberLeft;
 	static grabberRight;
+	static guiMode = 0; // 0 - char edit, 1 - markup
+
+	static bitLengthOfStringLength (encoding, strlen) { // TEMPORARY !!!
+
+		switch (encoding) {
+			case "Alphanum":
+				return (Math.floor(strlen / 2) * 11) + ((strlen % 2) * 6);
+
+			case "Num":
+				return (Math.floor(strlen / 3) * 10) + Math.floor(7 * ((n + 0.2) % 3) / 2);
+
+			default:
+				return strlen * 8;
+		}
+	}
+
+	static stringLengthByBitLength (encoding, bitlen) { // TEMPORARY !!!
+
+		switch (encoding) {
+			case "Alphanum":
+				return (Math.floor(bitlen / 11) * 2) + (bitlen % 11 >= 6);
+
+			case "Num":
+				return (Math.floor(bitlen / 10) * 3) + Math.floor(((n + 0.5) % 10) / 3.75);
+
+			default:
+				return Math.floor(bitlen / 8);
+		}
+	}
 
 	static init (markup, textarea) {
 		this.ps = [];
@@ -23,6 +52,8 @@ class Charmap {
 		this.__x = this.textarea.getBoundingClientRect().x;
 		this.__y = this.textarea.getBoundingClientRect().y;
 
+		Charmap.textarea.append(Charmap.padp);
+
 		this.grabberLeft = document.createElement("i");
 		this.grabberRight = document.createElement("i");
 
@@ -33,6 +64,8 @@ class Charmap {
 			_textContent,
 			i,
 			maxi,
+			j,
+			maxj,
 			bits,
 			pad,
 			maxoffset,
@@ -42,6 +75,9 @@ class Charmap {
 			grabber = 1;
 
 			_textContent = Charmap.textarea.textContent;
+
+			maxj = this.ps.length - 1;
+			maxi = this.__focused.childIndex;
 
 			this.padp.textContent = "";
 			Charmap.textarea.classList.add("disabled");
@@ -54,6 +90,9 @@ class Charmap {
 
 			maxoffset = this.__focused.textEndOffset;
 			bits = this.bits - this.__focused.bitEndOffset;
+
+			maxj = this.ps.length - 1;
+			maxi = this.__focused.childIndex;
 
 			switch (this.__focused.encoding) {
 				case "Alphanum":
@@ -92,11 +131,7 @@ class Charmap {
 
 			if (offset > maxoffset) offset = maxoffset;
 
-			// console.log(offset);
-
 			_scrollTop = this.textarea.parentElement.scrollTop;
-
-			maxi = this.__focused.childIndex;
 
 			if (Charmap.__mode) {
 				if (grabber === 2) {
@@ -165,7 +200,7 @@ class Charmap {
 					this.__focused.textContent = _textContent.slice(offset, this.__focused.textEndOffset);
 				}
 			} else {
-				if (grabber === 2) {
+				if (grabber === 2) { // WORKS !
 
 					if (offset <= this.__focused.textOffset) {
 						offset = this.__focused.textOffset + 1;
@@ -204,9 +239,9 @@ class Charmap {
 
 								this.ps[i].textContent = "";
 							}
-						}
 
-						maxi = i;
+							maxi = i;
+						}
 					}
 
 					if (offset > this.__focused.textOffset) {
@@ -221,7 +256,7 @@ class Charmap {
 						this.__focused.textContent = " ".repeat(this.__focused.textOffset - offset) + _textContent.slice(this.__focused.textOffset, this.__focused.textEndOffset);
 					}
 
-					bits = -this.ps[i].bitEndOffset - this.__focused.bitEndOffset + this.__focused.bitOffset;
+					bits = -this.ps[i].bitEndOffset - (this.__focused.bitEndOffset - this.__focused.bitOffset);
 
 					len_ = this.ps[i].textContent.length;
 
@@ -267,25 +302,21 @@ class Charmap {
 					break;
 			}
 
-			maxi = this.ps.length - 1;
-
 			if (_offset < offset) { // <<<<
 
-				for (i = this.ps.length - 1; this.ps[i].bitOffset + bits > this.bits; i--) {
+				for (j = this.ps.length - 1; this.ps[j].bitOffset + bits > this.bits; j--) {
 
-					this.ps[i].textContent = "";
+					this.ps[j].textContent = "";
 				}
 
-				maxi = i;
+				maxj = j;
 			} else {
 
-				for (i = maxi; i < this.ps.length - 1 && this.ps[i].bitEndOffset + bits < this.bits; i++) {
+				for (j = maxj; j < this.ps.length - 1 && this.ps[j].bitEndOffset + bits < this.bits; j++) {
 
-					this.ps[i].textContent = _textContent.slice(this.ps[i].textOffset, this.ps[i].textEndOffset);
+					this.ps[j].textContent = _textContent.slice(this.ps[j].textOffset, this.ps[j].textEndOffset);
 				}
 			}
-			
-			// console.log(bits	);
 
 			pad = 0;
 
@@ -316,15 +347,13 @@ class Charmap {
 						break;
 				}
 
-				this.ps[i].textContent = _textContent.slice(this.ps.last.textOffset, this.ps.last.textEndOffset) + " ".repeat(pad);
-
-				console.log(-1, i, pad);
+				this.ps[j].textContent = _textContent.slice(this.ps.last.textOffset, this.ps.last.textEndOffset) + " ".repeat(pad);
 
 			} else {
 
-				bits = this.bits - this.ps[i].bitOffset - bits;
+				bits = this.bits - this.ps[j].bitOffset - bits;
 
-				switch (this.ps[i].encoding) {
+				switch (this.ps[j].encoding) {
 					case "Alphanum":
 						pad += Math.floor(bits / 11) * 2;
 
@@ -347,12 +376,12 @@ class Charmap {
 						break;
 				}
 
-				this.ps[i].textContent = _textContent.substr(this.ps[i].textOffset, pad);
+				this.ps[j].textContent = _textContent.substr(this.ps[j].textOffset, pad);
 
-				console.log(1, i, pad);
-
-				this.padp.textContent = " ".repeat(this.ps.last.textEndOffset - this.ps[i].textOffset - pad);
+				this.padp.textContent = " ".repeat(this.ps.last.textEndOffset - this.ps[j].textOffset - pad - offset + this.__focused.textEndOffset);
 			}
+
+			// CHECK vvvv
 
 			let check = this.bits;
 
@@ -399,88 +428,59 @@ class Charmap {
 		});
 	}
 
-	static rescan () {
-		// for (let i = 0; i < ) {
-
-		// }
-	}
-
-	static __mode = 0;
-
-	static set mode (value) {
-		switch (value) {
-			case 0: case 1:
-				this.__mode = value;
-				this.textarea.classList.toggle("ins");
-		}
-	}
-
 	constructor (data) {
-		this.restructure(data);
-		Charmap.bits = 0;
-
-		for (let i = 0; i < Charmap.ps.length; i++) {
-			switch (Charmap.ps[i].encoding) {
-				case "Alphanum":
-					Charmap.bits += (Math.floor(Charmap.ps[i].textContent.length / 2) * 11) + ((Charmap.ps[i].textContent.length % 2) * 6);
-					break;
-				case "Num":
-					Charmap.bits += Math.floor(Charmap.ps[i].textContent.length / 3) * 10;
-
-					if (Charmap.ps[i].textContent.length % 3 === 2) {
-						Charmap.bits += 7;
-					}
-					if (Charmap.ps[i].textContent.length % 3 === 1) {
-						Charmap.bits += 4;
-					}
-					break;
-				default:
-					Charmap.bits += Charmap.ps[i].textContent.length * 8;
-					break;
-			}
-		}
-
-		console.log((Math.ceil(Charmap.bits / 8) * 8) - Charmap.bits);
-		Charmap.bits = Math.ceil(Charmap.bits / 8) * 8;
+		this.fillWithData(data);
+		this.remarkup();
+		Charmap.bits = Math.ceil(Charmap.ps.last.bitEndOffset / 8) * 8;
 	}
 
-	restructure (dblocks) {
-		if (!(dblocks instanceof Array)) throw new Error("..."); // <<<
+	fillWithData (dblocks) {
+		if (dblocks instanceof Array) {
 
-		if (Charmap.ps.length < dblocks.length) {
+			let i;
 
-			for (let i = Charmap.ps.length; i < dblocks.length; i++) {
-				Charmap.ps[i] = document.createElement("p");
+			if (Charmap.ps.length < dblocks.length) {
 
-				Charmap.ps[i].onclick = () => {
-					Charmap.__focused = Charmap.ps[i];
+				for (i = Charmap.ps.length; i < dblocks.length; i++) {
+					Charmap.ps[i] = document.createElement("p");
 
-					Charmap.ps[i].before(Charmap.grabberLeft);
-					Charmap.ps[i].after(Charmap.grabberRight);
-				};
+					Charmap.ps[i].onclick = () => {
+						Charmap.__focused = Charmap.ps[i];
 
-				// Charmap.ps[i].datalock = !Charmap.ps[i].datalock;
-				// Charmap.ps[i].classList.toggle("fixed", Charmap.ps[i].datalock);
+						Charmap.ps[i].before(Charmap.grabberLeft);
+						Charmap.ps[i].after(Charmap.grabberRight);
+					};
+
+					// Charmap.ps[i].datalock = !Charmap.ps[i].datalock;
+					// Charmap.ps[i].classList.toggle("fixed", Charmap.ps[i].datalock);
+				}
+
+			} else if (Charmap.ps.length > dblocks.length) Charmap.ps.splice(dblocks.length, Charmap.ps.length - dblocks.length);
+
+			for (i = 0; i < Charmap.ps.length; i++) {
+				if (dblocks !== "") {
+					Charmap.ps[i].textContent = dblocks[i].chars;
+
+					Charmap.ps[i].encoding = dblocks[i].encoding;
+					Charmap.ps[i].setAttribute("encoding", dblocks[i].encoding);
+				}
 			}
+			
+		} else throw new Error("..."); // <<<
+	}
 
-		} else if (Charmap.ps.length > dblocks.length) Charmap.ps.splice(dblocks.length, Charmap.ps.length - dblocks.length);
+	remarkup () {
 
 		let len = 0, bits = 0;
-		let i;
 
-		this.length = 0;
-
-		for (i = 0; i < dblocks.length; i++) {
-
-			Charmap.ps[i].textContent = dblocks[i].chars;
-			this.length += dblocks[i].chars.length;
+		for (let i = 0; i < Charmap.ps[i].length; i++) {
 
 			Charmap.ps[i].childIndex = i;
 
 			Charmap.ps[i].textOffset = len;
 			Charmap.ps[i].bitOffset = bits;
 
-			len += dblocks[i].chars.length;
+			len += Charmap.ps[i].textContent.length;
 
 			switch (dblocks[i].encoding) {
 				case "Alphanum":
@@ -503,13 +503,8 @@ class Charmap {
 			Charmap.ps[i].textEndOffset = len;
 			Charmap.ps[i].bitEndOffset = bits;
 
-			Charmap.ps[i].encoding = dblocks[i].encoding; // ТРЕБА ЗРОБИТИ SETTER НА ENCODING
-			Charmap.ps[i].setAttribute("encoding", dblocks[i].encoding);
-
 			Charmap.textarea.appendChild(Charmap.ps[i]);
 		}
-
-		Charmap.textarea.append(Charmap.padp);
 	}
 }
 

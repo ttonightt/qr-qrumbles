@@ -107,6 +107,7 @@ const Controls = {
 			this.elem = document.getElementById(id);
 			this.onchange = trigger;
 		}
+
 		set onchange (trigger) {
 			if (isFunction(trigger)) {
 				this.elem.onclick = trigger;

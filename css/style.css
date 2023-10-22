@@ -494,16 +494,9 @@ aside .decoded-wrap {
 }
 
 #charmap-textarea p::after {
-	content: attr(encoding);
+	content: "";
 	position: absolute;
-	inset: -1px -1ch -1px -1px;
-	font-family: pixeloid;
-	font-weight: 900;
-	font-size: 9px;
-	line-height: 16px;
-	color: transparent;
-	word-break: keep-all;
-	word-wrap: normal;
+	inset: -1px -1px -1px -1px;
 	border: 2px solid #482f5c;
 	border-right-width: 0px;
 	border-bottom-width: 0px;
@@ -624,6 +617,7 @@ aside .decoded-wrap {
 
 #charmap-textarea.disabled b {
 	display: initial;
+	background-color: red;
 }
 
 #charmap-textarea p::selection {
@@ -659,11 +653,6 @@ aside .decoded-wrap {
 	color: #150f1a;
 }
 
-.bottombar .markup-controller {
-	display: flex;
-	gap: 1.4em;
-}
-
 .bottombar .cassette-switch button:first-child {
 	writing-mode: vertical-lr;
 	width: 1em;
@@ -678,9 +667,45 @@ aside .decoded-wrap {
 	min-width: 4ch;
 }
 
-.bottombar .cassette-switch button { 
-	padding-left: 0.25em;
-	padding-right: 0.25em;
+.bottombar .cassette-switch button {
+	padding-left: 0.5em;
+	padding-right: 0.5em;
+}
+
+#markup-controllers {
+	flex-wrap: nowrap;
+}
+
+#charmap-block-encoding + label {
+	min-width: 0px;
+	flex: 1 1 0px;
+	margin: 0px 3px;
+	text-align: left;
+}
+
+#charmap-block-encoding + label > span {
+	position: static;
+	display: inline-block;
+	width: calc(100% - 1ch);
+	text-overflow: ".";
+	word-wrap: normal;
+	word-break: keep-all;
+	overflow: hidden;
+}
+
+#charmap-block-encoding + label > span::after {
+	/* content: url("../img/tridown.png"); */
+	content: "v";
+	position: absolute;
+	right: 0.25em;
+}
+
+.bottombar #charmap-mode[value = "0"] ~ #markup-controllers {
+	display: none;
+}
+
+.bottombar #charmap-mode[value = "1"] ~ #charedit-controllers {
+	display: none;
 }
 
 menu {

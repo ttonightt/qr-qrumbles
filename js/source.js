@@ -35,8 +35,6 @@ Controls.mask = new Controls.RadioBoxForm("mask", "mask", value => {
 
 Controls.errcor = new Controls.RadioBoxForm("errcor", "errcor", false);
 
-Controls.datatype = new Controls.RadioBoxForm("datatype", "dtype", false);
-
 // Controls.cwmapOverlay = new Controls.RadioBoxForm("datablock-overlay", "dtbmapover", value => {
 // 	switch (value) {
 // 		case "0":
@@ -162,12 +160,13 @@ Controls.maskApplication = new Controls.RadioBoxForm("mask-overlay", "mskover", 
 }, false);
 
 Controls.charmapMode = new Controls.Button("charmap-mode", () => {
-	Controls.charmapMode.value ^= 1;
-	Controls.charmapMode.elem.textContent = Controls.charmapMode.value ? "Edit Chars" : "Edit Data Markup";
-});
+	Charmap.guiMode ^= 1;
+	Controls.charmapMode.elem.value = Charmap.guiMode;
+	Controls.charmapMode.elem.textContent = Charmap.guiMode ? "Edit Chars" : "Edit Data Markup";
+}, true);
 
-Controls.charmapMode.value = 0;
-Controls.charmapMode.elem.textContent = "Edit Data Markup";
+Controls.charmapMode.elem.value = Charmap.guiMode;
+Controls.charmapMode.elem.textContent = Charmap.guiMode ? "Edit Chars" : "Edit Data Markup";
 
 const Keybindings = {
 	ins: false,
@@ -363,4 +362,30 @@ for (let i = 0; i < popupCallers.length; i++) {
 
 popupBindings["save"].onpopen = () => {
 	if (Controls.savingProjectName.value !== Project.current.name) Controls.savingProjectName.value = Project.current.name; // ТРЕБА ПЕРЕВІРИТИ ЧИ З IF'ОМ ШВИДШЕ АНІЖ ЮЕЗ НЬОГО
+};
+
+const Globalist = {
+	lists: {
+		add (elem, prop) {
+			Globalist.lists[prop || elem.getAttribute("data-globalist") || undefined] = elem;
+		},
+
+		scan (classname = "global-list") {
+			const lists = document.getElementsByClassName(classname);
+
+			for (let i = 0; i < lists.length; i++) {
+				Globalist.lists[lists[i].getAttribute("data-globalist")] = lists[i];
+			}
+		}
+	},
+
+	callers: {
+		// add (elem, prop) {
+		// 	Globalist.lists[prop || elem.getAttribute("data-globalist") || undefined] = elem;
+		// },
+
+		// scan (classname = "global-list") {
+		// 	// ...
+		// }
+	}
 };
