@@ -1,3 +1,6 @@
+"use strict";
+
+import "./tiny-usefuls.js";
 
 const Controls = {
 	CheckBox: class {

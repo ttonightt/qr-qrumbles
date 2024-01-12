@@ -1,4 +1,22 @@
 
+:root { /* <<< by the way that's the best strategy board game ever! */
+	--contrast: 0.6;
+	--invertion: 0;
+}
+
+html.preview:root {
+	--contrast: 1;
+}
+
+html.invertion:root {
+	--invertion: 1;
+}
+
+body {
+	background-color: var(--tm-pri-vl);
+	width: 100vw;
+	height: 100vh;
+}
 
 .popup[data-popup=open] .content > * {
 	width: calc(100% - 23px);
@@ -36,13 +54,21 @@
 	width: 260px;
 }
 
+.popup[data-popup = help] {
+	width: 450px;
+}
+
+.popup[data-popup = help] ul > li {
+	margin: 0.8em 0px;
+}
+
 
 
 header {
 	width: 100%;
 	height: 97px;
 	margin: 0px;
-	border-bottom: 3px solid #e6bdb6;
+	border-bottom: 3px solid var(--tm-sec-nm);
 }
 
 header *::selection {
@@ -62,18 +88,18 @@ header ul {
 }
 
 header ul.actions {
-	left: 20px;
 	top: 0px;
-	width: calc(100% - 40px);
+	left: 0px;
+	right: 0px;
 }
 
 header ul.actions li {
-	padding: 2px 7px 2px 10px;
-	background-color: #e6bdb6;
-	color: #1a0f0c;
-	font-size: 23px;
-	letter-spacing: 0.5px;
-	text-shadow: 3px 0px #eca99d;
+	padding: 0.25em 0.5em;
+	background-color: var(--tm-sec-nm);
+	color: #221511;
+	font-size: 2rem;
+	line-height: 1em;
+	text-shadow: 3px 0px var(--tm-acc-nm);
 	cursor: pointer;
 }
 
@@ -100,7 +126,7 @@ header ul.actions li:before {
 	left: -3px;
 	width: 3px;
 	height: calc(100% - 3px);
-	background-color: #e6bdb6;
+	background-color: var(--tm-sec-nm);
 }
 
 header ul.actions li:after {
@@ -112,99 +138,10 @@ header ul.actions li:after {
 	width: 3px;
 	right: -12px;
 	height: calc(100% - 3px);
-	background-color: #e6bdb6;
-	border-right: 9px solid #c0948c;
-	box-shadow: -3px 3px 0px #c0948c;
+	background-color: var(--tm-sec-nm);
+	border-right: 9px solid var(--tm-sec-dk);
+	box-shadow: -3px 3px 0px var(--tm-sec-dk);
 	cursor: pointer;
-}
-
-header #project-tabs {
-	height: 35px;
-	max-width: 100%;
-	bottom: 0px;
-	padding: 0px 20px;
-	overflow-x: auto;
-	scrollbar-width: none;
-	display: flex;
-	gap: 9px;
-}
-
-header #project-tabs input {
-	display: none;
-}
-
-header #project-tabs label {
-	z-index: 0;
-	width: fit-content;
-	height: 23px;
-	box-shadow: 9px 0px 0px #c0948c;
-	padding: 6px 9px;
-	word-break: keep-all;
-	background-color: #cea39c;
-	color: #1a0f0c;
-	cursor: pointer;
-	float: left;
-}
-
-header #project-tabs label:before {
-	content: "";
-	position: absolute;
-	top: 3px;
-	left: -3px;
-	width: 3px;
-	height: calc(100% - 3px);
-	background-color: #cea39c;
-}
-
-header #project-tabs label:after {
-	content: "";
-	position: absolute;
-	z-index: -1;
-	top: 3px;
-	right: -6px;
-	width: 3px;
-	right: -12px;
-	height: calc(100% - 3px);
-	background-color: #cea39c;
-	border-right: 9px solid #b88c86;
-	cursor: pointer;
-}
-
-header #project-tabs input:checked + label {
-	left: -3px;
-	background-color: #e6bdb6;
-	cursor: default;
-}
-
-header #project-tabs input:checked + label:before, header #project-tabs input:checked + label:after {
-	background-color: #e6bdb6;
-}
-
-header #project-tabs label .closer {
-	display: block;
-	width: 9px;
-	height: 9px;
-	margin: 4px 0px 0px 3px;
-	padding: 3px 3px 3px 3px;
-	line-height: 5px;
-	font-style: normal;
-	color: #1a0f0c;
-	box-shadow: 3px 0px 0px #c0948c, 3px 3px 0px #c79b93;
-	overflow: hidden;
-	cursor: pointer;
-	float: right;
-}
-
-header #project-tabs label .closer:hover {
-	background-color: #b3898241;
-	box-shadow: none;
-	left: 3px;
-}
-
-header #project-tabs label .closer:active {
-	background-color: #b3898288;
-	box-shadow: inset 3px 0px 0px #ac837bb9, inset 0px 3px 0px #b68a81b9;
-	padding: 3px 0px 3px 6px;
 }
 
 .workbench {
@@ -216,7 +153,7 @@ header #project-tabs label .closer:active {
 	width: calc(100% - 300px);
 	height: 100%;
 	flex-grow: 1;
-	background-image: linear-gradient(45deg, #543869 25%, transparent 25%), linear-gradient(-45deg, #543869 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #543869 75%), linear-gradient(-45deg, transparent 75%, #543869 75%);
+	background-image: linear-gradient(45deg, var(--tm-pri-lt) 25%, transparent 25%), linear-gradient(-45deg, var(--tm-pri-lt) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, var(--tm-pri-lt) 75%), linear-gradient(-45deg, transparent 75%, var(--tm-pri-lt) 75%);
 	background-size: 6px 6px, 6px 6px, 6px 6px, 6px 6px;
 	background-position: 0px 0px, 0px 3px, 3px -3px, -3px 0px;
 	overflow: hidden;
@@ -242,33 +179,11 @@ html.preview.invertion .workspace {
 
 .canvas-wrap canvas {
 	position: absolute;
-	top: 0px;
-	left: 0px;
-	right: 0px;
-	bottom: 0px;
+	inset: 0px;
 	z-index: 1;
 	width: 100%;
 	height: 100%;
 	image-rendering: crisp-edges;
-}
-
-.canvas-wrap #map {
-	display: none;
-	z-index: 2;
-}
-
-html.preview .canvas-wrap #map {
-	display: none !important;
-}
-
-.canvas-wrap #map.disabled {
-	display: block;
-	pointer-events: none;
-}
-
-.canvas-wrap #map.active {
-	display: block;
-	pointer-events: initial;
 }
 
 .workspace #infocorner {
@@ -279,8 +194,8 @@ html.preview .canvas-wrap #map {
 	padding: 4px 6px;
 	font-size: 15px;
 	line-height: 15px;
-	color: #e6bdb6;
-	text-shadow: 2px 2px 0px #25192e;
+	color: var(--tm-sec-nm);
+	text-shadow: 2px 2px 0px var(--tm-pri-ud);
 	pointer-events: none;
 }
 
@@ -291,7 +206,7 @@ html.preview .workspace #infocorner {
 aside {
 	width: 300px;
 	height: 100%;
-	background-color: var(--sidebar-bcg);
+	background-color: var(--tm-pri-lt);
 	display: flex;
 	flex-wrap: nowrap;
 	flex-direction: column;
@@ -319,23 +234,23 @@ aside #tools label {
 	margin-left: 3px;
 	line-height: 28px;
 	text-align: center;
-	color: #eca99d;
-	background-color: #3a2649;
-	box-shadow: inset 0px 3px 0px #2d1f38, inset -3px 0px 0px #0d0a1117, inset -9px 0px 0px #0d0a1117, inset -18px 0px 0px #0d0a1117, inset -30px 0px 0px #0d0a1117;
+	color: var(--tm-acc-nm);
+	background-color: var(--tm-pri-sd);
+	box-shadow: inset 0px 3px 0px var(--tm-pri-vd), inset -3px 0px 0px #0d0a1117, inset -9px 0px 0px #0d0a1117, inset -18px 0px 0px #0d0a1117, inset -30px 0px 0px #0d0a1117;
 	float: left;
 }
 
 aside #tools input:not(:disabled) + label:hover {
-	background-color: #482f5c;
+	background-color: var(--tm-pri-sl);
 	cursor: pointer;
 }
 
 aside #tools input:first-child + label {
-	box-shadow: 0px 0px 0px #25192e, inset -3px 0px 0px #0d0a1117, inset -9px 0px 0px #0d0a1117, inset -18px 0px 0px #0d0a1117, inset -30px 0px 0px #0d0a1117;
+	box-shadow: 0px 0px 0px var(--tm-pri-ud), inset -3px 0px 0px #0d0a1117, inset -9px 0px 0px #0d0a1117, inset -18px 0px 0px #0d0a1117, inset -30px 0px 0px #0d0a1117;
 }
 
 aside #tools label:last-child {
-	box-shadow: inset 0px 3px 0px #2d1f38, 0px 6px 0px #2d1f38, inset -3px 0px 0px #0d0a1117, inset -9px 0px 0px #0d0a1117, inset -18px 0px 0px #0d0a1117, inset -30px 0px 0px #0d0a1117;
+	box-shadow: inset 0px 3px 0px var(--tm-pri-vd), 0px 6px 0px var(--tm-pri-vd), inset -3px 0px 0px #0d0a1117, inset -9px 0px 0px #0d0a1117, inset -18px 0px 0px #0d0a1117, inset -30px 0px 0px #0d0a1117;
 }
 
 aside #tools label:before {
@@ -345,12 +260,12 @@ aside #tools label:before {
 	position: absolute;
 	top: 3px;
 	left: -3px;
-	background-color: #3a2649;
-	box-shadow: 0px 6px 0px #25192e;
+	background-color: var(--tm-pri-sd);
+	box-shadow: 0px 6px 0px var(--tm-pri-ud);
 }
 
 aside #tools input:not(:disabled) + label:hover:before {
-	background-color: #482f5c;
+	background-color: var(--tm-pri-sl);
 }
 
 aside #tools label img {
@@ -359,30 +274,30 @@ aside #tools label img {
 
 aside #tools input:checked + label {
 	top: -6px;
-	background-color: #543869;
-	box-shadow: 0px 6px 0px #25192e;
+	background-color: var(--tm-pri-lt);
+	box-shadow: 0px 6px 0px var(--tm-pri-ud);
 }
 
 aside #tools input:checked + label:before {
-	background-color: #543869;
+	background-color: var(--tm-pri-lt);
 }
 
 aside input[type=checkbox]:checked + label:before {
-	box-shadow: inset 0px 3px 0px #25192e;
+	box-shadow: inset 0px 3px 0px var(--tm-pri-ud);
 }
 
 aside input[type=checkbox]:checked + label:after {
-	box-shadow: inset 0px 3px 0px #25192e;
+	box-shadow: inset 0px 3px 0px var(--tm-pri-ud);
 }
 
 aside .topbar, aside .topbar + * {
 	padding: 20px;
-	border-bottom: 3px dotted #74548d;
+	border-bottom: 3px dotted var(--tm-pri-vl);
 }
 
 aside .topbar input[type=checkbox]:checked + label {
 	top: 6px;
-	box-shadow: inset 0px 3px 0px #25192e, 6px 0px 0px #eca99d, -6px 0px 0px #eca99d, 0px 0px 0px 3px #eca99d;
+	box-shadow: inset 0px 3px 0px var(--tm-pri-ud), 6px 0px 0px var(--tm-acc-nm), -6px 0px 0px var(--tm-acc-nm), 0px 0px 0px 3px var(--tm-acc-nm);
 }
 
 aside .middlebar {
@@ -403,6 +318,10 @@ aside .bottombar {
 	overflow: hidden;
 }
 
+aside .bottombar .cassette-switch {
+	flex: 0;
+}
+
 aside .bottombar form {
 	padding: 0px 6px;
 }
@@ -416,7 +335,7 @@ aside .decoded-wrap {
 	margin: -3px;
 	padding: 6px;
 	justify-self: stretch;
-	background-image: linear-gradient(45deg, #3a2649 25%, transparent 25%), linear-gradient(-45deg, #3a2649 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #3a2649 75%), linear-gradient(-45deg, transparent 75%, #3a2649 75%);
+	background-image: linear-gradient(45deg, var(--tm-pri-sd) 25%, transparent 25%), linear-gradient(-45deg, var(--tm-pri-sd) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, var(--tm-pri-sd) 75%), linear-gradient(-45deg, transparent 75%, var(--tm-pri-sd) 75%);
 	background-size: 6px 6px, 6px 6px, 6px 6px, 6px 6px;
 	background-position: 0px 0px, 0px 3px, 3px -3px, -3px 0px;
 	scrollbar-width: none;
@@ -449,6 +368,7 @@ aside .decoded-wrap {
 	word-break: break-all;
 	word-wrap: break-word;
 	white-space: break-spaces;
+	white-space-collapse: preserve;
 	line-break: anywhere;
 }
 
@@ -460,18 +380,18 @@ aside .decoded-wrap {
 #charmap-textarea p {
 	display: inline;
 	padding: 4px 0px;
-	background-image: linear-gradient(90deg, #3a2649 50%, #2d1f38 50%);
+	background-image: linear-gradient(90deg, var(--tm-pri-sd) 50%, var(--tm-pri-vd) 50%);
 	background-size: 2ch 100%;
 	background-repeat: repeat-x;
 	cursor: pointer;
 }
 
 #charmap-textarea p.fixed {
-	background-image: linear-gradient(90deg, #452649 50%, #361f38 50%);
+	background-image: linear-gradient(90deg, var(--tm-pri-nm) 50%, var(--tm-pri-dk) 50%);
 }
 
 /* #charmap-textarea p:last-of-type {
-	box-shadow: 1px 1px 0px 1px #482f5c;
+	box-shadow: 1px 1px 0px 1px var(--tm-pri-sl);
 } */
 
 #charmap-textarea p:empty {
@@ -485,7 +405,7 @@ aside .decoded-wrap {
 	inset: 0px 0px -1px 0px;
 	width: 300px;
 	transform: translateX(-100%);
-	border-bottom: 2px solid #482f5c;
+	border-bottom: 2px solid var(--tm-pri-sl);
 	pointer-events: none;
 }
 
@@ -497,14 +417,14 @@ aside .decoded-wrap {
 	content: "";
 	position: absolute;
 	inset: -1px -1px -1px -1px;
-	border: 2px solid #482f5c;
+	border: 2px solid var(--tm-pri-sl);
 	border-right-width: 0px;
 	border-bottom-width: 0px;
 	pointer-events: none;
 }
 
 #charmap-textarea:not(.disabled) p:hover::after {
-	text-shadow: 0px -2em 0px #eca99d;
+	text-shadow: 0px -2em 0px var(--tm-acc-nm);
 }
 
 #charmap-textarea p:first-of-type::after {
@@ -513,7 +433,7 @@ aside .decoded-wrap {
 }
 
 #charmap-textarea:not(.disabled) p:hover {
-	box-shadow: inset 0px 0px 0px 1em #eca99d2d;
+	box-shadow: inset 0px 0px 0px 1em var(--tm-acc-nm)2d;
 }
 
 #charmap-textarea wbr + p::after, #charmap-textarea wbr + i + p::after {
@@ -533,7 +453,7 @@ aside .decoded-wrap {
 }
 
 #charmap-textarea:not(.disabled) wbr + i + p:hover::before {
-	text-shadow: 0px -2em 0px #eca99d;
+	text-shadow: 0px -2em 0px var(--tm-acc-nm);
 }
 
 #charmap-textarea p[encoding=Term] {
@@ -564,36 +484,36 @@ aside .decoded-wrap {
 }
 
 #charmap-textarea i:first-of-type {
-	box-shadow: inset -1px 0px 0px 2px #eca99d, inset 0px 6px 0px #eca99d, inset 0px -6px 0px #eca99d;
+	box-shadow: inset -1px 0px 0px 2px var(--tm-acc-nm), inset 0px 6px 0px var(--tm-acc-nm), inset 0px -6px 0px var(--tm-acc-nm);
 }
 
 #charmap-textarea.ins i:first-of-type {
-	box-shadow: inset 2px 0px 0px 2px #eca99d, inset 0px 6px 0px #eca99d, inset 0px -6px 0px #eca99d;
+	box-shadow: inset 2px 0px 0px 2px var(--tm-acc-nm), inset 0px 6px 0px var(--tm-acc-nm), inset 0px -6px 0px var(--tm-acc-nm);
 }
 
 #charmap-textarea i:first-of-type::before {
 	content: "";
 	position: absolute;
 	inset: 3px 100% 3px -3px;
-	background-color: #eca99d;
+	background-color: var(--tm-acc-nm);
 }
 
 #charmap-textarea i:last-of-type {
-	box-shadow: inset 1px 0px 0px 2px #eca99d, inset 0px 6px 0px #eca99d, inset 0px -6px 0px #eca99d;
+	box-shadow: inset 1px 0px 0px 2px var(--tm-acc-nm), inset 0px 6px 0px var(--tm-acc-nm), inset 0px -6px 0px var(--tm-acc-nm);
 }
 
 #charmap-textarea.ins i:last-of-type {
-	box-shadow: inset -2px 0px 0px 2px #eca99d, inset 0px 6px 0px #eca99d, inset 0px -6px 0px #eca99d;
+	box-shadow: inset -2px 0px 0px 2px var(--tm-acc-nm), inset 0px 6px 0px var(--tm-acc-nm), inset 0px -6px 0px var(--tm-acc-nm);
 }
 
 #charmap-textarea i:last-of-type::after {
 	content: "";
 	position: absolute;
 	inset: 3px -3px 3px 100%;
-	background-color: #eca99d;
+	background-color: var(--tm-acc-nm);
 }
 
-#charmap-textarea i:first-child, #charmap-textarea i:last-child {
+#charmap-textarea i:first-child, #charmap-textarea p:last-of-type + i {
 	display: none;
 }
 
@@ -602,12 +522,12 @@ aside .decoded-wrap {
 }
 
 #charmap-textarea i:first-of-type + p {
-	box-shadow: inset 0px 0px 0px 1em #eca99d2d;
+	box-shadow: inset 0px 0px 0px 1em var(--tm-acc-nm)2d;
 	cursor: grab;
 }
 
 #charmap-textarea:not(.disabled) i:first-of-type + p:hover {
-	box-shadow: inset 0px 0px 0px 1em #eca99d54;
+	box-shadow: inset 0px 0px 0px 1em var(--tm-acc-nm)54;
 }
 
 #charmap-textarea b {
@@ -616,12 +536,12 @@ aside .decoded-wrap {
 }
 
 #charmap-textarea.disabled b {
-	display: initial;
+	display: inline;
 	background-color: red;
 }
 
 #charmap-textarea p::selection {
-	background-color: #eca99d;
+	background-color: var(--tm-acc-nm);
 }
 
 #charmap-textarea input {
@@ -632,10 +552,10 @@ aside .decoded-wrap {
 	background-color: transparent !important;
 	line-height: 28px;
 	color: #150f1a;
-	caret-color: #eca99d;
+	caret-color: var(--tm-acc-nm);
 	text-decoration: none;
 	background-color: transparent;
-	box-shadow: 0px 3px 0px #eca99d;
+	box-shadow: 0px 3px 0px var(--tm-acc-nm);
 	float: none;
 }
 
@@ -649,7 +569,7 @@ aside .decoded-wrap {
 }
 
 #charmap-textarea input::selection {
-	background-color: #eca99d;
+	background-color: var(--tm-acc-nm);
 	color: #150f1a;
 }
 
@@ -665,6 +585,10 @@ aside .decoded-wrap {
 
 .bottombar .cassette-switch input {
 	min-width: 4ch;
+}
+
+.bottombar .cassette-switch input:not(:valid) {
+	color: red;
 }
 
 .bottombar .cassette-switch button {
@@ -712,7 +636,7 @@ menu {
 	position: fixed;
 	top: 200px;
 	left: 300px;
-	background-color: #e6bdb6;
+	background-color: var(--tm-sec-nm);
 	font-size: 16px;
 	padding: 0px 0px 3px 0px;
 }
@@ -721,14 +645,14 @@ menu::before {
 	content: "";
 	position: absolute;
 	inset: 3px 100% 3px -3px;
-	background-color: #e6bdb6;
+	background-color: var(--tm-sec-nm);
 }
 
 menu::after {
 	content: "";
 	position: absolute;
 	inset: 3px -3px 0px 100%;
-	background-color: #e6bdb6;
+	background-color: var(--tm-sec-nm);
 }
 
 menu h1 {
@@ -738,21 +662,22 @@ menu h1 {
 	line-height: 1.2em;
 	padding: 3px;
 	color: #fff0ee;
-	background-color: #eca99d;
-	box-shadow: 4.5px 1.5px 0px -1.5px #eca99d, -4.5px 1.5px 0px -1.5px #eca99d;
+	background-color: var(--tm-acc-nm);
+	box-shadow: 4.5px 1.5px 0px -1.5px var(--tm-acc-nm), -4.5px 1.5px 0px -1.5px var(--tm-acc-nm);
 	margin-bottom: 3px;
 }
 
 menu li {
 	list-style: none;
 	line-height: 1em;
+	font-weight: 900;
 	font-family: "Ubuntu Mono";
 	padding: 3px;
 	cursor: pointer;
 }
 
 menu li:hover {
-	background-color: #eca99d;
+	background-color: var(--tm-acc-nm);
 }
 
 select::after {
@@ -769,7 +694,7 @@ select::after {
 	top: 0px;
 	right: 0px;
 	bottom: 0px;
-	background-color: #e6bdb6;
+	background-color: var(--tm-sec-nm);
 }
 
 .chartable .closer {
@@ -784,8 +709,8 @@ select::after {
 	letter-spacing: -0.2ch;
 	line-height: 1em;
 	text-align: center;
-	background-color: #e6bdb6;
-	border-color: #eca99d;
+	background-color: var(--tm-sec-nm);
+	border-color: var(--tm-acc-nm);
 	border-style: solid;
 	border-width: 0px 6px 6px 6px;
 	color: #150f1a;
@@ -803,7 +728,7 @@ table * {
 }
 
 col:nth-child(2n) {
-	background-color: #eca99d;
+	background-color: var(--tm-acc-nm);
 }
 
 col.selected {

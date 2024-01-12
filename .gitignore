@@ -1,2 +1,4 @@
-test.html
-test.js
+fonts/*
+!fonts/9x/
+qrts/
+test*

@@ -2,8 +2,6 @@
 
 const canvas = document.getElementById("main");
 
-// CWMap.init(document.getElementById("map"));
-
 QRT.init(canvas);
 
 Project.init(
@@ -12,10 +10,6 @@ Project.init(
 );
 
 // CONTROLS CONNECTING vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-
-Controls.project = new Controls.RadioBoxForm("project-tabs", "project-tab", value => {
-	console.log("e");
-});
 
 Controls.mask = new Controls.RadioBoxForm("mask", "mask", value => {
 	if (Project.current) {
@@ -54,7 +48,7 @@ Controls.errcor = new Controls.RadioBoxForm("errcor", "errcor", false);
 
 Controls.toPreview = new Controls.CheckBox("topreview", value => {
 	document.documentElement.classList.toggle("preview", value);
-});
+}, true);
 
 Controls.toInvert = new Controls.CheckBox("toinvert", value => {
 	document.documentElement.classList.toggle("invertion", value);
@@ -159,19 +153,6 @@ Controls.maskApplication = new Controls.RadioBoxForm("mask-overlay", "mskover", 
 	Project.current.qrt.updateCanvas(new Rect8(0, 0, 255, 255));
 }, false);
 
-Controls.charmapMode = new Controls.Button("charmap-mode", () => {
-	Charmap.guiMode ^= 1;
-	Controls.charmapMode.elem.value = Charmap.guiMode;
-	Controls.charmapMode.elem.textContent = Charmap.guiMode ? "Edit Chars" : "Edit Data Markup";
-}, true);
-
-Controls.charmapMode.elem.value = Charmap.guiMode;
-Controls.charmapMode.elem.textContent = Charmap.guiMode ? "Edit Chars" : "Edit Data Markup";
-
-const Keybindings = {
-	ins: false,
-};
-
 document.addEventListener("keydown", e => {
 	if (e.ctrlKey) {
 		switch (e.key) {
@@ -211,64 +192,23 @@ document.addEventListener("keydown", e => {
 				break;
 		}
 	}
-
-	// console.log(e.keyCode);
-
-	if (e.key === "Insert") {
-		Charmap.mode = Charmap.mode ^ 1;
-
-		// OneTitle.show(
-		// 	document.documentElement.clientWidth / 2,
-		// 	20,
-		// 	"Edit typing mode is " + (DBMChars.typingMode ? "on" : "off"),
-		// 	{pivot: 3, timeOut: 2000}
-		// );
-	} else if (e.keyCode === 9) { // TAB
-		if (!datablocksmap.ichars.input.focused) e.preventDefault();
-		datablocksmap.ichars.input.focus();
-		datablocksmap.ichars.input.selecti(0, 1);
-	} else if (e.keyCode === 8 && e.target.tagName !== "INPUT") {
-		e.preventDefault();
-	}
 });
 
 // QRT CREATION vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
 window.addEventListener("load", () => {
-	Charmap.init(document.getElementById("charmap-markup"), document.getElementById("charmap-textarea"));
 
-	Project.add("QRt #" + Project.list.length, {
+	document.documentElement.style.setProperty("--vw-mod2", (window.innerWidth % 2) + "px");
+
+	Project.add("qrt0", {
 		version: 20,
 		ecdepth: Controls.errcor.value,
 		masktype: Controls.mask.value,
-		datatype: 7, // Controls.datatype.value
 		maskApplication: Controls.maskApplication.value
 	});
 });
 
-// const newTabInput = document.createElement("input");
-
-// newTabInput.id = "proj-" + Project.current.name;
-// newTabInput.value = Project.current.name;
-// newTabInput.name = "project-tab";
-// newTabInput.type = "radio";
-
-// new Promise(resolve => {
-// 	resolve(
-// 		document.getElementById("project-tabs").appendChild(newTabInput)
-// 	);
-// }).then(() => {
-// 	const newTabLabel = document.createElement("label");
-
-// 	newTabInput.checked = true;
-// 	newTabLabel.insertAdjacentHTML("beforeend", `${Project.current.name}<i class="closer">x</i>`);
-// 	newTabLabel.setAttribute("for", newTabInput.id);
-// 	document.getElementById("project-tabs").appendChild(newTabLabel);
-// });
-
-// Controls.project.add(newTabInput);
-
-// window.onbeforeunload = e => {
+// window.onbeforeunload = e => { // ADD BEFORE PUBLICATION ON WEB !!!!!!!!!!
 // 	return e.returnValue;
 // };
 

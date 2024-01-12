@@ -29,13 +29,15 @@ const polyGens = {
 	30: new Uint8Array([0, 41, 173, 145, 152, 216, 31, 179, 182, 50, 48, 110, 86, 239, 96, 222, 125, 42, 173, 226, 193, 224, 130, 156, 37, 251, 216, 238, 40, 192, 180])
 };
 
-class QRTable {
+class QRTable { // WHY CLASS???
+	static __counterref = [
+		{N: 10, A:  9, B:  8}, // 1 - 9
+		{N: 12, A: 11, B: 16}, // 10 - 26
+		{N: 14, A: 13, B: 16}, // 27 - 40
+	];
+
 	static __table = {
 		20: {
-			counterLength: {
-				A: 11,
-				B: 16
-			},
 			L: {
 				firstECModuleParams: {j: 6888, v: -1, x: 21, y: 66},
 				dataBytes: 861,
@@ -75,10 +77,6 @@ class QRTable {
 			}
 		},
 		27: {
-			counterLength: {
-				A: 13,
-				B: 16
-			},
 			L: {
 				dataBytes: 1468,
 				ecBytesPerBlock: 30,
@@ -117,10 +115,6 @@ class QRTable {
 			}
 		},
 		34: {
-			counterLength: {
-				A: 13,
-				B: 16
-			},
 			L: {
 				firstECModuleParams: {x: 31, y: 127, j: 17528, v: 1},
 				dataBytes: 2191,
@@ -160,10 +154,6 @@ class QRTable {
 			}
 		},
 		40: {
-			counterLength: {
-				A: 13,
-				B: 16
-			},
 			L: {
 				firstECModuleParams: {j: 23648, v: -1, x: 38, y: 137},
 				dataBytes: 2956,
@@ -219,8 +209,16 @@ class QRTable {
 				throw new Error("Inappropriate version value was detected in the argument of QRT constructor (only 20, 27, 34, 40 are allowed)");
 		}
 
-		for (let key in QRTable.__table[version][ec]) {
-			this[key] = QRTable.__table[version][ec][key];
+		const info = {};
+
+		if (version > 26) {
+			info.counterLength = QRTable.__counterref[2];
+		} else if (version > 9) {
+			info.counterLength = QRTable.__counterref[1];
+		} else {
+			info.counterLength = QRTable.__counterref[0];
 		}
+
+		return Object.assign(info, QRTable.__table[version][ec])
 	}
 }

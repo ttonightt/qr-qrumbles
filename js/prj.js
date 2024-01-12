@@ -70,8 +70,15 @@ class Project {
 	static add (name, settings, refmx) {
 		this.current = new Project(name, settings, refmx);
 
+		this.current.qrt = new QRT({
+			version: 20,
+			ecdepth: "L",
+			masktype: 2
+		});
+
 		QRT.canvas.width = this.current.qrt.modules;
 		QRT.canvas.height = this.current.qrt.modules;
+
 		this.current.qrt.updateCanvas(new Rect8(0, 0, 255, 255));
 
 		// CWMap.canvas.width = this.current.qrt.modules * this.current.box.scale;
@@ -324,60 +331,74 @@ class Project {
 		// this.qrt = new QRT(settings, refmx);
 
 		this.data = [
+			// {
+			// 	encoding: "Latin1",
+			// 	chars: "Hello WOrldDDx*&6:]]Hello WOrldDDx*&6:]]Hello WOrldDDx*&6:]]"
+			// },
+			// {
+			// 	encoding: "Num",
+			// 	chars: "1271"
+			// },
+			// {
+			// 	encoding: "Num",
+			// 	chars: " Hello WOrldDDx*&6:]]Hell  WOrldDDx*&6:]]Hel¶lo WOrldDDx*&6:]]"
+			// },
+			// {
+			// 	encoding: "Win1251",
+			// 	chars: "Hello WOr"
+			// },
+			// {
+			// 	encoding: "Alphanum",
+			// 	chars: "ALPLPPALPPPPPI"
+			// },
 			{
-				encoding: "Latin1",
-				chars: "Hello WOrldDDx*&6:]]Hello WOrldDDx*&6:]]Hello WOrldDDx*&6:]]"
-			},
-			{
-				encoding: "Num",
-				chars: "1271"
-			},
-			{
-				encoding: "Num",
-				chars: " Hello WOrldDDx*&6:]]Hell  WOrldDDx*&6:]]Hel¶lo WOrldDDx*&6:]]"
-			},
-			{
-				encoding: "Win1251",
+				encoding: "Latin2",
 				chars: "Hello WOr"
 			},
 			{
-				encoding: "Alphanum",
-				chars: "ALPLPPALPPPPPI"
+				encoding: "Latin2",
+				chars: "Hello WOrldDDx12***&;"
 			},
 			{
 				encoding: "Latin2",
-				chars: "Hello WOrldDDx12***&;6:]]Hello WOrldDDx*&6:]]Hello WOrlADfhajshdfakfashfdkahsffwaegwe"
+				chars: "Hello WOrldDDx12***&;6:]]Hellxllo WOrlADfhajshdfakfashfdkahsffwaegwe"
 			},
-			{
-				encoding: "Num",
-				chars: "000021039128140120200002385028530820123145215126163165145134324124123215126141241209128512051240040"
-			},
-			{
-				encoding: "Num",
-				chars: "1251"
-			}
 			// {
-			// 	encoding: "Latin2",
-			// 	chars: "Hello WOrldDDx12***&;6:]]Hello WOrldDDx*&6:]]Hello WOrlADfhajshdfakfashfdkahsfkgdfgs"
-			// }
-		]; // CodewordArray.decode(this.qrt.scanDataFrom())
+			// 	encoding: "Num",
+			// 	chars: "000021039128140120200002385028530820123145215126163165145134324124123215126141241209128512051240040"
+			// },
+			// {
+			// 	encoding: "Num",
+			// 	chars: "1251"
+			// },
+			{
+				encoding: "Num",
+				chars: "Hello WOrldDDx12***&;6:]]Hello WOrldDDx*&6:]]D"
+			},
+			{
+				encoding: "Latin2",
+				chars: "dfgs"
+			}
+		];
+		
+		// CodewordArray.decode(this.qrt.scanDataFrom())
 
-		// this.box = new ScalableBox(
-		// 	Project.canvasArea.clientWidth,
-		// 	Project.canvasArea.clientHeight,
-		// 	this.qrt.modules,
-		// 	this.qrt.modules,
-		// 	Project.canvasArea.getBoundingClientRect().left,
-		// 	Project.canvasArea.getBoundingClientRect().top
-		// );
+		this.box = new ScalableBox(
+			Project.canvasArea.clientWidth,
+			Project.canvasArea.clientHeight,
+			// Project.current.qrt.modules,
+			// Project.current.qrt.modules,
+			97,
+			97,
+			Project.canvasArea.getBoundingClientRect().left,
+			Project.canvasArea.getBoundingClientRect().top
+		);
 
-		// this.fitCanvasArea();
-
-		this.charmap = new Charmap(this.data);
+		this.fitCanvasArea();
 
 		this.history = new History();
 
-		this.status = 0; // 0 - unsaved at all, 1 - saved as and up to date, 2 - saved as and modified
+		this.status = 0; // 0 - unsaved at all, 1 - saved as and up to date, 2 - saved once and modified
 	}
 
 	fitCanvasArea () {

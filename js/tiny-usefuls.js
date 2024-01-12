@@ -1,83 +1,48 @@
-console.logb = function (bnum, pad = 0) {
+
+// BINARY 0101001001 BINARY 01010101001 BINARY
+
+console.logb = function (bnum, maxlen = 0) {
 	bnum = bnum.toString(2);
 
 	if (pad > bnum.length) {
-		bnum = bnum.padStart(pad, "0");
+		bnum = bnum.padStart(maxlen, "0");
 	}
 
 	console.log(bnum);
-};
+}
 
-Math.hammingDistance = (a, b) => {
-	if (a === b) return 0;
+const Bath = {
 
-	a ^= b;
-	b = 0;
+	binlen (bx) {
+		if (bx === 0) return 0;
+		return Math.floor(Math.log2(bx)) + 1;
+	},
 
-	while (a > 0) {
-		if (a % 2) {
-			b++;
+	hammingDistance (a, b) {
+		if (a === b) return 0;
+	
+		a ^= b;
+		b = 0;
+	
+		while (a > 0) {
+			if (a % 2) {
+				b++;
+			}
+	
+			a >>= 1;
 		}
-
-		a >>= 1;
+	
+		return b;
 	}
+}
 
-	return b;
-};
+// MATH b1d-g1+263 MATH kD0228= MATH *)2k0-fd MATH
 
 Math.fitinter = function (min, x, max) {
 	return Math.max(Math.min(x, max), min);
 }
 
-Math.binlen = function (bx) {
-	if (bx === 0) return 0;
-	return Math.floor(Math.log2(bx)) + 1;
-}
-
-String.fromCharCodeS = function (code) {
-	if ((0 <= code && code <= 0x1f) || (0x7f <= code && code <= 0x9f)) {
-		code = 0xfffd;
-	}
-	return String.fromCharCode(code);
-}
-
-String.prototype.decodeAsAN2 = function () { // MUST BE INTAGRATED INTO QR CLASS !!!!!!!!!!!
-	let res = 0n, _res = "";
-	let leadingZeroes = 0;
-
-	for (let i = 0; i < this.length - (this.length % 2); i += 2) {
-		res += BigInt((45 * charToInt45(this[i])) + charToInt45(this[i + 1] || 0));
-		res <<= 11n;
-
-		if (i ==0) {
-			leadingZeroes = 11 - (res.toString(2).length % 11);
-		}
-	}
-
-	if (this.length % 2) {
-		_res += "0".repeat(leadingZeroes);
-
-		res >>= 5n;
-		res += BigInt(charToInt45(this[this.length - 1] || 0));
-	} else {
-		res >>= 11n;
-	}
-
-	_res += res.toString(2);
-
-	return _res;
-}
-
-String.prototype.decodeAsASCII2 = function () { // MUST BE INTAGRATED INTO QR CLASS !!!!!!!!!!!
-	let _res, res = "";
-
-	for (let i = 0; i < this.length; i++) {
-		_res = this[i].charCodeAt(0).toString(2);
-		res += ("0".repeat(8 - (_res.length % 8))) + _res;
-	}
-
-	return res;
-}
+//
 
 String.sjoin = (arr, func) => {
 	let str = "";
@@ -93,13 +58,9 @@ isFunction = func => {
 	return !!(func && func.constructor && func.call && func.apply);
 };
 
-// DATATYPES vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+// ARRAYS [..., [..., ...]] ARRAYS [..., [..., ...]] ARRAYS
 
-
-
-// ARRAYS vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-
-Object.defineProperty(Array.prototype, "last", {
+Object.defineProperty(Array.prototype, "last", { // MAYBE IT IS BETTER TO MODIFICATE ONLY SPECIFIC ARRAYS DON'T THEY?
 	configurable: true,
 
 	get () {
@@ -112,7 +73,7 @@ Object.defineProperty(Array.prototype, "last", {
 });
 
 class Uint8ArrayX2 extends Uint8Array {
-	static frame (arr, x0, y0, w, h) {
+	static frame (arr, x0, y0, w, h) { // HASN'T USED ANYWARE YET
 		if (
 		// vvvv ARE GOOD FOR LIB NOT FOR PERSONAL PROJECT vvvv
 			// arr instanceof Uint8ArrayX2 &&
@@ -149,40 +110,6 @@ class Uint8ArrayX2 extends Uint8Array {
 			}
 
 			return narr;
-			// let str = "";
-			// for (let i = 0; i < narr.length; i++) {
-			// 	switch (narr[i]) {
-			// 		case 0:
-			// 			str += ". ";
-			// 			break;
-			// 		case 1:
-			// 			str += "# ";
-			// 			break;
-			// 		case 2:
-			// 			str += ", ";
-			// 			break;
-			// 		case 3:
-			// 			str += "& ";
-			// 			break;
-			// 		case 4:
-			// 			str += "' ";
-			// 			break;
-			// 		case 5:
-			// 			str += "8 ";
-			// 			break;
-			// 		case 6:
-			// 			str += "` ";
-			// 			break;
-			// 		case 7:
-			// 			str += "S ";
-			// 			break;
-			// 	}
-
-			// 	if ((i + 1) % narr.columns === 0) {
-			// 		str += "\n";
-			// 	}
-			// }
-			// console.log(str);
 		} else throw new Error("..."); // <<<
 	}
 
@@ -301,7 +228,7 @@ class Uint8ArrayX2 extends Uint8Array {
 	}
 }
 
-class Uint16ArrayX2 extends Uint16Array {
+class Uint16ArrayX2 extends Uint16Array { // 16bit INT ARRAYS HAVE DIFFERENT METHODS WITH 8bit ONES NOW
 
 	constructor (arrOrows, columns) {
 		if (!columns) {
@@ -363,48 +290,21 @@ class Uint16ArrayX2 extends Uint16Array {
 	}
 }
 
-console.logAsTable = (arr, cellen, padchar, separator, cols) => {
+console.logAsTable = (arr, cols, celllen, padchar, separator) => {
 	let str = "";
 
 	if (typeof cols === "number" && cols > 0) {
 		for (let i = 0; i < arr.length; i++) {
-			str += arr[i].toString(10).padStart(cellen, padchar) + separator;
+			str += arr[i].toString(10).padStart(celllen, padchar) + separator;
 			if ((i + 1) % cols === 0) str += "\n\n";
 		}
 	} else {
 		for (let i = 0; i < arr.length; i++) {
-			str += arr[i].toString(10).padStart(cellen, padchar) + separator;
+			str += arr[i].toString(10).padStart(celllen, padchar) + separator;
 		}
 	}
 
 	return console.log(str);
 };
 
-Uint16Array.prototype.inject = function (_i, arr) {
-	for (let i = 0; i < arr.length; i++) {
-		this[_i + i] = arr[i];
-	}
-	return this;
-}
-
-function setCSSvar (name, value) { // ???????????????????????????????????????
-	console.log("setting");
-	document.documentElement.style.setProperty(name, value);
-}
-
-function getCSSvar (name) { // ???????????????????????????????????
-	return document.documentElement.style.getPropertyValue(name);
-}
-
-SVGPolygonElement.create = (points) => {
-	const elem = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
-
-	let str = "";
-	for (let i = 0; i < points.length; i += 2) {
-		str += points[i] + "," + points[i + 1] + " ";
-	}
-
-	elem.setAttribute("points", str);
-
-	return elem;
-};
+export default isFunction;
