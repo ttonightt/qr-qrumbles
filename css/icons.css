@@ -1,0 +1,9 @@
+@font-face {
+    font-family: tinticons;
+    src: url(../fonts/icons/tinttreat-icons.ttf);
+}
+
+i.tic {
+    font-family: tinticons;
+    font-style: normal;
+}

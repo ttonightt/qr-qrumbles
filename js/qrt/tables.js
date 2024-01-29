@@ -1,4 +1,6 @@
-let GF256 = {
+"use strict";
+
+export const GF256 = {
 	_refTableIntToPow: new Int16Array(256),
 	_refTablePowToInt: new Int16Array(256),
 	ip: int => {
@@ -22,14 +24,14 @@ for (let i = 1; i < 256; i++) {
 
 GF256._refTableIntToPow[1] = 0;
 
-const polyGens = {
+export const polyGens = {
 	// 10: new Uint8Array([0, 251, 67, 46, 61, 118, 70, 64, 94, 32, 45]),
 	26: new Uint8Array([0, 173, 125, 158, 2, 103, 182, 118, 17, 145, 201, 111, 28, 165, 53, 161, 21, 245, 142, 13, 102, 48, 227, 153, 145, 218, 70]),
 	28: new Uint8Array([0, 168, 223, 200, 104, 224, 234, 108, 180, 110, 190, 195, 147, 205, 27, 232, 201, 21, 43, 245, 87, 42, 195, 212, 119, 242, 37, 9, 123]),
 	30: new Uint8Array([0, 41, 173, 145, 152, 216, 31, 179, 182, 50, 48, 110, 86, 239, 96, 222, 125, 42, 173, 226, 193, 224, 130, 156, 37, 251, 216, 238, 40, 192, 180])
 };
 
-class QRTable { // WHY CLASS???
+export class QRTable { // WHY CLASS???
 	static __counterref = [
 		{N: 10, A:  9, B:  8}, // 1 - 9
 		{N: 12, A: 11, B: 16}, // 10 - 26
@@ -78,6 +80,7 @@ class QRTable { // WHY CLASS???
 		},
 		27: {
 			L: {
+				firstECModuleParams: {j: 11744, v: -1, x: 26, y: 68},
 				dataBytes: 1468,
 				ecBytesPerBlock: 30,
 				ecBytes: 360,

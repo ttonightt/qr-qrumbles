@@ -92,6 +92,61 @@
 	--tm-sec-dk: #c0948c;
 
 	--tm-acc-nm: #eca99d;
+
+	--tm-err-nm: #eb1b37;
+
+	--rebbel-x3: polygon(
+		0px 3px,
+		3px 3px,
+		3px 0px,
+		calc(100% - 3px) 0px,
+		calc(100% - 3px) 3px,
+		100% 3px,
+		100% calc(100% - 3px),
+		calc(100% - 3px) calc(100% - 3px),
+		calc(100% - 3px) 100%,
+		3px 100%,
+		3px calc(100% - 3px),
+		0px calc(100% - 3px)
+	);
+
+	--rebbel-x2: polygon(
+		0px 2px,
+		2px 2px,
+		2px 0px,
+		calc(100% - 2px) 0px,
+		calc(100% - 2px) 2px,
+		100% 2px,
+		100% calc(100% - 2px),
+		calc(100% - 2px) calc(100% - 2px),
+		calc(100% - 2px) 100%,
+		2px 100%,
+		2px calc(100% - 2px),
+		0px calc(100% - 2px)
+	);
+
+	--semirebbel-left-x3: polygon(
+		0 0.16666em,
+		0.16666em 0.16666em,
+		0.16666em 0,
+		100% 0,
+		100% 100%,
+		calc(100% - 0.16666em) 100%,
+		0.16666em 100%,
+		0.16666em calc(100% - 0.16666em),
+		0px calc(100% - 0.16666em)
+	);
+
+	--semirebbel-right-x3: polygon(
+		0px 0px,
+		calc(100% - 3px) 0px,
+		calc(100% - 3px) 3px,
+		100% 3px,
+		100% calc(100% - 3px),
+		calc(100% - 3px) calc(100% - 3px),
+		calc(100% - 3px) 100%,
+		0px 100%
+	);
 }
 
 html {

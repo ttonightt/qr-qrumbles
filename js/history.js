@@ -1,4 +1,4 @@
-class History {
+export default class History {
 	static BitmapArea = class {
 		static log (bmarea) {
 			if (bmarea instanceof this) {
@@ -95,6 +95,3 @@ class History {
 		} else return 0;
 	}
 }
-
-
-const hhh = new History();

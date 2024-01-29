@@ -1,29 +1,9 @@
 "use strict";
 
-class Rect8 extends Uint8ClampedArray {
-	constructor (x0, y0, x, y, outset = 0) {
-		if (typeof x0 === "number" && typeof y0 === "number" && typeof x === "number" && typeof y === "number" && typeof outset === "number") {
-
-			super(4);
-
-			if (x0 > x) {
-				this[0] = x - outset;
-				this[2] = x0 + outset;
-			} else {
-				this[0] = x0 - outset;
-				this[2] = x + outset;
-			}
-
-			if (y0 > y) {
-				this[1] = y - outset;
-				this[3] = y0 + outset;
-			} else {
-				this[1] = y0 - outset;
-				this[3] = y + outset;
-			}
-		} else return false;
-	}
-}
+import {Uint8ArrayX2, Bath, isFunction, Rect8} from "../tiny-usefuls.js";
+import {GF256, QRTable, polyGens} from "./tables.js";
+import CodewordArray from "./codewords.js";
+import FilePortal from "../file-saver-reader.js";
 
 class BrushSprite {
 	constructor (sprite, fastsprite) {
@@ -45,25 +25,7 @@ class BrushSprite {
 	}
 }
 
-function fitByte (str) { // TEMP TEMP TEMP TEMP TEMP TEMP
-	let str_ = "";
-
-	for (let i = 0; i < str.length; i++) {
-		const code = str.charCodeAt(i);
-
-		if (0x7f < code && code < 0xa0) {
-			// str_ += String.fromCharCode(code - 0x80);
-			// str_ += String.fromCharCode(code + 0x40);
-			str_ += String.fromCharCode(code + 0x20);
-		} else {
-			str_ += str[i];
-		}
-	}
-
-	return str_;
-}
-
-class QRT {
+export default class QRT {
 	static ctx;
 
 	static init (ctx) {
@@ -479,8 +441,8 @@ class QRT {
 			let vbits = this.info.version << 12,
 				gen = 0b1111100100101;
 
-			for (let p = 0; Math.binlen(vbits) > 12 && p < 100; p++) {
-				vbits ^= gen << Math.binlen(vbits) - 13;
+			for (let p = 0; Bath.binlen(vbits) > 12 && p < 100; p++) {
+				vbits ^= gen << Bath.binlen(vbits) - 13;
 			}
 
 			vbits = (this.info.version << 12) + vbits;
@@ -512,55 +474,32 @@ class QRT {
 		// console.log(this.applyDataOn(new CodewordArray(this.info.dataBytes)));
 
 		// const white = this.decodeCodewords(this.scanDataFrom());
-		// console.log(fitByte(white));
 
 		// this.applyECDataOn(this.encodeECCodewords(QRT.uninterleave(this.scanDataFrom(), this.info.g1Blocks, this.info.g2Blocks, this.info.g1DataBytesPerBlock)));
 		// console.log(this.decodeCodewords(this.scanDataFrom()));
 
-		console.log(this.info);
 
-		this.cw = new CodewordArray(861); // Я ХОТІВ ЗАПХАТИ ДЕЯКІ ТАБЛИЧНІ ЗНАЧЕННЯ QRT ДО CODEWORD'ІВ
 
-		const edata = [
-			{
-				encoding: "windows1251",
-				chars: "Привьіт, дїду, ґє!"
-			},
-			{
-				encoding: "binary",
-				chars: "10000000000000000000"
-			},
-			{
-				encoding: "byte",
-				chars: "HELLO WORLD HELLO WORLD HELLO WORLD HELLO WORLD HELLO WORLD HELLO WORLD HELLO WORLD HELLO WORLD HELLO WORLD HELLO WORLD"
-			}
-			// {
-			// 	encoding: "end"
-			// }
-		];
+		// console.log(this.info);
 
-		"G8GE9D+$Y:SX0EYE/XCXN6-/PM0Z%J5L1QVFA.38H7L*6GYE/XCXN6-/PM0Z%J5L1QVFA.38H7L*6GYE/XCXN6-/PM0Z%J5L1QVFA.38H7L*6GYE/XCXN6-/PM0Z%J5L";
+		// this.cw = new CodewordArray(1468); // Я ХОТІВ ЗАПХАТИ ДЕЯКІ ТАБЛИЧНІ ЗНАЧЕННЯ QRT ДО CODEWORD'ІВ
 
-		console.log(edata);
-		
-		CodewordArray.encode(this.cw, edata, this.info.counterLength);
+		// const edata = [];
 
-		CodewordArray.logb(this.cw);
+		// CodewordArray.encode(this.cw, edata, this.info.counterLength);
 
-		this.applyDataOn(
-			CodewordArray.interleave(
-				this.cw,
-				this.info.g1Blocks, this.info.g2Blocks, this.info.g1DataBytesPerBlock
-			)
-		);
+		// CodewordArray.logb(this.cw);
 
-		this.applyECDataOn(CodewordArray.generateInterlateRSC(this.encodeECCodewords(this.cw)));
+		// this.applyDataOn(
+		// 	CodewordArray.interleave(
+		// 		this.cw,
+		// 		this.info.g1Blocks, this.info.g2Blocks, this.info.g1DataBytesPerBlock
+		// 	)
+		// );
 
-		// for (let i = 40; i < 52; i++) {
-		// 	for (let j = 10; j < 50; j++) {
-		// 		this.matrix.x2set(i, j, this.matrix.x2get(i, j) ^ 1);
-		// 	}
-		// }
+		// this.applyECDataOn(CodewordArray.generateInterlateRSC(this.encodeECCodewords(this.cw)));
+
+		// this.downloadCanvas("2-");
 	}
 
 	static tempCanvas = document.createElement("canvas");
@@ -568,18 +507,18 @@ class QRT {
 
 	downloadCanvas (testname = "") {
 		const ctx = QRT.tempCanvasContext;
-		QRT.tempCanvas.width = (97 + 8) * 5;
-		QRT.tempCanvas.height = (97 + 8) * 5;
+		QRT.tempCanvas.width = (125 + 8) * 5;
+		QRT.tempCanvas.height = (125 + 8) * 5;
 		ctx.fillStyle = "white";
-		ctx.fillRect(0, 0, 600, 600);
+		ctx.fillRect(0, 0, QRT.tempCanvas.width, QRT.tempCanvas.height);
 		ctx.transform(5, 0, 0, 5, 20, 20);
-		for (let i = 0; i < 97; i++) {
-			for (let j = 0; j < 97; j++) {
+		for (let i = 0; i < 125; i++) {
+			for (let j = 0; j < 125; j++) {
 				ctx.fillStyle = QRT.palette[this.matrix.x2get(i, j) % 2];
 				ctx.fillRect(i, j, 1, 1);
 			}
 		}
-		
+
 		FilePortal.saver.href = QRT.tempCanvas.toDataURL("image/png", 1);
 		FilePortal.saver.download = "qr-test-" + testname; // <<< UNSUITABLE FOR BLOB !!
 		FilePortal.saver.click();
@@ -706,156 +645,6 @@ class QRT {
 	get maskApplication () {
 		return this.info.maskApplication;
 	}
-
-	// encoding - encoding - encoding - encoding - encoding - encoding - encoding - encoding
-
-	// encodeDataCodewords (str) {
-	// 	if (typeof str !== "string" || str.length < 1) throw new Error("..."); // <<<
-
-	// 	const cws = new Uint8Array(this.info.dataBytes);
-
-	// 	let k = 4, c = 0;
-	// 	let buff = this.info.datatype;
-
-	// 	if (this.info.datatype === 7) {
-	// 		k += 12;
-	// 		buff <<= 12;
-	// 		buff += 0b000101100100; // eci code for Windows-1251 encoding + byte mode indicator
-	// 	}
-
-	// 	k += this.info.counterLength;
-	// 	buff <<= this.info.counterLength;
-	// 	buff += this.info.charCapacity;
-
-	// 	alert(Math.floor(k / 8) + 1);
-
-	// 	switch (Math.floor(k / 8) + 1) { // + 1 for WHAT???
-	// 		case 5:
-	// 			k -= 8;
-	// 			cws[c++] = buff >> k;
-	// 			buff %= 1 << k;
-	// 			k -= 8;
-	// 			cws[c++] = buff >> k;
-	// 			buff %= 1 << k;
-	// 		case 3:
-	// 			k -= 8;
-	// 			cws[c++] = buff >> k;
-	// 			buff %= 1 << k;
-	// 		default:
-	// 			k -= 8;
-	// 			cws[c++] = buff >> k;
-	// 			buff %= 1 << k;
-	// 			cws[c] = buff;
-	// 	}
-
-	// 	switch (this.info.datatype) {
-	// 		case 2: // ALPHANUM // WAS NOT TESTED WHEN DATA COVERS ALL POSSIBLE CODEWORDS !!!!!!!!
-	// 			for (let i = 0; i < str.length - 1; i += 2) {
-	// 				k += 11;
-	// 				buff <<= 11;
-	// 				buff += (Alphanumerical.charCode(str[i]) * 45) + Alphanumerical.charCode(str[i + 1]);
-
-	// 				if (k >= 16) {
-	// 					k = (k % 8) + 8;
-	// 					cws[c++] = buff >> k;
-	// 					buff %= 1 << k;
-	// 				}
-
-	// 				if (k >= 8) {
-	// 					k %= 8;
-	// 					cws[c++] = buff >> k;
-	// 					buff %= 1 << k;
-	// 				}
-	// 			}
-
-	// 			if (str.length % 2) {
-	// 				k += 6;
-	// 				buff <<= 6;
-	// 				buff += Alphanumerical.charCode(str[i]);
-
-	// 				if (k >= 16) {
-	// 					k = (k % 8) + 8;
-	// 					cws[c++] = buff >> k;
-	// 					buff %= 1 << k;
-	// 				}
-
-	// 				if (k >= 8) {
-	// 					k %= 8;
-	// 					cws[c++] = buff >> k;
-	// 					buff %= 1 << k;
-	// 				}
-	// 			}
-
-	// 			buff <<= 4;
-	// 			k += 4;
-
-	// 			if (k > 8) {
-	// 				k %= 8;
-	// 				cws[c++] = buff >> k;
-	// 			} else {
-	// 				cws[c] = buff << (8 - k);
-	// 			}
-
-	// 			if (c !== cws.length - 1) {
-	// 				throw new Error("In this app it is necessary to cover all data codewords");
-	// 			}
-
-	// 			break;
-	// 		case 4:
-	// 			k %= 8;
-
-	// 			if (k === 0) {
-	// 				for (let i = 0; i < this.info.charCapacity; i++) {
-	// 					const code = str.charCodeAt(i);
-	// 					if (code < 256) {
-	// 						cws[c++] = code;
-	// 					} else throw new Error("..."); // <<<
-	// 				}
-	// 			} else {
-	// 				for (let i = 0; i < this.info.charCapacity; i++) { // WAS NOT TESTED ON ALL VERSIONS EXCEPT 34th
-	// 					const code = str.charCodeAt(i);
-
-	// 					if (code < 256) {
-	// 						buff <<= 8;
-	// 						buff += code;
-
-	// 						cws[c++] = buff >> k;
-
-	// 						buff %= 1 << k;
-	// 					} else throw new Error("..."); // <<<
-	// 				}
-
-	// 				cws[c] = buff << (8 - k);
-	// 			}
-	// 			break;
-	// 		case 7:
-	// 			k %= 8;
-
-	// 			if (k === 0) {
-	// 				for (let i = 0; i < this.info.charCapacity; i++) {
-	// 					cws[c++] = Windows1251.charCode(str[i]);
-	// 				}
-	// 			} else {
-	// 				for (let i = 0; i < this.info.charCapacity; i++) { // WAS NOT TESTED ON ALL VERSIONS EXCEPT 34th
-	// 					const code = str.charCodeAt(i);
-
-	// 					if (code < 256) {
-	// 						buff <<= 8;
-	// 						buff += code;
-
-	// 						cws[c++] = buff >> k;
-
-	// 						buff %= 1 << k;
-	// 					} else throw new Error("..."); // <<<
-	// 				}
-
-	// 				cws[c] = buff << (8 - k);
-	// 			}
-	// 			break;
-	// 	}
-
-	// 	return new CodewordArray(QRT.interleave(cws, this.info.g1Blocks, this.info.g2Blocks, this.info.g1DataBytesPerBlock));
-	// }
 
 	encodeECCodewords (datacws) { // ЦЕ НЕОБХІДНО ПОМІСТИТИ У ВІДПОВІДНИЙ МЕТОД КЛАСУ CODEWORDSARRAY
 		if (datacws instanceof CodewordArray && datacws.length === this.info.dataBytes) {
@@ -1443,7 +1232,7 @@ class QRT {
 
 		let _num = bits;
 
-		for (let p = 0; Math.binlen(bits) > 10 && p < 100; p++) {
+		for (let p = 0; Bath.binlen(bits) > 10 && p < 100; p++) {
 			bits ^= 0b10100110111 << (bits.toString(2).length - 11);
 		}
 
@@ -1539,105 +1328,6 @@ class QRT {
 
 		return cws;
 	}
-
-	// decodeCodewords (cws) {
-	// 	cws = new CodewordArray(QRT.uninterleave(cws, this.info.g1Blocks, this.info.g2Blocks, this.info.g1DataBytesPerBlock));
-
-	// 	let chars = "";
-
-	// 	let k, i;
-	// 	let buff = 0b0;
-
-	// 	switch (this.info.datatype) {
-	// 		case 2: // ALPHANUM
-	// 			k = 17; // <<< СЮДИ ТРЕБА ЗНАЧЕННЯ З ТАБЛИЦІ
-	// 			i = Math.floor(k / 8);
-
-	// 			k = 8 - (k % 8);
-
-	// 			buff = ncws[i] % (1 << k);
-
-	// 			const pair = new Uint16Array(2);
-
-	// 			for (i = i + 1; i < ncws.length; i++) {
-	// 				buff <<= 8;
-	// 				buff += ncws[i];
-	// 				k += 8;
-
-	// 				if (k >= 11) {
-	// 					k %= 11;
-
-	// 					pair[0] = buff >> k;
-
-	// 					if (pair[0] > 0b11111101000) { // ENCODING CORRECTION BLOCK
-	// 						const corrections = [];
-
-	// 						for (let p = 1; p < pair[0]; p <<= 1) {
-	// 							if ((pair[0] ^ p) <= 0b11111101000) {
-	// 								corrections.push(pair[0] ^ p);
-	// 								// console.logb(pair[0] ^ p, 11);
-	// 							}
-	// 						}
-	// 					}
-
-	// 					pair[1] = pair[0] % 45;
-	// 					pair[0] = (pair[0] - pair[1]) / 45;
-
-	// 					chars += Alphanumerical.fromCharCode(pair[0]) + Alphanumerical.fromCharCode(pair[1]);
-	// 					buff &= (1 << k) - 1;
-	// 				}
-	// 			}
-
-	// 			if (k >= 7) {
-	// 				pair[0] = buff >> (k % 7);
-
-	// 				if (pair[0] > 44) {
-	// 					throw new Error("An attempt to get an alphanum char by too big code was detected!");
-	// 				}
-
-	// 				chars += Alphanumerical.fromCharCode(pair[0]);
-	// 			}
-
-	// 			break;
-	// 		case 4: // BYTE
-	// 			k = this.info.counterLength + 4;
-	// 			i = Math.floor(k / 8);
-
-	// 			// console.log(((cws[0] << 8)).toString(2).padStart(this.info.counterLength + 4, "0"));
-
-	// 			k %= 8;
-
-	// 			if (k === 0) {
-	// 				for (i; i < cws.length; i++) {
-	// 					chars += String.fromCharCode(cws[i]);
-	// 				}
-	// 			} else {
-	// 				for (i; i < cws.length - 1; i++) {
-	// 					buff = cws[i] % (1 << (8 - k));
-	// 					buff <<= (8 - k);
-	// 					buff += cws[i + 1] >> k;
-	// 					chars += String.fromCharCode(buff);
-	// 				}
-	// 			}
-	// 			break;
-	// 	}
-
-	// 	let str = "";
-
-	// 	for (let i = 0; i < chars.length; i++) {
-	// 		switch (chars.charCodeAt(i) > 0x7e && chars.charCodeAt(i) < 0xa1) {
-	// 			case true:
-	// 				str += "\\u00" + chars.charCodeAt(i).toString(16).padStart(2, "0");
-	// 				break;
-	// 			case false:
-	// 				str += chars[i];
-	// 		}
-	// 	}
-
-	// 	console.log(str);
-
-	// 	return chars;
-	// }
 
 	goThroughDataModules (act, interval) {
 		if (!isFunction(act)) throw new Error("Inappropriate value of act arg. was put into goThroughDataModules method!");

@@ -4,14 +4,14 @@
 console.logb = function (bnum, maxlen = 0) {
 	bnum = bnum.toString(2);
 
-	if (pad > bnum.length) {
+	if (maxlen > bnum.length) {
 		bnum = bnum.padStart(maxlen, "0");
 	}
 
 	console.log(bnum);
 }
 
-const Bath = {
+export const Bath = {
 
 	binlen (bx) {
 		if (bx === 0) return 0;
@@ -20,18 +20,18 @@ const Bath = {
 
 	hammingDistance (a, b) {
 		if (a === b) return 0;
-	
+
 		a ^= b;
 		b = 0;
-	
+
 		while (a > 0) {
 			if (a % 2) {
 				b++;
 			}
-	
+
 			a >>= 1;
 		}
-	
+
 		return b;
 	}
 }
@@ -54,7 +54,7 @@ String.sjoin = (arr, func) => {
 	return str;
 };
 
-isFunction = func => {
+export const isFunction = func => {
 	return !!(func && func.constructor && func.call && func.apply);
 };
 
@@ -72,7 +72,7 @@ Object.defineProperty(Array.prototype, "last", { // MAYBE IT IS BETTER TO MODIFI
 	}
 });
 
-class Uint8ArrayX2 extends Uint8Array {
+export class Uint8ArrayX2 extends Uint8Array {
 	static frame (arr, x0, y0, w, h) { // HASN'T USED ANYWARE YET
 		if (
 		// vvvv ARE GOOD FOR LIB NOT FOR PERSONAL PROJECT vvvv
@@ -228,7 +228,7 @@ class Uint8ArrayX2 extends Uint8Array {
 	}
 }
 
-class Uint16ArrayX2 extends Uint16Array { // 16bit INT ARRAYS HAVE DIFFERENT METHODS WITH 8bit ONES NOW
+export class Uint16ArrayX2 extends Uint16Array { // 16bit INT ARRAYS HAVE DIFFERENT METHODS WITH 8bit ONES NOW
 
 	constructor (arrOrows, columns) {
 		if (!columns) {
@@ -307,4 +307,27 @@ console.logAsTable = (arr, cols, celllen, padchar, separator) => {
 	return console.log(str);
 };
 
-export default isFunction;
+export class Rect8 extends Uint8ClampedArray {
+	constructor (x0, y0, x, y, outset = 0) {
+		if (typeof x0 === "number" && typeof y0 === "number" && typeof x === "number" && typeof y === "number" && typeof outset === "number") {
+
+			super(4);
+
+			if (x0 > x) {
+				this[0] = x - outset;
+				this[2] = x0 + outset;
+			} else {
+				this[0] = x0 - outset;
+				this[2] = x + outset;
+			}
+
+			if (y0 > y) {
+				this[1] = y - outset;
+				this[3] = y0 + outset;
+			} else {
+				this[1] = y0 - outset;
+				this[3] = y + outset;
+			}
+		} else return false;
+	}
+}

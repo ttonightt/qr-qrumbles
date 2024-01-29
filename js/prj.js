@@ -1,5 +1,8 @@
 "use strict";
 
+import QRT from "./qrt/qrt.js";
+import {Rect8} from "./tiny-usefuls.js";
+
 class ScalableBox {
 	constructor (parentWidth, parentHeight, width, height, parentX = 0, parentY = 0) {
 		this.cwidth = width;
@@ -61,7 +64,7 @@ class ScalableBox {
 	}
 }
 
-class Project {
+export default class Project {
 	static list = [];
 	static __index = -1;
 
@@ -71,7 +74,7 @@ class Project {
 		this.current = new Project(name, settings, refmx);
 
 		this.current.qrt = new QRT({
-			version: 20,
+			version: 27,
 			ecdepth: "L",
 			masktype: 2
 		});
@@ -115,16 +118,16 @@ class Project {
 	static canvasArea;
 	static canvasWrap;
 
-	static init (canvasArea, canvasWrap) {
+	static init (canvas) {
 
-		if (canvasArea instanceof HTMLElement) {
-			this.canvasArea = canvasArea;
+		if (canvas.parentElement.parentElement instanceof HTMLElement) {
+			this.canvasArea = canvas.parentElement.parentElement;
 		} else {
 			throw new Error("..."); // <<<
 		}
 
-		if (canvasWrap instanceof HTMLElement) {
-			this.canvasWrap = canvasWrap;
+		if (canvas.parentElement instanceof HTMLElement) {
+			this.canvasWrap = canvas.parentElement;
 		} else {
 			throw new Error("..."); // <<<
 		}
@@ -380,7 +383,7 @@ class Project {
 				chars: "dfgs"
 			}
 		];
-		
+
 		// CodewordArray.decode(this.qrt.scanDataFrom())
 
 		this.box = new ScalableBox(
@@ -388,15 +391,15 @@ class Project {
 			Project.canvasArea.clientHeight,
 			// Project.current.qrt.modules,
 			// Project.current.qrt.modules,
-			97,
-			97,
+			125,
+			125,
 			Project.canvasArea.getBoundingClientRect().left,
 			Project.canvasArea.getBoundingClientRect().top
 		);
 
 		this.fitCanvasArea();
 
-		this.history = new History();
+		// this.history = new History();
 
 		this.status = 0; // 0 - unsaved at all, 1 - saved as and up to date, 2 - saved once and modified
 	}

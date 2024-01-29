@@ -6,6 +6,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="stylesheet" href="tUxUIt/components.css">
 	<link rel="stylesheet" href="tUxUIt/common.css">
+	<link rel="stylesheet" href="css/icons.css">
 	<link rel="stylesheet" href="css/style.css">
 	<title>Tinttreat — the QRt editor : p1.0.0</title>
 </head>
@@ -41,8 +42,10 @@
 				<div class="btn" id="save-proj-btn">Save</div>
 			</div>
 			<form class="flagged" id="saving-prj-format">
-				<input type="radio" name="format" id="frm-tqrt" value=".tqrt" checked>
-				<label for="frm-tqrt">.tqrt</label>
+				<!-- <input type="radio" name="format" id="frm-tqrt" value=".tqrt" checked>
+				<label for="frm-tqrt">.tqrt</label> -->
+				<input type="radio" name="format" id="frm-txt" value=".txt" checked>
+				<label for="frm-tqrt">.txt</label>
 				<input type="radio" name="format" id="frm-png" value=".png" checked>
 				<label for="frm-png">.png</label>
 			</form>
@@ -170,7 +173,18 @@
 		</ul>
 	</header>
 
-	<div class="workbench">
+	<main>
+
+		<div class="toolbar">
+			<form id="tools" class="cassette-switch">
+				<!-- <input type="radio" value="brush" name="tool" id="brush-tool" checked>
+				<label for="brush-tool">B</label>
+				<input type="radio" value="circle" name="tool" id="circle-tool">
+				<label for="circle-tool">C</label>
+				<input type="radio" value="line" name="tool" id="line-tool">
+				<label for="line-tool">L</label> -->
+			</form>
+		</div>
 
 		<div class="workspace">
 			<div class="canvas-wrap">
@@ -179,68 +193,75 @@
 			</div>
 		</div>
 
-		<aside>
-			<form id="tools">
-				<input type="radio" value="brush" name="tool" id="brush-tool" checked>
-				<label for="brush-tool"><img class="red-to-150f1a" src="img/brush-tool.png"></label>
-				<input type="radio" value="circle" name="tool" id="circle-tool">
-				<label for="circle-tool"><img class="red-to-150f1a" src="img/circle-tool.png"></label>
-				<input type="radio" value="line" name="tool" id="line-tool">
-				<label for="line-tool"><img class="red-to-150f1a" src="img/line-tool.png"></label>
+	</main>
+
+	<aside>
+		<section class="topbar controls-table">
+			<input type="checkbox" name="toinvert" id="toinvert">
+			<label class="btn square" for="toinvert">I</label>
+
+			<input type="checkbox" name="topreview" id="topreview">
+			<label class="btn" for="topreview" title="Preview mode. Use it to fit the qrt into workspace, increase its contrast and set appropriate background">Pre.</label>
+
+			<button id="rotate-workbench-right" class="square"><i class="tic">G</i></button>
+			<button id="rotate-workbench-left" class="square"><i class="tic">F</i></button>
+
+			<form id="mask-overlay" class="cassette-switch highlight compact" content="Mask overlay">
+				<input type="radio" name="mskover" id="mskover-var-0" value="0">
+				<label for="mskover-var-0">0</label>
+
+				<input type="radio" name="mskover" id="mskover-var-2" value="2" checked>
+				<label for="mskover-var-2">X</label>
 			</form>
+		</section>
 
-			<section class="topbar controls-table">
-				<input type="checkbox" name="toinvert" id="toinvert">
-				<label class="btn square" for="toinvert">I</label>
+		<section class="middlebar controls-table">
+			<div id="update-controller" class="cassette-switch">
+				<input type="button" name="updatectrl" id="updatectrl-tocanv">
+				<label for="updatectrl-tocanv"><i class="tic">D</i></label>
 
-				<input type="checkbox" name="topreview" id="topreview">
-				<label class="btn" for="topreview" title="Preview mode. Use it to fit the qrt into workspace, increase its contrast and set appropriate background">Pre.</label>
+				<input type="checkbox" name="updatectrl" id="updatectrl-tocanv-auto">
+				<label for="updatectrl-tocanv-auto">Auto</label>
+			</div>
 
-				<button id="rotate-workbench-right" class="square"><img class="red-to-150f1a" src="img/circle-arrow-clockwise.png" width="18px"></button>
-				<button id="rotate-workbench-left" class="square"><img class="red-to-150f1a" src="img/circle-arrow-reversewise.png" width="18px"></button>
+			<div id="update-controller" class="cassette-switch">
+				<input type="button" name="updatectrl" id="updatectrl-fromcanv">
+				<label for="updatectrl-fromcanv"><i class="tic">E</i></label>
 
-				<form id="mask-overlay" class="cassette-switch highlight compact" content="Mask overlay">
-					<input type="radio" name="mskover" id="mskover-var-0" value="0">
-					<label for="mskover-var-0">0</label>
+				<input type="checkbox" name="updatectrl" id="updatectrl-fromcanv-auto">
+				<label for="updatectrl-fromcanv-auto">Auto</label>
+			</div>
 
-					<input type="radio" name="mskover" id="mskover-var-2" value="2" checked>
-					<label for="mskover-var-2">X</label>
-				</form>
-			</section>
+			<div id="ec-encode-controller" class="cassette-switch">
+				<input type="button" name="ec" id="ec-toencode">
+				<label for="ec-toencode"><i class="tic">H</i></label>
 
-			<section class="middlebar controls-table">
-				<div id="update-controller" class="cassette-switch">
-					<input type="button" name="updatectrl" id="updatectrl-tocanv">
-					<label for="updatectrl-tocanv"><img class="red-to-150f1a" src="img/arrow-up-with-base.png" alt="A" width="18px"></label>
+				<input type="checkbox" name="ec" id="ec-toencode-auto">
+				<label for="ec-toencode-auto">Auto</label>
+			</div>
+		</section>
 
-					<input type="checkbox" name="updatectrl" id="updatectrl-tocanv-auto">
-					<label for="updatectrl-tocanv-auto">Auto</label>
+		<section class="bottombar controls-table">
+			<div class="decoded-wrap">
+				<div class="charmap-wrap">
+					<canvas id="charmap-layout"></canvas>
+					<div id="charmap-textarea">
+						<p enc="numr">Hello World!</p>
+						<i></i>
+						<p enc="1251">Падав сніг на поріг, Кіт зліпив собі пиріг. Поки смажив, поки пік, а пиріг водою стік. Кіт не знав, що на пиріг треба тісто, а не сніг.</p>
+						<i class="right"> </i>
+						<p enc="anum">Hello World!</p>
+						<i></i>
+						<p enc="byte">Hello World!</p>
+						<i class="right"></i>
+						<p enc="lat2">Hello World!</p>
+						<i class="left"> </i>
+						<p enc="lat1">Hello World!</p>
+					</div>
 				</div>
-
-				<div id="update-controller" class="cassette-switch">
-					<input type="button" name="updatectrl" id="updatectrl-fromcanv">
-					<label for="updatectrl-fromcanv"><img class="red-to-150f1a" src="img/arrow-down-with-base.png" alt="A" width="18px"></label>
-
-					<input type="checkbox" name="updatectrl" id="updatectrl-fromcanv-auto">
-					<label for="updatectrl-fromcanv-auto">Auto</label>
-				</div>
-
-				<div id="ec-encode-controller" class="cassette-switch">
-					<input type="button" name="ec" id="ec-toencode">
-					<label for="ec-toencode"><img class="red-to-150f1a" src="img/ec-bits.png" alt="A" width="18px"></label>
-
-					<input type="checkbox" name="ec" id="ec-toencode-auto">
-					<label for="ec-toencode-auto">Auto</label>
-				</div>
-			</section>
-
-			<section class="bottombar controls-table">
-				<div class="decoded-wrap">
-					<div id="charmap-textarea"></div>
-				</div>
-			</section>
-		</aside>
-	</div>
+			</div>
+		</section>
+	</aside>
 
 	<!-- <div class="chartable">
 		<div class="closer">></div>
@@ -303,24 +324,6 @@
 		</table>
 	</div> -->
 
-	<!-- <menu class="global-list" data-globalist="1">
-		<h1>Encoding</h1>
-		<li>Numerical</li>
-		<li>Alphanumerical</li>
-		<li>Latin-1</li>
-		<li>Latin-2</li>
-		<li>Windows-1250</li>
-		<li>Windows-1251</li>
-	</menu> -->
-
-	<!-- <script src="js/tiny-usefuls.js"></script> -->
-	<script src="js/history.js"></script>
-	<script src="js/prj.js"></script>
-	<script src="js/tables.js"></script>
-	<script src="js/file-saver-reader.js"></script>
-	<script type="module" src="js/controls.js"></script>
-	<script src="js/codeword.js"></script>
-	<script src="js/qrt.js"></script>
-	<script src="js/source.js"></script>
+	<script type="module" src="js/main.js"></script>
 </body>
 </html>

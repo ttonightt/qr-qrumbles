@@ -2,6 +2,10 @@
 :root { /* <<< by the way that's the best strategy board game ever! */
 	--contrast: 0.6;
 	--invertion: 0;
+
+	--cm-dbk-1: 200, 109, 166;
+	--cm-dbk-2: 26, 155, 242;
+	--cm-dbk-3: 241, 209, 15;
 }
 
 html.preview:root {
@@ -16,6 +20,7 @@ body {
 	background-color: var(--tm-pri-vl);
 	width: 100vw;
 	height: 100vh;
+	overflow: hidden;
 }
 
 .popup[data-popup=open] .content > * {
@@ -69,6 +74,7 @@ header {
 	height: 97px;
 	margin: 0px;
 	border-bottom: 3px solid var(--tm-sec-nm);
+	float: left;
 }
 
 header *::selection {
@@ -144,13 +150,14 @@ header ul.actions li:after {
 	cursor: pointer;
 }
 
-.workbench {
-	width: 100%;
+main {
+	width: calc(100% - 300px);
 	height: calc(100% - 100px);
+	float: left;
 }
 
 .workspace {
-	width: calc(100% - 300px);
+	width: 100%;
 	height: 100%;
 	flex-grow: 1;
 	background-image: linear-gradient(45deg, var(--tm-pri-lt) 25%, transparent 25%), linear-gradient(-45deg, var(--tm-pri-lt) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, var(--tm-pri-lt) 75%), linear-gradient(-45deg, transparent 75%, var(--tm-pri-lt) 75%);
@@ -174,7 +181,6 @@ html.preview.invertion .workspace {
 	width: fit-content;
 	height: fit-content;
 	filter: contrast(var(--contrast)) invert(var(--invertion));
-	background-color: red;
 }
 
 .canvas-wrap canvas {
@@ -205,7 +211,7 @@ html.preview .workspace #infocorner {
 
 aside {
 	width: 300px;
-	height: 100%;
+	height: calc(100% - 100px);
 	background-color: var(--tm-pri-lt);
 	display: flex;
 	flex-wrap: nowrap;
@@ -214,72 +220,18 @@ aside {
 	float: left;
 }
 
-aside #tools {
+.toolbar {
 	position: absolute;
 	z-index: 3;
-	top: 20px;
-	right: 100%;
-	width: 44px;
-	height: fit-content;
+	inset: 0px;
+	width: fit-content;
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
 }
 
-aside #tools input {
-	display: none;
-}
-
-aside #tools label {
-	width: calc(100% - 15px);
-	height: 27px;
-	padding: 6px 6px 6px 6px;
-	margin-left: 3px;
-	line-height: 28px;
-	text-align: center;
-	color: var(--tm-acc-nm);
-	background-color: var(--tm-pri-sd);
-	box-shadow: inset 0px 3px 0px var(--tm-pri-vd), inset -3px 0px 0px #0d0a1117, inset -9px 0px 0px #0d0a1117, inset -18px 0px 0px #0d0a1117, inset -30px 0px 0px #0d0a1117;
-	float: left;
-}
-
-aside #tools input:not(:disabled) + label:hover {
-	background-color: var(--tm-pri-sl);
-	cursor: pointer;
-}
-
-aside #tools input:first-child + label {
-	box-shadow: 0px 0px 0px var(--tm-pri-ud), inset -3px 0px 0px #0d0a1117, inset -9px 0px 0px #0d0a1117, inset -18px 0px 0px #0d0a1117, inset -30px 0px 0px #0d0a1117;
-}
-
-aside #tools label:last-child {
-	box-shadow: inset 0px 3px 0px var(--tm-pri-vd), 0px 6px 0px var(--tm-pri-vd), inset -3px 0px 0px #0d0a1117, inset -9px 0px 0px #0d0a1117, inset -18px 0px 0px #0d0a1117, inset -30px 0px 0px #0d0a1117;
-}
-
-aside #tools label:before {
-	content: "";
-	width: 3px;
-	height: calc(100% - 6px);
-	position: absolute;
-	top: 3px;
-	left: -3px;
-	background-color: var(--tm-pri-sd);
-	box-shadow: 0px 6px 0px var(--tm-pri-ud);
-}
-
-aside #tools input:not(:disabled) + label:hover:before {
-	background-color: var(--tm-pri-sl);
-}
-
-aside #tools label img {
-	height: 100%;
-}
-
-aside #tools input:checked + label {
-	top: -6px;
-	background-color: var(--tm-pri-lt);
-	box-shadow: 0px 6px 0px var(--tm-pri-ud);
-}
-
-aside #tools input:checked + label:before {
-	background-color: var(--tm-pri-lt);
+#tools {
+	margin: 12px 13px 12px 12px;
 }
 
 aside input[type=checkbox]:checked + label:before {
@@ -348,22 +300,33 @@ aside .decoded-wrap {
 	bottom: 100%;
 } */
 
+.charmap-wrap {
+	display: inline;
+}
+
+#charmap-layout {
+	position: absolute;
+	inset: -1px;
+}
+
 #charmap-textarea {
+	display: inline;
 	width: var(--textarea-width);
-	overflow-x: clip;
+	word-spacing: -1ch;
 	/* overflow-y: scroll; */
-	float: left;
 }
 
 #charmap-textarea:empty {
 	width: 100% !important;
 }
 
-#charmap-textarea, #charmap-textarea > * {
+#charmap-textarea > * {
+	display: inline;
 	color: #150f1a;
 	font-size: 18px;
 	line-height: 27px;
 	font-weight: 600;
+	word-spacing: 0;
 	font-family: "Ubuntu Mono";
 	word-break: break-all;
 	word-wrap: break-word;
@@ -378,259 +341,112 @@ aside .decoded-wrap {
 }
 
 #charmap-textarea p {
-	display: inline;
 	padding: 4px 0px;
 	background-image: linear-gradient(90deg, var(--tm-pri-sd) 50%, var(--tm-pri-vd) 50%);
 	background-size: 2ch 100%;
 	background-repeat: repeat-x;
+	background-position-x: 5ch;
 	cursor: pointer;
 }
-
-#charmap-textarea p.fixed {
-	background-image: linear-gradient(90deg, var(--tm-pri-nm) 50%, var(--tm-pri-dk) 50%);
-}
-
-/* #charmap-textarea p:last-of-type {
-	box-shadow: 1px 1px 0px 1px var(--tm-pri-sl);
-} */
 
 #charmap-textarea p:empty {
 	display: none;
 }
 
 #charmap-textarea p::before {
-	content: "";
-	position: absolute;
-	z-index: 1;
-	inset: 0px 0px -1px 0px;
-	width: 300px;
-	transform: translateX(-100%);
-	border-bottom: 2px solid var(--tm-pri-sl);
-	pointer-events: none;
+	content: attr(enc) ":";
+	display: inline;
+	padding: 4px 0px;
+	color: #150f1a8f;
+	background-color: rgb(var(--cm-dbk-3));
+	text-indent: -9px;
+	text-transform: uppercase;
 }
 
-#charmap-textarea p:first-of-type::before, #charmap-textarea br + p::before {
-	content: none;
+#charmap-textarea p:nth-of-type(3n + 1)::before {
+	background-color: rgb(var(--cm-dbk-1));
 }
 
-#charmap-textarea p::after {
-	content: "";
-	position: absolute;
-	inset: -1px -1px -1px -1px;
-	border: 2px solid var(--tm-pri-sl);
-	border-right-width: 0px;
-	border-bottom-width: 0px;
-	pointer-events: none;
-}
-
-#charmap-textarea:not(.disabled) p:hover::after {
-	text-shadow: 0px -2em 0px var(--tm-acc-nm);
-}
-
-#charmap-textarea p:first-of-type::after {
-	left: 0px;
-	border: none;
+#charmap-textarea p:nth-of-type(3n + 2)::before {
+	background-color: rgb(var(--cm-dbk-2));
 }
 
 #charmap-textarea:not(.disabled) p:hover {
-	box-shadow: inset 0px 0px 0px 1em var(--tm-acc-nm)2d;
+	box-shadow: inset 0px 0px 0px 1em rgba(var(--cm-dbk-3), 0.2);
 }
 
-#charmap-textarea wbr + p::after, #charmap-textarea wbr + i + p::after {
-	content: none;
+#charmap-textarea:not(.disabled) p:nth-of-type(3n + 1):hover {
+	box-shadow: inset 0px 0px 0px 1em rgba(var(--cm-dbk-1), 0.2);
 }
 
-#charmap-textarea wbr + i + p::before {
-	content: attr(encoding);
-	font-family: pixeloid;
-	font-weight: 900;
-	font-size: 9px;
-	line-height: 16px;
-	text-align: right;
-	color: red;
-	word-break: keep-all;
-	word-wrap: normal;
-}
-
-#charmap-textarea:not(.disabled) wbr + i + p:hover::before {
-	text-shadow: 0px -2em 0px var(--tm-acc-nm);
-}
-
-#charmap-textarea p[encoding=Term] {
-	opacity: 0.5;
-}
-
-#charmap-textarea p[encoding=Alphanum] {
-	background-size: 4ch 100%;
-}
-
-#charmap-textarea p[encoding=Num] {
-	background-size: 6ch 100%;
+#charmap-textarea:not(.disabled) p:nth-of-type(3n + 2):hover {
+	box-shadow: inset 0px 0px 0px 1em rgba(var(--cm-dbk-2), 0.2);
 }
 
 #charmap-textarea i {
 	z-index: 2;
-	position: absolute;
-	margin: -1px -3px;
-	width: 6px;
 	height: 1em;
-	padding: 5px 0px;
-	background-color: #150f1a;
+	padding: 4px 0px;
+}
+
+#charmap-textarea i:empty:not(.left, .right):hover {
+	background-color: var(--tm-acc-sl);
+}
+
+#charmap-textarea i:not(:empty) {
+	padding-right: 1ch;
+	background-color: var(--tm-pri-sl);
+	background-image: linear-gradient(-45deg, transparent 45%, var(--tm-err-nm) 45%, var(--tm-err-nm) 55%, transparent 55%);
+	background-size: 5px 5px;
+	box-shadow: inset 0px 0px 0px 2px var(--tm-err-nm);
+	cursor: pointer;
+}
+
+#charmap-textarea i:not(:empty):hover {
+	background-image: linear-gradient(-45deg, var(--tm-err-nm) 45%, transparent 45%, transparent 55%, var(--tm-err-nm) 55%);
+}
+
+#charmap-textarea i.left, #charmap-textarea i.right {
+	padding-right: 1ch;
+	background-color: var(--tm-pri-sl);
+}
+
+#charmap-textarea i.left::before, #charmap-textarea i.right::before {
+	content: "|";
+	position: absolute;
+	z-index: 1;
+	top: 0px;
+	bottom: 0px;
+	width: 9px;
+	font-family: pixeloid;
+	font-weight: normal;
+	font-style: normal;
+	line-height: 26px;
+	background-color: var(--tm-acc-nm);
 	cursor: col-resize;
 }
 
-#charmap-textarea.ins i {
-	background-color: transparent;
+#charmap-textarea i.left::before {
+	right: 0px;
+	clip-path: var(--semirebbel-left-x3);
+	text-indent: 4px;
 }
 
-#charmap-textarea i:first-of-type {
-	box-shadow: inset -1px 0px 0px 2px var(--tm-acc-nm), inset 0px 6px 0px var(--tm-acc-nm), inset 0px -6px 0px var(--tm-acc-nm);
-}
-
-#charmap-textarea.ins i:first-of-type {
-	box-shadow: inset 2px 0px 0px 2px var(--tm-acc-nm), inset 0px 6px 0px var(--tm-acc-nm), inset 0px -6px 0px var(--tm-acc-nm);
-}
-
-#charmap-textarea i:first-of-type::before {
-	content: "";
-	position: absolute;
-	inset: 3px 100% 3px -3px;
-	background-color: var(--tm-acc-nm);
-}
-
-#charmap-textarea i:last-of-type {
-	box-shadow: inset 1px 0px 0px 2px var(--tm-acc-nm), inset 0px 6px 0px var(--tm-acc-nm), inset 0px -6px 0px var(--tm-acc-nm);
-}
-
-#charmap-textarea.ins i:last-of-type {
-	box-shadow: inset -2px 0px 0px 2px var(--tm-acc-nm), inset 0px 6px 0px var(--tm-acc-nm), inset 0px -6px 0px var(--tm-acc-nm);
-}
-
-#charmap-textarea i:last-of-type::after {
-	content: "";
-	position: absolute;
-	inset: 3px -3px 3px 100%;
-	background-color: var(--tm-acc-nm);
-}
-
-#charmap-textarea i:first-child, #charmap-textarea p:last-of-type + i {
-	display: none;
+#charmap-textarea i.right::before {
+	left: 0px;
+	clip-path: var(--semirebbel-right-x3);
+	text-indent: 3px;
 }
 
 #charmap-textarea.disabled i {
 	pointer-events: none;
 }
 
-#charmap-textarea i:first-of-type + p {
-	box-shadow: inset 0px 0px 0px 1em var(--tm-acc-nm)2d;
-	cursor: grab;
-}
-
-#charmap-textarea:not(.disabled) i:first-of-type + p:hover {
-	box-shadow: inset 0px 0px 0px 1em var(--tm-acc-nm)54;
-}
-
-#charmap-textarea b {
-	display: none;
-	font-weight: 600;
-}
-
-#charmap-textarea.disabled b {
-	display: inline;
-	background-color: red;
-}
-
 #charmap-textarea p::selection {
 	background-color: var(--tm-acc-nm);
 }
 
-#charmap-textarea input {
-	display: inline;
-	width: 1ch;
-	height: 18px;
-	padding: 0px;
-	background-color: transparent !important;
-	line-height: 28px;
-	color: #150f1a;
-	caret-color: var(--tm-acc-nm);
-	text-decoration: none;
-	background-color: transparent;
-	box-shadow: 0px 3px 0px var(--tm-acc-nm);
-	float: none;
-}
 
-/* #charmap-textarea input:not(:focus) {
-	position: absolute;
-	z-index: 1;
-} */
-
-#charmap-textarea input:not(:valid) {
-	background-color: #7b1734 !important;
-}
-
-#charmap-textarea input::selection {
-	background-color: var(--tm-acc-nm);
-	color: #150f1a;
-}
-
-.bottombar .cassette-switch button:first-child {
-	writing-mode: vertical-lr;
-	width: 1em;
-	height: unset;
-	align-self: stretch;
-	font-family: pixeloid;
-	text-align: center;
-	font-size: 1rem;
-}
-
-.bottombar .cassette-switch input {
-	min-width: 4ch;
-}
-
-.bottombar .cassette-switch input:not(:valid) {
-	color: red;
-}
-
-.bottombar .cassette-switch button {
-	padding-left: 0.5em;
-	padding-right: 0.5em;
-}
-
-#markup-controllers {
-	flex-wrap: nowrap;
-}
-
-#charmap-block-encoding + label {
-	min-width: 0px;
-	flex: 1 1 0px;
-	margin: 0px 3px;
-	text-align: left;
-}
-
-#charmap-block-encoding + label > span {
-	position: static;
-	display: inline-block;
-	width: calc(100% - 1ch);
-	text-overflow: ".";
-	word-wrap: normal;
-	word-break: keep-all;
-	overflow: hidden;
-}
-
-#charmap-block-encoding + label > span::after {
-	/* content: url("../img/tridown.png"); */
-	content: "v";
-	position: absolute;
-	right: 0.25em;
-}
-
-.bottombar #charmap-mode[value = "0"] ~ #markup-controllers {
-	display: none;
-}
-
-.bottombar #charmap-mode[value = "1"] ~ #charedit-controllers {
-	display: none;
-}
 
 menu {
 	position: fixed;

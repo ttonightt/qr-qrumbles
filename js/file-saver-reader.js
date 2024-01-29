@@ -5,7 +5,7 @@ const FilePortal = {
 	saver: document.createElement("a"),
 
 	save (file) {
-		if (!(file instanceof Blob)) throw new Error("Received argument is neither a File nor a Blob instance!");
+		if (!(file instanceof Blob)) throw new Error("Received argument is neither a File's nor a Blob's instance!");
 
 		const url = URL.createObjectURL(file);
 		this.saver.href = url;
@@ -14,3 +14,5 @@ const FilePortal = {
 		URL.revokeObjectURL(url);
 	}
 };
+
+export default FilePortal;

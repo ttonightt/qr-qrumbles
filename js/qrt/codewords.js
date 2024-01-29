@@ -48,7 +48,7 @@ const Windows1250 = {
 	}
 };
 
-class CodewordArray extends Uint8ClampedArray {
+export default class CodewordArray extends Uint8ClampedArray {
 
 	static logb (cw) {
 		if (cw instanceof CodewordArray) {
@@ -127,6 +127,18 @@ class CodewordArray extends Uint8ClampedArray {
 					break;
 			}
 
+			if (k >= 8) {
+				k -= 8;
+				cws[c++] = buff >> k;
+				buff %= 1 << k;
+			}
+
+			if (k >= 8) {
+				k -= 8;
+				cws[c++] = buff >> k;
+				buff %= 1 << k;
+			}
+
 			switch (datarr[i].encoding) { // ADD BASIC ENCODING INDICATOR AND CHAR COUNTER
 				case "latin1": case "latin2": case "windows1250": case "windows1251": case "byte":
 
@@ -195,15 +207,20 @@ class CodewordArray extends Uint8ClampedArray {
 				}
 			}
 
-			// vvvvvvv НЕКРАСИВИЙ КОД !!!!!!!!!!!!!!
-			if (datarr[i].encoding !== "binary") for (j = 0; j < 4 && k >= 8; j++) { // DISTRIBUTION OF MODE BITS
+			if (k >= 8) {
+				k -= 8;
+				cws[c++] = buff >> k;
+				buff %= 1 << k;
+			}
+
+			if (k >= 8) {
 				k -= 8;
 				cws[c++] = buff >> k;
 				buff %= 1 << k;
 			}
 
 			switch (datarr[i].encoding) { // ENCODING AND DISTRIBUTION OF CHARACTERS
-				case "latin1": case "byte": // -------------------------------------------------- LATIN-1 ------------ 8
+				case "latin1": case "byte": // ------------------------------------- LATIN-1 ------------ 8
 
 					for (j = 0; j < charcap; j++) {
 						buff = (buff << 8) + chars.charCodeAt(j);
@@ -239,7 +256,7 @@ class CodewordArray extends Uint8ClampedArray {
 						space -= 8;
 					}
 					break;
-				case "alphanumerical":
+				case "alphanumerical": // ------------------------------------------ ALPHANUM ----------- 11 / 6
 
 					for (j = 0; j < charcap - 1; j += 2) {
 						buff = (buff << 11) + (45 * Alphanumerical.codeByChar(chars[j])) + Alphanumerical.codeByChar(chars[j + 1]);
@@ -261,6 +278,14 @@ class CodewordArray extends Uint8ClampedArray {
 						buff = (buff << 6) + Alphanumerical.codeByChar(chars[j]);
 						k += 6;
 						space -= 6;
+					}
+					break;
+				case "numerical": // ----------------------------------------------- NUMERICAL ---------- 10 / 7 / 4
+
+					for (j = 0; j < charcap - 2; j += 3) {
+						buff = (buff << 10) + parseInt(chars[j] + chars[j + 1] + chars[j + 2]);
+						k += 10;
+						space -= 10;
 
 						if (k >= 16) {
 							k -= 8;
@@ -268,15 +293,23 @@ class CodewordArray extends Uint8ClampedArray {
 							buff %= 1 << k;
 						}
 
-						if (k >= 8) {
-							k -= 8;
-							cws[c++] = buff >> k;
-							buff %= 1 << k;
-						}
+						k -= 8;
+						cws[c++] = buff >> k;
+						buff %= 1 << k;
 					}
-					break;
-				case "numerical":
-					// ...
+
+					switch (charcap % 3) {
+						case 1:
+							buff = (buff << 4) + parseInt(chars[j]);
+							k += 4;
+							space -= 4;
+							break;
+						case 2:
+							buff = (buff << 7) + parseInt(chars[j] + chars[j + 1]);
+							k += 7;
+							space -= 7;
+							break;
+					}
 					break;
 				case "binary":
 
@@ -307,6 +340,12 @@ class CodewordArray extends Uint8ClampedArray {
 					}
 
 					return cws;
+			}
+
+			if (k >= 8) { // may be true only after encoding alphanum or num only
+				k -= 8;
+				cws[c++] = buff >> k;
+				buff %= 1 << k;
 			}
 		}
 
@@ -339,7 +378,7 @@ class CodewordArray extends Uint8ClampedArray {
 			}
 
 			return ncws;
-		} else throw new Error("..."); // <<<
+		} else throw new Error("Codeword length doesn't match the required!\n" + cws.length + " !== " + parseInt((g1rows * g1cols) + (g2rows * (g1cols + 1))) + " (" + g1rows + " * " + g1cols + " + " + g2rows + " * " + parseInt(g1cols + 1) + ")"); // <<<
 	}
 
 	static uninterleave (cws, g1rows, g2rows, g1cols) {
@@ -369,7 +408,7 @@ class CodewordArray extends Uint8ClampedArray {
 
 			const ncws = new CodewordArray(cws.length);
 			for (let i = 0; i < cws.length; i++) {
-				ncws[((i % 28) * 8) + Math.floor(i / 28)] = cws[i];
+				ncws[((i % 30) * 12) + Math.floor(i / 30)] = cws[i];
 			}
 		// } else throw new Error("..."); // <<<
 
