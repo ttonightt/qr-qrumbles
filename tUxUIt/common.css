@@ -1,285 +1,154 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-/* tUxUIt is @ttonightt's pixelated UI */
-/* p1.0.0 */
+@layer base {
+	/*
+	┌─────────────────────────────────────────┐
+	├--------------PIXEL FONTS----------------┤
+	└─────────────────────────────────────────┘
+	*/
+	
+	/* FONTS WHICH EM SIZE = 9 PX */
+	
+	@font-face {
+		font-family: pixeloid;
+		font-weight: 400;
+		src: url(../fonts/9x/9x-Pixeloid-CY-reg.ttf);
+	}
+	
+	@font-face {
+		font-family: pixeloid;
+		font-weight: 900;
+		src: url(../fonts/9x/9x-Pixeloid-CY-bld.ttf);
+	}
+	
+	@font-face {
+		font-family: pixeloid;
+		font-weight: 900;
+		src: url(../fonts/9x/9x-NineteenNinetySeven.ttf);
+		unicode-range: U+40;
+	}
+	
+	@font-face {
+		font-family: doab8m;
+		font-weight: 900;
+		src: url(../fonts/9x/9x-DiaryOfAn8BitMage-CY.ttf);
+	}
+	
+	@font-face {
+		font-family: doab8m;
+		font-weight: 900;
+		src: url(../fonts/9x/9x-SuperLegendBoy.ttf);
+		unicode-range: U+40;
+	}
+	
+	@font-face {
+		font-family: doab8m;
+		font-weight: 900;
+		src: url(../fonts/9x/9x-Pixeloid-CY-bld.ttf);
+		unicode-range: U+0424, U+0444;
+	}
 
-/*
-┌─────────────────────────────────────────┐
-├--------------PIXEL FONTS----------------┤
-└─────────────────────────────────────────┘
-*/
+	html {
+		font-size: 9px;
+	}
 
-/* FONTS WHICH EM SIZE = 9 PX */
+	* {
+		/* line-height: 1em; */
+	}
 
-@font-face {
-	font-family: pixeloid;
-	font-weight: 400;
-	src: url(../fonts/9x/9x-Pixeloid-CY-reg.ttf);
+	*::selection {
+		background-color: black;
+		color: white;
+	}
+
+	/* ICONS */
+	
+	/* @font-face {
+		font-family: ttonicons;
+		font-weight: normal;
+		src: url();
+	}
+	
+	i.tic {
+		font-family: ttonicons;
+		font-weight: normal;
+		font-style: normal;
+	} */
+
+	h1 {
+		font-size: 5rem;
+		font-family: doab8m;
+	}
+	
+	h2 {
+		font-size: 4rem;
+		font-weight: 900;
+	}
+	
+	h3 {
+		font-size: 4rem;
+		font-family: doab8m;
+	}
+	
+	h4 {
+		font-size: 3rem;
+		font-weight: 900;
+	}
+	
+	h5 {
+		font-size: 3rem;
+		font-family: doab8m;
+	}
+	
+	h6 {
+		font-size: 2rem;
+		font-weight: 900;
+	}
+	
+	b {
+		font-weight: 900;
+	}
+	
+	em {
+		font-family: doab8m;
+		font-style: normal;
+	}
+
+	u, a {
+		text-decoration-thickness: 0.11111em;
+	}
+
+	img {
+		image-rendering: crisp-edges;
+	}
+
+	input:focus {
+		outline: none;
+	}
+
+	input::placeholder {
+		opacity: 0.6;
+		color: inherit;
+	}
+
+	button:focus-within {
+		outline: 3px dashed rgb(228, 204, 243);
+	}
 }
 
-@font-face {
-	font-family: pixeloid;
-	font-weight: 900;
-	src: url(../fonts/9x/9x-Pixeloid-CY-bld.ttf);
+@layer components {
+	
 }
 
-@font-face {
-	font-family: pixeloid;
-	font-weight: 900;
-	src: url(../fonts/9x/9x-NineteenNinetySeven.ttf);
-	unicode-range: U+40;
+@layer utilities {
+
+	.scrollbar-none {
+		scrollbar-width: none;
+	}
+	
+	.scrollbar-none::-webkit-scrollbar {
+		width: 0;
+	}
 }
-
-@font-face {
-	font-family: doab8m;
-	font-weight: 900;
-	src: url(../fonts/9x/9x-DiaryOfAn8BitMage-CY.ttf);
-}
-
-@font-face {
-	font-family: doab8m;
-	font-weight: 900;
-	src: url(../fonts/9x/9x-SuperLegendBoy.ttf);
-	unicode-range: U+40;
-}
-
-@font-face {
-	font-family: doab8m;
-	font-weight: 900;
-	src: url(../fonts/9x/9x-Pixeloid-CY-bld.ttf);
-	unicode-range: U+0424, U+0444;
-}
-
-/*
-┌─────────────────────────────────────────┐
-├----------MONOSPACED UNI FONTS-----------┤
-└─────────────────────────────────────────┘
-*/
-
-/* Ubuntu Mono will appear here soon */
-
-/*
-┌─────────────────────────────────────────┐
-├--------------OTHER FONTS----------------┤
-└─────────────────────────────────────────┘
-*/
-
-/* Geologica might appear here soon */
-
-:root { /* <<< by the way that's the best strategy board game ever! */
-
-/*	  THEME KEY WORD --tm
-	  |
-	  |  COLOR
-	  |  | -ntr - neutral  -sec - secondary
-	  |  | -pri - primal   -acc - accent
-	  |  |
-	  |  |   TINT
-	  |  |   | -vl - very light  -sd - semidark
-	  |  |   | -lt - light       -dk - dark
-	  |  |   | -sl - semilight   -vd - very dark
-	  |  |   | -nm - normal      -ud - ultra dark
-	--vv-vvv-vv */
-	--tm-pri-vl: #74548d;
-	--tm-pri-lt: #543869;
-	--tm-pri-sl: #482f5c;
-	--tm-pri-nm: #452649;
-	--tm-pri-sd: #3a2649;
-	--tm-pri-dk: #361f38;
-	--tm-pri-vd: #2d1f38;
-	--tm-pri-ud: #25192e;
-
-	--tm-sec-nm: #e6bdb6;
-	--tm-sec-dk: #c0948c;
-
-	--tm-acc-nm: #eca99d;
-
-	--tm-err-nm: #eb1b37;
-
-	--rebbel-x3: polygon(
-		0px 3px,
-		3px 3px,
-		3px 0px,
-		calc(100% - 3px) 0px,
-		calc(100% - 3px) 3px,
-		100% 3px,
-		100% calc(100% - 3px),
-		calc(100% - 3px) calc(100% - 3px),
-		calc(100% - 3px) 100%,
-		3px 100%,
-		3px calc(100% - 3px),
-		0px calc(100% - 3px)
-	);
-
-	--rebbel-x2: polygon(
-		0px 2px,
-		2px 2px,
-		2px 0px,
-		calc(100% - 2px) 0px,
-		calc(100% - 2px) 2px,
-		100% 2px,
-		100% calc(100% - 2px),
-		calc(100% - 2px) calc(100% - 2px),
-		calc(100% - 2px) 100%,
-		2px 100%,
-		2px calc(100% - 2px),
-		0px calc(100% - 2px)
-	);
-
-	--semirebbel-left-x3: polygon(
-		0 0.16666em,
-		0.16666em 0.16666em,
-		0.16666em 0,
-		100% 0,
-		100% 100%,
-		calc(100% - 0.16666em) 100%,
-		0.16666em 100%,
-		0.16666em calc(100% - 0.16666em),
-		0px calc(100% - 0.16666em)
-	);
-
-	--semirebbel-right-x3: polygon(
-		0px 0px,
-		calc(100% - 3px) 0px,
-		calc(100% - 3px) 3px,
-		100% 3px,
-		100% calc(100% - 3px),
-		calc(100% - 3px) calc(100% - 3px),
-		calc(100% - 3px) 100%,
-		0px 100%
-	);
-}
-
-html {
-	font-size: 9px;
-}
-
-body {
-	font-family: pixeloid;
-	font-size: 2rem;
-	color: #150f1a;
-}
-
-* {
-	position: relative;
-	margin: 0px;
-	line-height: 1em;
-}
-
-*::selection {
-	background-color: #150f1a38;
-}
-
-ul, ol {
-	list-style: none;
-	padding: 0px;
-}
-
-canvas {
-	display: block;
-}
-
-img {
-	image-rendering: crisp-edges;
-}
-
-.red-to-eca99d {
-	filter: hue-rotate(9deg) saturate(0.38) brightness(4.75);
-}
-
-.red-to-150f1a {
-	filter: hue-rotate(273deg) saturate(0.4) brightness(0.25);
-	/* background-color: hwb(276 6% 90%); */
-}
-
-input, textarea, button {
-	outline: none;
-}
-
-input[type=file]::file-selector-button {
-	display: none;
-}
-
-input[type=checkbox], input[type=radio] {
-	display: none;
-}
-
-u, a {
-	text-decoration-thickness: 0.1em;
-}
-
-h1 {
-	font-size: 5rem;
-	font-family: doab8m;
-}
-
-h2 {
-	font-size: 4rem;
-	font-weight: 900;
-}
-
-h3 {
-	font-size: 4rem;
-	font-family: doab8m;
-}
-
-h4 {
-	font-size: 3rem;
-	font-weight: 900;
-}
-
-h5 {
-	font-size: 3rem;
-	font-family: doab8m;
-}
-
-h6 {
-	font-size: 2rem;
-	font-weight: 900;
-}
-
-b {
-	font-weight: 900;
-}
-
-em {
-	font-family: doab8m;
-	font-style: normal;
-}
-
-kbd {
-	top: -2px;
-	padding: 3px 6px;
-	margin: 0px 6px 0px 3px;
-	font-family: "Ubuntu Mono";
-	font-weight: 900;
-	box-shadow: 0px 3px 0px var(--tm-pri-sd);
-}
-
-kbd:last-of-type {
-	margin-right: 9px;
-}
-
-kbd::before {
-	content: "";
-	position: absolute;
-	inset: 3px 100% 3px -3px;
-	box-shadow: 0px 3px 0px var(--tm-pri-sd);
-}
-
-kbd::after {
-	content: "";
-	position: absolute;
-	inset: 3px -3px 3px 100%;
-	box-shadow: 0px 6px 0px var(--tm-pri-sd), 1.5px 1.5px 0px 1.5px var(--tm-pri-sd), 0px -3px 0px var(--tm-pri-sd);
-}
-
-tt {
-	font-family: doab8m;
-}
-
-/* tt::before {
-	content: "a";
-	box-shadow: 0px 3px 0px #150f1a, -3px 0px 0px #150f1a;
-	font-weight: 900;
-	font-family: pixeloid;
-} */

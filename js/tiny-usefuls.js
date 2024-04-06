@@ -193,7 +193,7 @@ export class Uint8ArrayX2 extends Uint8Array {
 				arrOrows instanceof Int8Array ||
 				arrOrows instanceof Uint8Array ||
 				arrOrows instanceof Uint8ClampedArray)
-				) {
+			) {
 				super(Math.ceil(arrOrows.length / columns) * columns);
 				this.rows = Math.ceil(arrOrows.length / columns);
 				this.columns = columns;

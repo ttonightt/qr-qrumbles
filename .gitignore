@@ -22,10 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+*.tqrt*
 
 #Tinttreat
-qrts/
-tests/
 fonts/
 !fonts/9x/
 _*
