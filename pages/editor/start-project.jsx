@@ -34,51 +34,46 @@ import {ExpandingInput} from "../../tUxUIt/components";
 // };
 
 export const StartProjectPage = (
-	<div className="w-100w h-100h overflow-hidden-auto bg-prim-2">
-		<div className="flex flex-row flex-nowrap grow">
+	<div className="
+		w-100w h-100h
+		overflow-x-hidden
+		bg-prim-2
+		grid grid-cols-cc grid-rows-cr"
+	>
+		<div className="p-2r col-start-1 col-end-2 row-start-1 row-end-2 justify-self-end self-start">
+			<h3>QR Qrumbles</h3>
+			<h6>a1.0.0</h6>
+		</div>
+		<div className="flex flex-col flex-nowrap items-end mt-15h p-2r col-start-1 col-end-2 row-start-2 row-end-3 justify-self-end self-start">
+			<h3 className="leading-1e">New Project</h3>
+			<div className="relative pb-4r pl-4r w-fit h-fit mr-1px">
+				{/* <RectSize measuring="bl" className=""> */}
+					<Qanvas modules={153} scale={3} className="bg-ntrl-1"/>
+				{/* </RectSize> */}
+				{/* <p className="absolute text-ntrl-1 flex flex-row items-center justify-center">97</p> */}
+				{/* <p className="absolute text-ntrl-1 flex flex-row items-center justify-center">97</p> */}
+			</div>
+		</div>
+		<em className="p-2r leading-7r col-start-2 col-end-3 row-start-1 row-end-2 justify-self-start self-start">by @ttonightt</em>
+		<div className="flex flex-col flex-nowrap items-start max-w-100 overflow-hidden mt-15h p-2r col-start-2 col-end-3 row-start-2 row-end-3 justify-self-start self-start">
 			<div className="
-				overflow-hidden-visible
-				basis-content shrink-0 grow
-				flex flex-col flex-nowrap items-end"
+				scrollbar-none overflow-y-visible overflow-x-auto
+				-mt-1r mr-1r -ml-1r max-w-100 text-4r
+				clip-rebbel-015"
 			>
-				<div className="p-2r h-30h">
-					<h3>QR Qrumbles</h3>
-					<h6>a1.0.0</h6>
-				</div>
-				<div className="flex flex-col flex-nowrap items-end mt-15h p-2r">
-					<h3>New Project</h3>
-					<div className="relative pb-4r pl-4r w-fit h-fit mr-1px">
-						{/* <RectSize measuring="bl" className=""> */}
-							<Qanvas modules={177} scale={1} className="bg-ntrl-1"/>
-						{/* </RectSize> */}
-						{/* <p className="absolute text-ntrl-1 flex flex-row items-center justify-center">97</p> */}
-						{/* <p className="absolute text-ntrl-1 flex flex-row items-center justify-center">97</p> */}
-					</div>
-				</div>
+				<ExpandingInput type="text" className="
+					font-deco text-prim-9
+					hover:bg-ntrl-9/25 focus:bg-ntrl-9/25 bg-trns
+					p-1r box-content h-1e block"
+					style={{width: "4.2ch"}} placeholder="Name"
+				/>
 			</div>
-			<div className="overflow-hidden flex flex-col flex-nowrap items-start grow text-prim-9">
-				<em className="p-2r leading-7r h-30h">by @ttonightt</em>
-				<div className="flex flex-col flex-nowrap items-start max-w-100 overflow-hidden mt-15h p-2r">
-					<div className="
-						scrollbar-none overflow-y-visible overflow-x-auto
-						clip-rebbel-015
-						-mt-1r mr-1r -ml-1r max-w-100 text-4r"
-					>
-						<ExpandingInput type="text" className="
-							font-deco text-inh text-prim-9
-							hover:bg-ntrl-9/25 focus:bg-ntrl-9/25 bg-trns
-							p-1r box-content h-1e"
-							style={{width: "4.2ch"}} placeholder="Name"
-						/>
-					</div>
-					<p>Size: </p>
-					{/* <Tuxit.DropdownMenu menu={SizeMenu} default={0}/> */}
-					<p>Error Correction Depth: </p>
-					{/* <Tuxit.DropdownMenu menu={ErrorCorrectionDepthMenu} default={0}/> */}
-					<button>Create</button>
-					<u>Open existing project instead</u>
-				</div>
-			</div>
+			<p>Size: </p>
+			{/* <Tuxit.DropdownMenu menu={SizeMenu} default={0}/> */}
+			<p>Error Correction Depth: </p>
+			{/* <Tuxit.DropdownMenu menu={ErrorCorrectionDepthMenu} default={0}/> */}
+			<button>Create</button>
+			<u>Open existing project instead</u>
 		</div>
 	</div>
 );

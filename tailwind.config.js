@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 
-import plugin from "tailwindcss/plugin";
+import tUxUIt from "./tUxUIt/tailwind-plugin";
 
 export default {
 	content: [
@@ -142,17 +142,18 @@ export default {
 			"rebbel-b-01": "polygon(0 0.11111em, 0.11111em 0.11111em, 0.11111em 0, calc(100% - 0.11111em) 0, calc(100% - 0.11111em) 0.11111em, 100% 0.11111em, 100% 100%, 0 100%)",
 			"rebbel-b-015": "polygon(0 0.16666em, 0.16666em 0.16666em, 0.16666em 0, calc(100% - 0.16666em) 0, calc(100% - 0.16666em) 0.16666em, 100% 0.16666em, 100% 100%, 0 100%)"
 		},
-		extend: {},
+		extend: {
+			gridTemplateRows: {
+				"cr": "1fr 3fr"
+			},
+
+			gridTemplateColumns: {
+				"cc": "minmax(0, 1fr) minmax(1fr, max-content)"
+			}
+		},
 	},
 	plugins: [
-		plugin(({matchUtilities, theme}) => {
-
-			matchUtilities({
-				"clip": (value) => ({
-					clipPath: value
-				})
-			}, {values: theme("clipPath")});
-		})
+		tUxUIt
 	],
 }
 

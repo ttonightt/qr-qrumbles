@@ -1,3 +1,4 @@
+import React from "react";
 
 // BINARY 0101001001 BINARY 01010101001 BINARY
 
@@ -36,41 +37,11 @@ export const Bath = {
 	}
 }
 
-// MATH b1d-g1+263 MATH kD0228= MATH *)2k0-fd MATH
-
-Math.fitinter = function (min, x, max) {
-	return Math.max(Math.min(x, max), min);
-}
-
-//
-
-String.sjoin = (arr, func) => {
-	let str = "";
-
-	for (let i = 0; i < arr.length; i++) {
-		str += func(arr[i]);
-	}
-
-	return str;
-};
-
 export const isFunction = func => {
 	return !!(func && func.constructor && func.call && func.apply);
 };
 
 // ARRAYS [..., [..., ...]] ARRAYS [..., [..., ...]] ARRAYS
-
-Object.defineProperty(Array.prototype, "last", { // MAYBE IT IS BETTER TO MODIFICATE ONLY SPECIFIC ARRAYS DON'T THEY?
-	configurable: true,
-
-	get () {
-		return this[this.length - 1];
-	},
-
-	set (data) {
-		this[this.length - 1] = data;
-	}
-});
 
 export class Uint8ArrayX2 extends Uint8Array {
 	static frame (arr, x0, y0, w, h) { // HASN'T USED ANYWARE YET
@@ -331,3 +302,15 @@ export class Rect8 extends Uint8ClampedArray {
 		} else return false;
 	}
 }
+
+export const fitAndConvertLocales = operator => {
+
+	switch (operator) {
+		case "uk_UA":
+			return "ukr";
+		default:
+			return "eng";
+	}
+};
+
+export const LanguageContext = React.createContext(fitAndConvertLocales(Intl.DateTimeFormat().resolvedOptions().locale));

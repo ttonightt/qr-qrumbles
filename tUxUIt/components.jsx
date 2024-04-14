@@ -6,6 +6,8 @@ export const $SelectMenus = new Map();
 
 console.cclog = () => {return $}; // TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP
 
+// UTILS - UTILS - UTILS - UTILS - UTILS - UTILS - UTILS - UTILS - UTILS - UTILS - UTILS - UTILS - UTILS - UTILS - UTILS - UTILS
+
 const TextMeasurer = {
 
 	ctx: document.createElement("canvas").getContext("2d"),
@@ -17,39 +19,96 @@ const TextMeasurer = {
 	}
 };
 
-export const ExpandingInput = props => {
+// COUNTER - COUNTER - COUNTER - COUNTER - COUNTER - COUNTER - COUNTER - COUNTER - COUNTER - COUNTER - COUNTER - COUNTER - COUNTER
 
-	const initWidth = props.style?.width ?? props.style.minWidth;
+const CounterContext = React.createContext();
 
-	const [width, setWidth] = React.useState(initWidth);
-	let font = "";
+// const Counter = props => {
+	
+// 	let min = parseInt(props.min, 10),
+// 		max = parseInt(props.max, 10),
+// 		step = parseInt(props.step, 10) || 1;
 
-	const ref = React.createRef();
+// 	if (min === NaN || max === NaN) throw new Error("..."); // <<<
 
-	const scanComputedStyle = () => {
+// 	const [value, setValue] = React.useState(props.value || min);
 
-		font = getComputedStyle(ref.current).font;
-	}
+// 	const onWheelAction = props.onWheel || (
 
-	React.useEffect(scanComputedStyle);
+// 		e => {
+// 			if (Math.sign(e.deltaY) + 1) {
+				
+// 				return (min <= value - step) ? value - step : value;
+// 			} else
+// 				return (value + step <= max) ? value + step : value;
+// 		}
+// 	)
 
-	const handleChange = e => {
-		setWidth(e.target.value ? Math.ceil(TextMeasurer.getWidth(e.target.value, font)) + "px" : initWidth);
-	}
+// 	if (props.children) {
 
-	return (
-		<input
-			ref={ref}
-			style={{...props.style, width}}
-			onChange={handleChange}
-			className={props.className}
-			placeholder={props.placeholder}
-			minLength={props.minLength}
-			maxLength={props.maxLength}
-			pattern={props.pattern}
-		/>
-	);
-}
+// 		return (<CounterContext.Provider value={{value, setValue, min, max, step}}>
+// 			<div
+// 				{...props} 
+// 				onWheel={props.onWheel || (e => {
+// 					setValue(onWheelAction(e));
+// 				})}
+// 			>
+// 				{props.children}
+// 			</div>
+// 		</CounterContext.Provider>);
+// 	} else {
+// 		return (<>
+// 			<div
+// 				{...props}
+// 				onWheel={props.onWheel || (e => {
+// 					setValue(onWheelAction(e));
+// 				})}
+// 				className="font-base font-400 w-fit"
+// 			>
+// 				<div
+// 					className="w-fit inline select-none cursor-pointer px-02"
+// 					onMouseDown={() => setValue(Math.max(value - 1, min))}
+// 				>
+// 					{"<"}
+// 				</div>
+// 				{value}
+// 				<div
+// 					className="w-fit inline select-none cursor-pointer px-02"
+// 					onMouseDown={() => setValue(Math.min(value + 1, max))}
+// 				>
+// 					{">"}
+// 				</div>
+// 			</div>
+// 		</>);
+// 	}
+// }
+
+// class CounterValue extends React.Component {
+
+// 	static contextType = CounterContext;
+
+// 	render () {
+// 		return this.context.value;
+// 	}
+// }
+
+// class CounterTrigger extends React.Component {
+
+// 	static contextType = CounterContext;
+
+// 	render () {
+// 		return (
+// 			<div
+// 				{...this.props}
+// 				onMouseDown={() => this.props.onMouseDown(this.context)}
+// 			>
+// 				{this.props.children}
+// 			</div>
+// 		);
+// 	}
+// }
+
+// MENUS - MENUS - MENUS - MENUS - MENUS - MENUS - MENUS - MENUS - MENUS - MENUS - MENUS - MENUS - MENUS - MENUS - MENUS - MENUS
 
 export class Menu extends React.Component {
 
@@ -76,6 +135,8 @@ export class DropdownMenu extends React.Component {
 		return (<div>{this.state.value}<i onClick={() => this.setState({value})}>v</i></div>);
 	}
 }
+
+// SWITCHERS - SWITCHERS - SWITCHERS - SWITCHERS - SWITCHERS - SWITCHERS - SWITCHERS - SWITCHERS - SWITCHERS - SWITCHERS - SWITCHERS
 
 export class Checkbox extends React.Component {
 
@@ -188,43 +249,7 @@ export class Radio extends React.Component {
 	}
 }
 
-export class Form extends React.Component { // UNDONE
-	constructor (props) {
-		super(props);
-		this.state = {
-			values: {},
-		}
-
-		// for (let i = 0; i < this.props.children.length; i++) {
-
-		// 	switch (this.props.children[i].type.name || this.props.children[i].type) {
-		// 		case "Radio":
-					
-		// 			if (this.props.children[i].state.checked) {
-
-		// 			}
-		// 			this.state.values[this.props.children[i].props.name] = this.props.children[i].props.checked && (this.props.children[i].props.value || this.props.children[i].props.id);
-		// 			break;
-		// 		case "Checkbox":
-		// 			this.state.values[this.props.children[i].props.id] = this.props.children[i].props.checked && (this.props.children[i].props.value || true);
-		// 	}
-		// }
-
-		// console.log(this.state.values);
-	}
-
-	// handleChange (key) {
-	// 	this.state.values[key] = this.state.value;
-	// }
-
-	render () {
-		return (
-			<div className={this.props.className} id={this.props.id}>
-				{this.props.children}
-			</div>
-		);
-	}
-}
+// INPUTS - INPUTS - INPUTS - INPUTS - INPUTS - INPUTS - INPUTS - INPUTS - INPUTS - INPUTS - INPUTS - INPUTS - INPUTS - INPUTS
 
 export class TextInput extends React.Component {
 	constructor (props) {
@@ -252,64 +277,36 @@ export class TextInput extends React.Component {
 	}
 }
 
-export const CollectionContext = React.createContext();
+export const ExpandingInput = props => {
 
-export const CollectionTemplates = {
+	const initWidth = props.style?.width ?? props.style.minWidth;
 
-	popups: {
+	const [width, setWidth] = React.useState(initWidth);
+	let font = "";
 
-	},
+	const ref = React.createRef();
 
-	accordion: {
+	const scanComputedStyle = () => {
 
-	}
-};
-
-export class Collection extends React.Component {
-
-	constructor (props) {
-		super(props);
-
-		this.item = this.props.itemPrototype;
-
-		this.trigger = this.props.onTrigger;
+		font = getComputedStyle(ref.current).font;
 	}
 
-	trigger () {
-		return this.props.onTrigger(this.items, ...args);
+	React.useEffect(scanComputedStyle);
+
+	const handleChange = e => {
+		setWidth(e.target.value ? Math.ceil(TextMeasurer.getWidth(e.target.value, font)) + "px" : initWidth);
 	}
 
-	render () {
-		return <CollectionContext.Provider value={this.items}>{this.props.children}</CollectionContext.Provider>;
-	}
-}
-
-export class CollectionItem extends React.Component {
-
-	static contextType = CollectionContext;
-
-	constructor (props) {
-		super(props);
-
-		this.context[this.props.id] = new this.context.itemPrototype(this);
-	}
-
-	render () {
-
-		return this.context.render(this.props.children);
-	}
-}
-
-export class CollectionTrigger extends React.Component {
-
-	static contextType = CollectionContext;
-
-	constructor (props) {
-		super(props);
-
-	}
-
-	render () {
-		return this.props.children;
-	}
+	return (
+		<input
+			ref={ref}
+			style={{...props.style, width}}
+			onChange={handleChange}
+			className={props.className}
+			placeholder={props.placeholder}
+			minLength={props.minLength}
+			maxLength={props.maxLength}
+			pattern={props.pattern}
+		/>
+	);
 }

@@ -2,7 +2,7 @@
 
 import React from "react";
 import ReactDOM from "react-dom/client";
-import {createBrowserRouter, Link, RouterProvider} from "react-router-dom";
+import {createBrowserRouter, Link, RouterProvider, Outlet} from "react-router-dom";
 
 // import Charmap from "./charmap/charmap";
 // import {Project} from "./prj";
@@ -14,8 +14,9 @@ import "./tUxUIt/common.css";
 import {StartProjectPage} from "./pages/editor/start-project";
 // import {ProjectEditorPage} from "./pages/editor/editor";
 
-import {DEV_TypographyPage} from "./pages/dev/typography";
-// import {ProjectEditorPage} from "./pages/editor/editor";
+// import {DEV_TypographyPage} from "./pages/dev/typography";
+// import {DEV_LanguagesPage} from "./pages/dev/languages";
+import {ColorPicker} from "./tUxUIt/utils/color-picker";
 
 // Project.init();
 
@@ -35,16 +36,14 @@ const ROUTER = createBrowserRouter([
 		// errorElement: ErrorPage
 	},
 	{
-		path: "dev/typography",
-		element: DEV_TypographyPage,
+		path: "dev/color-picker",
+		element: (<div className="w-100w h-100h flex items-center justify-center">
+			<ColorPicker scale={2}/>
+		</div>)
 		// errorElement: ErrorPage
-	},
+	}
 	// {
 	// 	title: "QR Qrumbler : Editor",
-	// 	path: "editor",
-	// 	element: ProjectEditorPage
-	// }
-	// {
 	// 	path: "editor",
 	// 	element: ProjectEditorPage
 	// }
@@ -115,6 +114,8 @@ const ROOT = ReactDOM.createRoot(document.getElementById("root"));
 
 ROOT.render(
 	<React.StrictMode>
-		<RouterProvider router={ROUTER}/>
+		{/* <LanguageContext.Provider> */}
+			<RouterProvider router={ROUTER}/>
+		{/* </LanguageContext.Provider> */}
 	</React.StrictMode>
 );
