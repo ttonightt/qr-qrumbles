@@ -1,0 +1,38 @@
+
+.tUxUIt-theme-picker-svg {
+	position: relative;
+	overflow: visible;
+}
+
+.tUxUIt-theme-picker-svg-pointer {
+	fill: white;
+	cursor: grab;
+	stroke: #000;
+	stroke-width: 2px;
+	pointer-events: all;
+}
+
+.tUxUIt-theme-picker-focused {
+	stroke: cyan;
+	/* filter: drop-shadow(0 0 3px cyan); */
+}
+
+.tUxUIt-theme-picker-position-relative {
+	position: relative;
+}
+
+
+
+.special-background {
+	background-size: 100% 2%;
+	transform: skew(45deg);
+}
+
+.hue {
+	background-image: linear-gradient(180deg, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
+	cursor: pointer;
+}
+
+.tUxUIt-theme-picker-box {
+	background-color: black;
+}

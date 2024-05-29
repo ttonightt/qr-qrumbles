@@ -1,12 +1,12 @@
-import React from "react";
+import {
+	useState, useRef,
+	createContext, useContext,
+	useLayoutEffect
+} from "react";
 
-export const $ = new Map();
+import {useLoad} from "./utils/react";
 
-export const $SelectMenus = new Map();
-
-console.cclog = () => {return $}; // TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP
-
-// UTILS - UTILS - UTILS - UTILS - UTILS - UTILS - UTILS - UTILS - UTILS - UTILS - UTILS - UTILS - UTILS - UTILS - UTILS - UTILS
+// INNER UTILS
 
 const TextMeasurer = {
 
@@ -19,294 +19,239 @@ const TextMeasurer = {
 	}
 };
 
-// COUNTER - COUNTER - COUNTER - COUNTER - COUNTER - COUNTER - COUNTER - COUNTER - COUNTER - COUNTER - COUNTER - COUNTER - COUNTER
+// MENUS & LISTS
 
-const CounterContext = React.createContext();
+const MenuAreaContext = createContext();
 
-// const Counter = props => {
-	
-// 	let min = parseInt(props.min, 10),
-// 		max = parseInt(props.max, 10),
-// 		step = parseInt(props.step, 10) || 1;
+export const MenuArea = props => {
 
-// 	if (min === NaN || max === NaN) throw new Error("..."); // <<<
+	const [isVisible, setVisibility] = useState(false);
 
-// 	const [value, setValue] = React.useState(props.value || min);
+	return (
+		<MenuAreaContext.Provider value={{isVisible, setVisibility}}>
+			<div className="relative flex flex-col">
+				{props.children}
+			</div>
+		</MenuAreaContext.Provider>
+	);
+}
 
-// 	const onWheelAction = props.onWheel || (
+export const MenuCaller = props => {
 
-// 		e => {
-// 			if (Math.sign(e.deltaY) + 1) {
-				
-// 				return (min <= value - step) ? value - step : value;
-// 			} else
-// 				return (value + step <= max) ? value + step : value;
-// 		}
-// 	)
+	const {isVisible, setVisibility} = useContext(MenuAreaContext);
 
-// 	if (props.children) {
+	return <div {...props} onClick={() => setVisibility(!isVisible)}>{props.children}</div>;
+};
 
-// 		return (<CounterContext.Provider value={{value, setValue, min, max, step}}>
-// 			<div
-// 				{...props} 
-// 				onWheel={props.onWheel || (e => {
-// 					setValue(onWheelAction(e));
-// 				})}
-// 			>
-// 				{props.children}
-// 			</div>
-// 		</CounterContext.Provider>);
-// 	} else {
-// 		return (<>
-// 			<div
-// 				{...props}
-// 				onWheel={props.onWheel || (e => {
-// 					setValue(onWheelAction(e));
-// 				})}
-// 				className="font-base font-400 w-fit"
-// 			>
-// 				<div
-// 					className="w-fit inline select-none cursor-pointer px-02"
-// 					onMouseDown={() => setValue(Math.max(value - 1, min))}
-// 				>
-// 					{"<"}
-// 				</div>
-// 				{value}
-// 				<div
-// 					className="w-fit inline select-none cursor-pointer px-02"
-// 					onMouseDown={() => setValue(Math.min(value + 1, max))}
-// 				>
-// 					{">"}
-// 				</div>
-// 			</div>
-// 		</>);
+const MenuContext = createContext();
+
+export const Menu = props => {
+
+	const {isVisible} = useContext(MenuAreaContext);
+
+	if (isVisible)
+		return (
+			<MenuContext.Provider value={props.onItemSelect}>
+				{props.children}
+			</MenuContext.Provider>
+		);
+};
+
+export const MenuItem = props => {
+
+	const onItemSelect = useContext(MenuContext);
+	const {setVisibility} = useContext(MenuAreaContext);
+
+	return (
+		<div
+			className={props.className}
+			onClick={() => {
+				onItemSelect(props.value);
+				setVisibility(false);
+			}}
+		>
+			{props.children}
+		</div>
+	);
+};
+
+// SWITCHERS
+
+// export class Checkbox extends React.Component {
+
+// 	static defaultProps = {
+// 		value: true
 // 	}
-// }
 
-// class CounterValue extends React.Component {
-
-// 	static contextType = CounterContext;
-
-// 	render () {
-// 		return this.context.value;
+// 	static iconStyleProps = {
+// 		className: "btn -square -ultracomp keybd",
+// 		children: "✓"
 // 	}
-// }
 
-// class CounterTrigger extends React.Component {
+// 	constructor (props) {
+// 		super(props);
 
-// 	static contextType = CounterContext;
+// 		$[this.props.id] = {
+// 			type: "checkbox",
+// 			value: this.props.default ? this.props.value : false,
+// 			element: this
+// 		};
+// 	}
+
+// 	handleChange () {
+// 		$[this.props.id].value = $[this.props.id].value ? false : this.props.value;
+// 	}
 
 // 	render () {
 // 		return (
-// 			<div
-// 				{...this.props}
-// 				onMouseDown={() => this.props.onMouseDown(this.context)}
-// 			>
-// 				{this.props.children}
-// 			</div>
+// 			<>
+// 				<input
+// 					type="checkbox"
+// 					name={this.props.name}
+// 					id={this.props.id}
+// 					onChange={() => this.handleChange()}
+// 				/>
+// 				{(this.props.icon === "no") ? "" : 
+// 					<label
+// 						className={Checkbox.iconStyleProps.className}
+// 						htmlFor={this.props.id}
+// 						title={this.props.title}
+// 					>{Checkbox.iconStyleProps.children}</label>
+// 				}
+// 				<label
+// 					htmlFor={this.props.id}
+// 					title={this.props.title}
+// 				>
+// 					{this.props.children}
+// 				</label>
+// 			</>
 // 		);
 // 	}
 // }
 
-// MENUS - MENUS - MENUS - MENUS - MENUS - MENUS - MENUS - MENUS - MENUS - MENUS - MENUS - MENUS - MENUS - MENUS - MENUS - MENUS
+// export class Radio extends React.Component {
 
-export class Menu extends React.Component {
+// 	static iconStyleProps = {
+// 		className: "btn -square -ultracomp keybd",
+// 		children: "•"
+// 	}
 
-	constructor (props) {
-		super()
-	}
+// 	constructor (props) {
+// 		super(props);
 
-	render () {
-		return this.props.menu;
-	}
-}
+// 		if ($[this.props.name]) {
 
-export class DropdownMenu extends React.Component {
+// 			if (this.props.default)
+// 				$[this.props.name].value = this.props.value || this.props.id;
 
-	constructor (props) {
-		super(props);
+// 			$[this.props.name].options[this.props.id] = this;
 
-		this.state = {
-			value: props.menu[props.default]
-		};
-	}
+// 		} else
+// 			$[this.props.name] = {
+// 				type: "radio",
+// 				value: null,
+// 				options: {
+// 					[this.props.id]: this,
+// 				}
+// 			};
+// 	}
 
-	render () {
-		return (<div>{this.state.value}<i onClick={() => this.setState({value})}>v</i></div>);
-	}
-}
+// 	handleChange () {
+// 		$[this.props.name].value = this.props.value || this.props.id;
+// 	}
 
-// SWITCHERS - SWITCHERS - SWITCHERS - SWITCHERS - SWITCHERS - SWITCHERS - SWITCHERS - SWITCHERS - SWITCHERS - SWITCHERS - SWITCHERS
+// 	render () {
+// 		return (
+// 			<>
+// 				<input
+// 					type="radio"
+// 					name={this.props.name}
+// 					id={this.props.id}
+// 					onChange={() => this.handleChange()}
+// 				/>
+// 				{(this.props.icon === "no") ? "" : 
+// 					<label
+// 						className={Radio.iconStyleProps.className}
+// 						htmlFor={this.props.id}
+// 						title={this.props.title}
+// 					>{Radio.iconStyleProps.children}</label>
+// 				}
+// 				<label
+// 					className={this.props.className}
+// 					htmlFor={this.props.id}
+// 					title={this.props.title}
+// 				>
+// 					{this.props.children}
+// 				</label>
+// 			</>
+// 		);
+// 	}
+// }
 
-export class Checkbox extends React.Component {
-
-	static defaultProps = {
-		value: true
-	}
-
-	static iconStyleProps = {
-		className: "btn -square -ultracomp keybd",
-		children: "✓"
-	}
-
-	constructor (props) {
-		super(props);
-
-		$[this.props.id] = {
-			type: "checkbox",
-			value: this.props.default ? this.props.value : false,
-			element: this
-		};
-	}
-
-	handleChange () {
-		$[this.props.id].value = $[this.props.id].value ? false : this.props.value;
-	}
-
-	render () {
-		return (
-			<>
-				<input
-					type="checkbox"
-					name={this.props.name}
-					id={this.props.id}
-					onChange={() => this.handleChange()}
-				/>
-				{(this.props.icon === "no") ? "" : 
-					<label
-						className={Checkbox.iconStyleProps.className}
-						htmlFor={this.props.id}
-						title={this.props.title}
-					>{Checkbox.iconStyleProps.children}</label>
-				}
-				<label
-					htmlFor={this.props.id}
-					title={this.props.title}
-				>
-					{this.props.children}
-				</label>
-			</>
-		);
-	}
-}
-
-export class Radio extends React.Component {
-
-	static iconStyleProps = {
-		className: "btn -square -ultracomp keybd",
-		children: "•"
-	}
-
-	constructor (props) {
-		super(props);
-
-		if ($[this.props.name]) {
-
-			if (this.props.default)
-				$[this.props.name].value = this.props.value || this.props.id;
-
-			$[this.props.name].options[this.props.id] = this;
-
-		} else
-			$[this.props.name] = {
-				type: "radio",
-				value: null,
-				options: {
-					[this.props.id]: this,
-				}
-			};
-	}
-
-	handleChange () {
-		$[this.props.name].value = this.props.value || this.props.id;
-	}
-
-	render () {
-		return (
-			<>
-				<input
-					type="radio"
-					name={this.props.name}
-					id={this.props.id}
-					onChange={() => this.handleChange()}
-				/>
-				{(this.props.icon === "no") ? "" : 
-					<label
-						className={Radio.iconStyleProps.className}
-						htmlFor={this.props.id}
-						title={this.props.title}
-					>{Radio.iconStyleProps.children}</label>
-				}
-				<label
-					className={this.props.className}
-					htmlFor={this.props.id}
-					title={this.props.title}
-				>
-					{this.props.children}
-				</label>
-			</>
-		);
-	}
-}
-
-// INPUTS - INPUTS - INPUTS - INPUTS - INPUTS - INPUTS - INPUTS - INPUTS - INPUTS - INPUTS - INPUTS - INPUTS - INPUTS - INPUTS
-
-export class TextInput extends React.Component {
-	constructor (props) {
-		super(props);
-		this.state = {
-			value: ""
-		}
-	}
-
-	render () {
-		return (
-			<>
-				<div className="pushed">
-					<input
-						type="text"
-						className={this.props.className}
-						placeholder={this.props.placeholder}
-						name={this.props.name}
-						id={this.props.id}
-						pattern={this.props.pattern}
-					/>
-				</div>
-			</>
-		);
-	}
-}
+// INPUTS
 
 export const ExpandingInput = props => {
 
-	const initWidth = props.style?.width ?? props.style.minWidth;
+	const fonts = useLoad();
 
-	const [width, setWidth] = React.useState(initWidth);
-	let font = "";
+	const ref = props.ofRef ?? useRef(null);
+	const emptyInputWidth = useRef("auto");
 
-	const ref = React.createRef();
+	const [width, setWidth] = useState();
 
-	const scanComputedStyle = () => {
+	useLayoutEffect(() => {
 
-		font = getComputedStyle(ref.current).font;
-	}
+		const width_ = props.placeholder ? Math.ceil(
+			TextMeasurer.getWidth(
+				props.placeholder,
+				getComputedStyle(ref.current).font
+			)
+		) : 0;
+		
+		emptyInputWidth.current = width_ > 0 ? width_ + "px" : null;
 
-	React.useEffect(scanComputedStyle);
+	}, [props.placeholder, props.className]);
+
+	useLayoutEffect(() => {
+
+		const width_ = Math.ceil(
+			TextMeasurer.getWidth(
+				props.value,
+				getComputedStyle(ref.current).font
+			)
+		);
+
+		setWidth(width_ > 0 ? width_ + "px" : emptyInputWidth.current);
+	}, []);
 
 	const handleChange = e => {
-		setWidth(e.target.value ? Math.ceil(TextMeasurer.getWidth(e.target.value, font)) + "px" : initWidth);
+
+		setWidth(
+			e.target.value === ""
+			?
+			emptyInputWidth.current
+			:
+			Math.ceil(TextMeasurer.getWidth(e.target.value, getComputedStyle(ref.current).font)) + "px"
+		);
+		props.onChange(e);
 	}
 
-	return (
+	return (<>
+		{fonts}
 		<input
 			ref={ref}
-			style={{...props.style, width}}
+			style={{
+				...props.style,
+				width
+			}}
+			value={props.value}
 			onChange={handleChange}
+			onBlur={props.onBlur}
 			className={props.className}
 			placeholder={props.placeholder}
 			minLength={props.minLength}
 			maxLength={props.maxLength}
 			pattern={props.pattern}
 		/>
-	);
-}
+	</>);
+};
