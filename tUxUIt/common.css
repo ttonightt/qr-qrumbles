@@ -55,8 +55,8 @@
 	}
 
 	*, *::before, *::after {
-		position: relative;
-		text-decoration-thickness: 2px;
+		text-underline-offset: 0.11111em;
+		text-decoration-thickness: 0.11111em;
 	}
 
 	input {
@@ -146,7 +146,9 @@
 @layer components {
 
 	.Button-Box {
+		position: relative;
 		box-sizing: content-box;
+		display: inline-block;
 		z-index: 1;
 		height: 1em;
 		padding: 0.5em;

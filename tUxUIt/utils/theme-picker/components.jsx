@@ -4,6 +4,8 @@ import {
 	useEffect, useLayoutEffect,
 	Fragment, createElement
 } from "react";
+import {minmax} from "../../../js/tiny-usefuls";
+
 import "./styles.css";
 
 
@@ -28,19 +30,19 @@ const useMetronome = () => {
 
 
 
-const F = (t, p0, p1, p2, p) => {
+// const F = (t, p0, p1, p2, p) => {
+// 	const t1 = 1 - t;
+// 	return ((t1**3) * p0) + (3 * (t1*t1) * t * p1) + (3 * t1 * (t*t) * p2) + ((t**3) * p);
+// };
+
+const getX = (t, curve) => {
 	const t1 = 1 - t;
-	return ((t1**3) * p0) + (3 * (t1*t1) * t * p1) + (3 * t1 * (t*t) * p2) + ((t**3) * p);
+	return ((t1**3) * curve[0]) + (3 * (t1*t1) * t * curve[2]) + (3 * t1 * (t*t) * curve[4]) + ((t**3) * curve[6]);
 };
 
-export const getX = (t, curve) => {
+const getY = (t, curve) => {
 	const t1 = 1 - t;
-	return ((t1**3) * curve.x0) + (3 * (t1*t1) * t * curve.x1) + (3 * t1 * (t*t) * curve.x2) + ((t**3) * curve.x);
-};
-
-export const getY = (t, curve) => {
-	const t1 = 1 - t;
-	return ((t1**3) * curve.y0) + (3 * (t1*t1) * t * curve.y1) + (3 * t1 * (t*t) * curve.y2) + ((t**3) * curve.y);
+	return ((t1**3) * curve[1]) + (3 * (t1*t1) * t * curve[3]) + (3 * t1 * (t*t) * curve[5]) + ((t**3) * curve[7]);
 };
 
 const getExtremums = (p0, p1, p2, p) => {
@@ -75,6 +77,53 @@ const getExtremums = (p0, p1, p2, p) => {
 
 
 
+export const compileRGB = (hue, curve, tint) => {
+
+	hue /= 60;
+
+	const h1 = Math.floor(hue);
+	const f = (h1 % 2) ? hue - h1 : 1 - hue + h1;
+
+	const s = getX(tint, curve) / 100;
+	const _v = 1 - (getY(tint, curve) / 100);
+
+	const n = Math.floor(255 * _v * (1 - (s * f)));
+	const m = Math.floor(255 * _v * (1 - s));
+	const v = Math.floor(255 * _v);
+
+	switch (h1 % 6) {
+		case 0:
+			return [v, n, m];
+		case 1:
+			return [n, v, m];
+		case 2:
+			return [m, v, n];
+		case 3:
+			return [m, n, v];
+		case 4:
+			return [n, m, v];
+		case 5:
+			return [v, m, n];
+	}
+};
+
+export const compileHSV = (hue, curve, tint) => [
+	hue,
+	getX(tint, curve),
+	100 - getY(tint, curve)
+];
+
+export const compileHSL = (hue, curve, tint) => {
+
+	const v = 100 - getY(tint, curve);
+	const l = v - (v * getX(tint, curve) / 200);
+	const m = Math.min(l, 100 - l);
+
+	return [hue, m ? (v - l) / m : 0, l];
+};
+
+export const RGBtoHex = (r, g, b) => ((r << 16) + (g << 8) + b).toString(16).padStart(6, "0");
+
 const pureHueToRGB = hue => {
 
 	hue /= 60;
@@ -102,70 +151,19 @@ const pureHueToRGB = hue => {
 	}
 };
 
-export const compileRGBs = (hue, curve, tints) => {
 
-	const colors = [];
-
-	hue /= 60;
-
-	const h1 = Math.floor(hue);
-	const f = (h1 % 2) ? hue - h1 : 1 - hue + h1;
-
-	const ni = 2 - ((h1 + 1) % 3);
-	const mi = (Math.floor(h1 / 2) + 2) % 3;
-	const vi = Math.floor((h1 + 1) / 2) % 3;
-
-	for (let i = 0; i < tints.length; i++) {
-
-		colors[i] = new Uint8ClampedArray(3);
-
-		const s = getX(tints[i], curve) / 100;
-		const v = 1 - (getY(tints[i], curve) / 100);
-
-		colors[i][ni] = Math.floor(255 * v * (1 - (s * f)));
-		colors[i][mi] = Math.floor(255 * v * (1 - s));
-		colors[i][vi] = Math.floor(255 * v);
-	}
-
-	return colors;
-};
-
-export const RGBtoHex = (r, g, b) => "#" + ((values[i][0] << 16) + (values[i][1] << 8) + values[i][2]).toString(16).padStart(6, "0");
-
-
-
-export const fireglowInitPreset = {
-
-	hue: 4,
-	curve: {
-		x0: 75,  	y0: 0,
-		x1: 100,  	y1: 55,
-		x2: 0,  	y2: 50,
-		x:  73,  	y:  100
-	},
-	tints: [0.056, 0.12, 0.24, 0.36, 0.5, 0.6, 0.72, 0.84, 0.92]
-};
 
 export const SVCurvePicker = props => {
 
 	const width = parseInt(props.width) || 100;
 	const height = parseInt(props.height) || 100;
-
-	const w_1 = 1 / width;
-	const h_1 = 1 / height;
 	const wc = width / 100;
 	const hc = height / 100;
 
 	const curve = props.ofCurve;
 
-	const cx0 = Math.floor(curve.x0 * wc);
-	const cy0 = Math.floor(curve.y0 * hc);
-	const cx1 = Math.floor(curve.x1 * wc);
-	const cy1 = Math.floor(curve.y1 * hc);
-	const cx2 = Math.floor(curve.x2 * wc);
-	const cy2 = Math.floor(curve.y2 * hc);
-	const cx = Math.floor(curve.x * wc);
-	const cy = Math.floor(curve.y * hc);
+	const cx0 = Math.floor(curve[0] * wc), cx1 = Math.floor(curve[2] * wc), cx2 = Math.floor(curve[4] * wc), cx = Math.floor(curve[6] * wc);
+	const cy0 = Math.floor(curve[1] * hc), cy1 = Math.floor(curve[3] * hc), cy2 = Math.floor(curve[5] * hc), cy = Math.floor(curve[7] * hc);
 
 	const infc = props.interfaceSize > 0 ? parseInt(props.interfaceSize) : 2;
 	const poiR = 2 * infc;
@@ -178,98 +176,13 @@ export const SVCurvePicker = props => {
 
 		const rect = ref.current.getBoundingClientRect();
 
-		switch (focusedPointer.current) {
-			case 0: {
-				const x = (Math.min(Math.max(e.clientX, rect.left), rect.right) - rect.left) / wc;
-				const y = (Math.min(Math.max(e.clientY, rect.top), rect.bottom) - rect.top) / hc;
-		
-				props.setCurveBy({
-					x0: x,
-					y0: y,
-					x1: curve.x1,
-					y1: curve.y1,
-					x2: curve.x2,
-					y2: curve.y2,
-					x: curve.x,
-					y: curve.y
-				});
-				break;
-			}
-			case 1: {
-				const x = (e.clientX - rect.left) / wc;
-				const y = (e.clientY - rect.top) / wc;
+		const curve_ = Array.from(curve);
+		// x
+		curve_[focusedPointer.current * 2] = (Math.min(Math.max(e.clientX, rect.left), rect.right) - rect.left) / wc;
+		// y
+		curve_[(focusedPointer.current * 2) + 1] = (Math.min(Math.max(e.clientY, rect.top), rect.bottom) - rect.top) / hc;
 
-				props.setCurveBy({
-					x0: curve.x0,
-					y0: curve.y0,
-					x1: x,
-					y1: y,
-					x2: curve.x2,
-					y2: curve.y2,
-					x: curve.x,
-					y: curve.y
-				});
-				break;
-			}
-			case 2: {
-
-				const x = (e.clientX - rect.left) / wc;
-				const y = (e.clientY - rect.top) / hc;
-
-				// const [xmint, xmaxt] = getExtremums(curve.x0, curve.x1, x, curve.x);
-				// const [ymint, ymaxt] = getExtremums(curve.y0, curve.y1, y, curve.y);
-
-				// const minx = getX(/*Math.min(Math.max(*/xmint/*, w_1), 1 - w_1)*/, {
-				// 		x0: curve.x0,
-				// 		x1: curve.x1,
-				// 		x2: x,
-				// 		x: curve.x
-				// 	});
-				// const maxx = getX(/*Math.min(Math.max(*/xmaxt/*, w_1), 1 - w_1)*/, {
-				// 		x0: curve.x0,
-				// 		x1: curve.x1,
-				// 		x2: x,
-				// 		x: curve.x
-				// 	});
-				// const miny = getY(/*Math.min(Math.max(*/ymint/*, h_1), 1 - h_1)*/, curve);
-				// const maxy = getY(/*Math.min(Math.max(*/ymaxt/*, h_1), 1 - h_1)*/, curve);
-
-				// if (0 <= minx && maxx <= 100) {
-
-					props.setCurveBy({
-						x0: curve.x0,
-						y0: curve.y0,
-						x1: curve.x1,
-						y1: curve.y1,
-						x2: x,
-						y2: y,
-						x: curve.x,
-						y: curve.y
-					});
-				// } else {
-
-				// 	console.log(maxx, minx);
-
-				// 	props.setCurveBy(curve);
-				// }
-				break;
-			}
-			case 3: {
-				const x = (Math.min(Math.max(e.clientX, rect.left), rect.right) - rect.left) / wc;
-				const y = (Math.min(Math.max(e.clientY, rect.top), rect.bottom) - rect.top) / hc;
-
-				props.setCurveBy({
-					x0: curve.x0,
-					y0: curve.y0,
-					x1: curve.x1,
-					y1: curve.y1,
-					x2: curve.x2,
-					y2: curve.y2,
-					x: x,
-					y: y
-				});
-			}
-		}
+		props.setCurveBy(curve_);
 	};
 
 	const handleMouseDown = i => {
@@ -342,7 +255,7 @@ export const SVCurvePicker = props => {
 					))}
 				</mask>
 
-				<polygon points={`${-poiR},${-poiR} ${poiR},0 ${-poiR},${poiR}`} id={"r-triangle-" + infc} className="tUxUIt-theme-picker-svg-pointer"/>
+				<polygon points={`${-poiR + 1},${-poiR - 1} ${poiR + 1},0 ${-poiR + 1},${poiR + 1}`} id={"r-triangle-" + infc}/>
 			</defs>
 
 			<line x1={cx0} y1={cy0} x2={cx1} y2={cy1} stroke="white" strokeWidth={infc * 2 / 3}/>
@@ -351,25 +264,7 @@ export const SVCurvePicker = props => {
 			<rect x="0" y="0" width="100%" height="100%" fill="url(#SV)"/>
 
 			<path
-				d={
-					`M ${
-						cx0
-					} ${
-						cy0
-					} C ${
-						cx1
-					} ${
-						cy1
-					}, ${
-						cx2
-					} ${
-						cy2
-					}, ${
-						cx
-					} ${
-						cy
-					}`
-				}
+				d={`M ${cx0} ${cy0} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${cx} ${cy}`}
 				mask="url(#mask)"
 				stroke="url(#inverted)"
 				strokeWidth={infc}
@@ -384,18 +279,30 @@ export const SVCurvePicker = props => {
 					r={3 * infc}
 					strokeWidth={infc}
 					fill="none"
-					// stroke="url(#inverted)"
-					stroke="white"
-					filter="drop-shadow(0 0 2px black)"
+					stroke="url(#inverted)"
+					// stroke="white"
+					// filter="drop-shadow(0 0 1.5px black)"
 				/>
 			))}
 
-			<use x={cx0} y={cy0} href={"#r-triangle-" + infc} onMouseDown={e => handleMouseDown(0)}/>
+			<use
+				x={cx0}
+				y={cy0}
+				href={"#r-triangle-" + infc}
+				fill="white"
+				stroke="black"
+				cursor="grab"
+				strokeWidth={infc}
+				onMouseDown={e => handleMouseDown(0)}
+			/>
 			<circle
-				className="tUxUIt-theme-picker-svg-pointer"
 				cx={cx}
 				cy={cy}
 				r={poiR}
+				fill="white"
+				stroke="black"
+				cursor="grab"
+				strokeWidth={infc}
 				onMouseDown={e => handleMouseDown(3)}
 			/>
 
@@ -404,7 +311,10 @@ export const SVCurvePicker = props => {
 				y={cy1 - poiR}
 				width={poiR * 2}
 				height={poiR * 2}
-				className="tUxUIt-theme-picker-svg-pointer"
+				fill="white"
+				stroke="black"
+				cursor="grab"
+				strokeWidth={infc}
 				onMouseDown={e => handleMouseDown(1)}
 			/>
 			<rect
@@ -412,160 +322,112 @@ export const SVCurvePicker = props => {
 				y={cy2 - poiR}
 				width={poiR * 2}
 				height={poiR * 2}
-				className="tUxUIt-theme-picker-svg-pointer"
+				fill="white"
+				stroke="black"
+				cursor="grab"
+				strokeWidth={infc}
 				onMouseDown={e => handleMouseDown(2)}
 			/>
 		</svg>
 	);
 };
 
+const VerticalPointer = props => {
+
+	return (
+		<Fragment>
+			<use
+				fill="white"
+				stroke="black"
+				cursor="grab"
+				{...props}
+				x="0"
+				y={props.value * 100 + "%"}
+				href={"#right-point-" + props.interfaceSize}
+			/>
+			<use
+				fill="white"
+				stroke="black"
+				cursor="grab"
+				{...props}
+				x="100%"
+				y={props.value * 100 + "%"}
+				href={"#left-point-" + props.interfaceSize}
+			/>
+		</Fragment>
+	);
+};
+
 export const VerticalPointersScale = memo(props => {
+
+	const pointers = props.ofPointers;
+
+	const zs = props.zLayers;
 
 	const scale = props.interfaceSize > 0 ? parseInt(props.interfaceSize) : 2;
 
-	const [_fc, setFocus] = useState(-1);
+	const [fc, setFocus] = useState();
+
 	const [metro, toggleMetro, isMetroTheSame] = useMetronome();
 
-	const fpi = useRef(-1);
-	const _fpv = useRef();
+	const _value = useRef();
 	const _y = useRef();
 
 	const ref = useRef();
 
-	const handleMouseDown = e => {
+	const compileValue = useCallback(e =>{
+
+		const rect = ref.current.getBoundingClientRect();
+
+		return (minmax(e.clientY, rect.top, rect.bottom) - rect.top) / rect.height;
+	});
+
+	const handleFieldMouseDown = e => {
 
 		if (ref.current !== e.target)
 			return;
 
-		switch (props.scaleAction) {
-			case "capture-focused":
+		const _rect = ref.current.getBoundingClientRect();
 
-				if (_fc > 0) {
+		props.onFieldMouseDown(e, {
 
-					handlePointerMouseMove(e);
-					handlePointerMouseDown(_fc);
-				}
-				break;
-			case "create":
+			value: (e.clientY - _rect.top) / _rect.height,
 
-				const rect = ref.current.getBoundingClientRect();
-
-				const value_ = (e.clientY - rect.top) / rect.height;
-
-				if (props.autosort === "autosort") {
-		
-					const values_ = [];
-		
-					let i = 0;
-		
-					for (i; value_ > props.ofValues[i]; i++) {
-		
-						values_[i] = props.ofValues[i];
-					}
-		
-					values_[i] = value_;
-
-					handlePointerMouseDown(i); // pending
-		
-					for (i; i < props.ofValues.length; i++) {
-		
-						values_[i + 1] = props.ofValues[i];
-					}
-
-					props.setValuesBy(values_);
-		
-				} else {
-		
-					const values_ = Array.from(props.ofValues);
-		
-					values_.push(value_);
-		
-					props.setValuesBy(values_);
-
-					handlePointerMouseDown(values_.length - 1);
-				}
-				break;
-			default:
-				return;
-		}
+			capturePointer: handlePointerMouseDown,
+			compileValue
+		});
 	};
 
-	const handlePointerMouseDown = index => { // IS useCallback necessary?
+	const handlePointerMouseDown = index => {
 
-		// setTimeout(() => {
+		setFocus(index);
+		toggleMetro();
 
-			document.documentElement.style.cursor = "grab";
-
-			setFocus(index);
-			toggleMetro();
-			fpi.current = index;
-			if (props.onPointerFocus)
-				props.onPointerFocus(index);
-			// window.addEventListener("mousemove", handlePointerMouseMove);
-		// }, 1500);
+		document.documentElement.classList.add("tUxUIt-cursor-grabbing-modifier");
 	};
 
 	const handlePointerMouseMove = e => {
 
-		const rect = ref.current.getBoundingClientRect();
+		const value_ = compileValue(e);
 
-		const value_ = (Math.min(Math.max(e.clientY, rect.top), rect.bottom) - rect.top) / rect.height;
-
-		if (_fpv.current === value_)
+		if (_value.current === value_)
 			return;
 
-		_fpv.current = value_;
+		_value.current = value_;
 
-		if (props.autosort === "autosort") {
+		const values_ = Array.from(pointers);
 
-			const values_ = [];
+		values_[fc].value = value_;
 
-			let i = 0, j = 0;
-
-			for (i; value_ > props.ofValues[i]; i++) {
-
-				if (i === _fc)
-					continue;
-
-				values_[j++] = props.ofValues[i];
-			}
-
-			fpi.current = j;
-
-			values_[j++] = value_;
-
-			for (i; i < props.ofValues.length; i++) {
-
-				if (i === _fc)
-					continue;
-
-				values_[j++] = props.ofValues[i];
-			}
-
-			props.setValuesBy(values_);
-
-		} else {
-
-			const values_ = Array.from(props.ofValues);
-
-			values_[_fc] = value_;
-
-			props.setValuesBy(values_);
-		}
+		props.setPointersBy(values_);
 	};
 
 	const handlePointerMouseUp = () => {
 
-		document.documentElement.style.cursor = "";
+		document.documentElement.classList.remove("tUxUIt-cursor-grabbing-modifier");
 		window.removeEventListener("mousemove", handlePointerMouseMove);
 		// window.addEventListener("mousedown", unfocus);
 	};
-
-	const unfocus = useCallback(() => {
-
-		setFocus();
-		console.log("UNFOCUS");
-	}, []);
 
 	useEffect(() => {
 
@@ -580,12 +442,74 @@ export const VerticalPointersScale = memo(props => {
 		};
 	}, [metro]);
 
+	const preceding = [];
+	const subsequent = [];
+
+	let c = 0, i = 0, j;
+
+	for (i; i < zs.length; i++) {
+
+		const z = zs[i];
+
+		for (j = 0; j < pointers.length; j++) {
+
+			if (pointers[j].zIndex === z) {
+
+				const keyId = j;
+
+				subsequent[c++] = (
+					<VerticalPointer
+						key={keyId}
+						{...pointers[j]}
+						interfaceSize={scale}
+						onMouseDown={() => {
+							handlePointerMouseDown(keyId);
+
+							if (props.onPointerFocus)
+								props.onPointerFocus(keyId);
+						}}
+					/>
+				);
+			}
+		}
+	}
+
+	if (pointers.length - c > 0) {
+
+		c = 0;
+
+		const zmax = zs[0], zmin = zs[zs.length - 1];
+
+		for (j = 0; j < pointers.length; j++) {
+
+			if (!(zmin <= pointers[j] && pointers[j] <= zmax)) {
+
+				const keyId = j;
+
+				preceding[c++] = (
+					<VerticalPointer
+						key={keyId}
+						{...pointers[j]}
+						interfaceSize={scale}
+						onMouseDown={() => {
+							handlePointerMouseDown(keyId);
+
+							if (props.onPointerFocus)
+								props.onPointerFocus(keyId);
+						}}
+					/>
+				);
+			}
+		}
+	}
+
 	return (<>
 		<svg
 			version="1.1"
 			xmlns="http://www.w3.org/2000/svg"
 			className={"tUxUIt-theme-picker-svg " + (props.className ?? "")}
-			onMouseDown={handleMouseDown}
+			onMouseDown={handleFieldMouseDown}
+			strokeWidth={scale}
 			ref={ref}
 		>
 			<defs>
@@ -593,181 +517,11 @@ export const VerticalPointersScale = memo(props => {
 				<polygon points={`${-scale},0 ${scale},${-2 * scale} ${3 * scale},${-2 * scale} ${3 * scale},${2 * scale} ${scale},${2 * scale}`} id={"left-point-" + scale}/>
 			</defs>
 
-			{props.ofValues.map((t, i) => {
-
-				if (fpi.current === i) return;
-
-				return (
-					<Fragment key={i}>
-						<use
-							x="0"
-							y={t * 100 + "%"}
-							href={"#right-point-" + scale}
-							className="tUxUIt-theme-picker-svg-pointer"
-							onMouseDown={() => handlePointerMouseDown(i)}
-						/>
-						<use
-							x="100%"
-							y={t * 100 + "%"}
-							href={"#left-point-" + scale}
-							className="tUxUIt-theme-picker-svg-pointer"
-							onMouseDown={() => handlePointerMouseDown(i)}
-						/>
-					</Fragment>
-				);
-			})}
-
-			{fpi.current !== -1 ? (<>
-				<use
-					x="0"
-					y={props.ofValues[fpi.current] * 100 + "%"}
-					href={"#right-point-" + scale}
-					className="tUxUIt-theme-picker-svg-pointer tUxUIt-theme-picker-focused"
-					onMouseDown={() => handlePointerMouseDown(fpi.current)}
-				/>
-				<use
-					x="100%"
-					y={props.ofValues[fpi.current] * 100 + "%"}
-					href={"#left-point-" + scale}
-					className="tUxUIt-theme-picker-svg-pointer tUxUIt-theme-picker-focused"
-					onMouseDown={() => handlePointerMouseDown(fpi.current)}
-				/>
-			</>) : ""}
+			{preceding}
+			{subsequent}
 		</svg>
 	</>);
 });
-
-export const HorizontalPointersScale = props => {
-
-	const scale = props.interfaceSize > 0 ? parseInt(props.interfaceSize) : 2;
-
-	const fcPointerIndex = useRef(-1);
-	const _fcPointer = useRef();
-
-	const ref = useRef();
-
-	const handleMouseDown = e => {
-
-		if (ref.current !== e.target)
-			return;
-
-		const rect = ref.current.getBoundingClientRect();
-
-		const value_ = (e.clientX - rect.left) / rect.width;
-
-		if (props.autosort === "autosort") {
-
-			const values_ = [];
-
-			let i = 0;
-
-			for (i; value_ > props.ofValues[i]; i++) {
-
-				values_[i] = props.ofValues[i];
-			}
-
-			values_[i] = value_;
-
-			for (i; i < props.ofValues.length; i++) {
-
-				values_[i + 1] = props.ofValues[i];
-			}
-
-			props.setValuesBy(values_);
-
-			handlePointerMouseDown(i + 1);
-
-		} else {
-
-			const values_ = Array.from(props.ofValues);
-
-			values_.push(value_);
-
-			props.setValuesBy(values_);
-
-			handlePointerMouseDown(values_.length - 1);
-		}
-	};
-
-	const handlePointerMouseMove = e => {
-
-		const rect = ref.current.getBoundingClientRect();
-
-		const value_ = (Math.min(Math.max(e.clientX, rect.left), rect.right) - rect.left) / rect.width;
-
-		if (_fcPointer.current === value_)
-			return;
-
-		_fcPointer.current = value_;
-
-		if (props.autosort === "autosort") {
-
-			const values_ = [];
-
-			let i = 0, j = 0;
-
-			for (i; value_ > props.ofValues[i]; i++) {
-
-				if (i === fcPointerIndex.current)
-					continue;
-
-				values_[j++] = props.ofValues[i];
-			}
-
-			values_[j++] = value_;
-
-			for (i; i < props.ofValues.length; i++) {
-
-				if (i === fcPointerIndex.current)
-					continue;
-
-				values_[j++] = props.ofValues[i];
-			}
-
-			props.setValuesBy(values_);
-
-		} else {
-
-			const values_ = Array.from(props.ofValues);
-
-			values_[fcPointerIndex.current] = value_;
-
-			props.setValuesBy(values_);
-		}
-	};
-
-	const handlePointerMouseDown = i => {
-
-		fcPointerIndex.current = i;
-		document.documentElement.style.cursor = "grab";
-		window.addEventListener("mousemove", handlePointerMouseMove);
-	};
-
-	window.addEventListener("mouseup", () => {
-		document.documentElement.style.cursor = "";
-		window.removeEventListener("mousemove", handlePointerMouseMove);
-	});
-	
-	return (
-		<svg
-			version="1.1"
-			xmlns="http://www.w3.org/2000/svg"
-			className={"tUxUIt-theme-picker-svg " + (props.className ?? "")}
-			onMouseDown={handleMouseDown}
-			ref={ref}
-		>
-			<defs>
-				<polygon points={`${-2 * scale},${-3 * scale} ${2 * scale},${-3 * scale} ${2 * scale},${-scale} 0,${scale} ${-2 * scale},${-scale}`} id={"bottom-point-" + scale} className="tUxUIt-theme-picker-svg-pointer"/>
-				<polygon points={`${-2 * scale},${3 * scale} ${2 * scale},${3 * scale} ${2 * scale},${scale} 0,${-scale} ${-2 * scale},${scale}`} id={"top-point-" + scale} className="tUxUIt-theme-picker-svg-pointer"/>
-			</defs>
-
-			{props.ofValues.map((t, i) => (<Fragment key={i}>
-				<use x={t * 100 + "%"} y="0" href={"#bottom-point-" + scale} onMouseDown={() => handlePointerMouseDown(i)}/>
-				<use x={t * 100 + "%"} y="100%" href={"#top-point-" + scale} onMouseDown={() => handlePointerMouseDown(i)}/>
-			</Fragment>))}
-		</svg>
-	);
-};
 
 export const PaletteScale = props => {
 
@@ -834,8 +588,3 @@ export const PaletteScale = props => {
 		></canvas>
 	);
 };
-
-// export const ThemePicker = props => {
-
-// 	of
-// };
