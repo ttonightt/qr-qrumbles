@@ -1,3 +1,5 @@
+"use strict";
+
 import {memo, useState, useRef, useReducer, useEffect, useCallback, useMemo} from "react";
 import {
 	SVCurvePicker,
@@ -8,51 +10,181 @@ import {
 	compileHSL,
 	RGBtoHex
 } from "../../tUxUIt/utils/theme-picker/components";
-import {fireglowInitPreset} from "../../tUxUIt/utils/theme-picker/presets";
-import {ExpandingInput} from "../../tUxUIt/components"
+
+import {useRouteError, useSearchParams} from "react-router-dom";
+import {ExpandingInput, MenuBox, Menu} from "../../tUxUIt/components"
+
+import {downloadFile} from "../../js/file-saver-reader";
 
 
 
-const paletteGradient = values => {
-	
+const joinHSX = hsx => `${hsx[0].toFixed(0)}, ${hsx[1].toFixed(1)}%, ${hsx[2].toFixed(1)}%`;
+
+const compilePaletteGradient = (presets, fc) => {
+
 	let str = "linear-gradient(135deg,";
 
-	const step = 100 / values.length;
-	let i = 0
+	const step = 100 / presets[fc].tints.length;
+	const len = presets[fc].tints.length - 1;
 
-	for (i; i < values.length - 1; i++) {
+	for (let i = 0; i < len; i++) {
 
 		str +=
-			"rgb(" + values[i][0] + "," +  values[i][1] + "," +  values[i][2] + ") " + (i * step) + "%," +
-			"rgb(" + values[i][0] + "," +  values[i][1] + "," +  values[i][2] + ") " + ((i + 1) * step) + "%,";
+			"rgb(var(--color-" + (fc + 1) + "-" + (i + 1) + ")) " + (i * step) + "%," +
+			"rgb(var(--color-" + (fc + 1) + "-" + (i + 1) + ")) " + ((i + 1) * step) + "%,";
 	}
 
-	str += "rgb(" + values[i][0] + "," +  values[i][1] + "," +  values[i][2] + ") " + (i * step) + "%";
+	str += "rgb(var(--color-" + (fc + 1) + "-" + (len + 1) + ")) " + (len * step) + "%";
 
 	return str;
 };
 
-const CSSVariablesFromRGBs = (rgbs, base) => {
+const compileCSSVariables = presets => {
 
 	const vars = {};
 
-	for (let i = 0; i < rgbs.length; i++) {
+	for (let i = 0; i < presets.length; i++) {
 
-		vars["--" + base + "-" + (i + 1)] = rgbs[i][0] + " " + rgbs[i][1] + " " + rgbs[i][2];
-		// vars["--" + base + "-" + (i + 1)] = "#" + ((rgbs[i][0] << 16) + (rgbs[i][1] << 8) + rgbs[i][2]).toString(16).padStart(6, "0");
+		const {hue, curve, tints} = presets[i];
+
+		const tints_ = Array.from(tints).sort((a, b) => a - b);
+
+		for (let j = 0; j < tints_.length; j++) {
+	
+			vars["--color-" + (i + 1) + "-" + (j + 1)] = compileRGB(hue, curve, tints_[j]).join(" ");
+		}
 	}
 
 	return vars;
 };
 
+const compileSingleColorCode = (hue, curve, tint, scheme) => {
+
+	switch (scheme) {
+		case "HSV":
+			return joinHSX(compileHSV(hue, curve, tint));
+		case "HSL":
+			return joinHSX(compileHSL(hue, curve, tint));
+		case "RGB":
+			return compileRGB(hue, curve, tint).join(", ");
+		case "Hex":
+			return "#" + RGBtoHex(compileRGB(hue, curve, tint));
+	}
+};
+
+const compileColorCodesList = (presets, scheme) => {
+
+	let str = scheme + "\n";
+
+	for (let i = 0; i < presets.length; i++) {
+
+		const {hue, curve, tints, name} = presets[i];
+
+		const tints_ = Array.from(tints).sort((a, b) => a - b);
+
+		str += "\n" +name + ":\n\n";
+
+		for (let j = 0; j < tints_.length; j++)
+			str += compileSingleColorCode(hue, curve, tints_[j], scheme) + "\n";
+	}
+
+	return str;
+};
+
+const validateDecodedPresets = presets => {
+
+	const err = new Error("..."); // <<<
+
+	for (let i = 0; i < presets.length; i++) {
+
+		const {hue, curve, tints} = presets[i];
+
+		for (let j = 0; j < tints.length; j++) {
+
+			if (tints[j] < 0 || tints[j] > 1)
+				throw err;
+		}
+
+		if (hue < 0 || hue > 360)
+			throw err;
+
+		if (curve[0] < 0 || curve[1] > 100)
+			throw err;
+
+		if (curve[6] < 0 || curve[7] > 100)
+			throw err;
+	}
+
+	return presets;
+};
 
 
-const colorSchemes = ["Hex", "HSV", "HSL", "RGB"];
+
+const colorSchemes = ["HSV", "HSL", "RGB", "Hex"];
 
 const focusedPointerProps = {
 	stroke: "cyan",
 	zIndex: 1
 };
+
+const initPresets = [
+	{
+		name: "Primal",
+		hue: 261,
+		curve: [
+			15,  	5,
+			86,  	9,
+			90,  	40,
+			62,  	100
+		],
+		focusedTint: 4,
+		minTintsNumber: 0,
+		tints: [0.056, 0.12, 0.24, 0.36, 0.5, 0.6, 0.72, 0.84, 0.92],
+		required: true
+	},
+	{
+		name: "Secondary",
+		hue: 340,
+		curve: [
+			15,  	5,
+			86,  	9,
+			90,  	40,
+			62,  	100
+		],
+		focusedTint: 4,
+		minTintsNumber: 0,
+		tints: [0.056, 0.12, 0.24, 0.36, 0.5, 0.6, 0.72, 0.84, 0.92],
+		required: true
+	},
+	{
+		name: "Accent",
+		hue: 170,
+		curve: [
+			15,  	5,
+			86,  	9,
+			90,  	40,
+			62,  	100
+		],
+		focusedTint: 4,
+		minTintsNumber: 0,
+		tints: [0.056, 0.12, 0.24, 0.36, 0.5, 0.6, 0.69, 0.78, 0.88],
+		required: true
+	},
+	{
+		name: "Neutral",
+		hue: 9,
+		curve: [
+			0,  	0,
+			2,  	33,
+			3,  	80,
+			9,  	100
+		],
+		focusedTint: 4,
+		minTintsNumber: 0,
+		tints: [0.056, 0.12, 0.36, 0.46, 0.56, 0.78, 0.84, 0.88, 0.96],
+		required: true
+	}
+];
 
 
 
@@ -60,134 +192,48 @@ export const ThemePickerDemoPage = memo(props => {
 
 // INITIALISING STATES
 
+	// URL QUERY PARAMETERS
+
+	const [URLParams, setURLParams] = useSearchParams();
+
+	const URLPresets = URLParams.get("presets");
+
+	const setURLPresets = presets_ => {
+
+		setURLParams({presets: btoa(JSON.stringify(presets_))});
+
+		console.log("URL parameter is updating");
+	};
+
 	// PRESET FOCUS
 
 	const [fc, setFocused] = useState(0);
 
 	// PRESETS
 
-	const [presets, setPresets] = useState([
-		{
-			name: "Primal",
-			hue: 261,
-			curve: [
-				15,  	5,
-				86,  	9,
-				90,  	40,
-				62,  	100
-			],
-			focusedTint: 4,
-			tints: [
-				{value: 0.056},
-				{value: 0.12},
-				{value: 0.24},
-				{value: 0.36},
-				{
-					value: 0.5,
-					...focusedPointerProps
-				},
-				{value: 0.6},
-				{value: 0.72},
-				{value: 0.84},
-				{value: 0.92}
-			],
-			required: true
-		},
-		{
-			name: "Secondary",
-			hue: 340,
-			curve: [
-				15,  	5,
-				86,  	9,
-				90,  	40,
-				62,  	100
-			],
-			focusedTint: 4,
-			tints: [
-				{value: 0.056},
-				{value: 0.12},
-				{value: 0.24},
-				{value: 0.36},
-				{
-					value: 0.5,
-					...focusedPointerProps
-				},
-				{value: 0.6},
-				{value: 0.72},
-				{value: 0.84},
-				{value: 0.92}
-			],
-			required: true
-		},
-		{
-			name: "Accent",
-			hue: 170,
-			curve: [
-				15,  	5,
-				86,  	9,
-				90,  	40,
-				62,  	100
-			],
-			focusedTint: 4,
-			tints: [
-				{value: 0.056},
-				{value: 0.12},
-				{value: 0.24},
-				{value: 0.36},
-				{
-					value: 0.5,
-					...focusedPointerProps
-				},
-				{value: 0.6},
-				{value: 0.69},
-				{value: 0.78},
-				{value: 0.88}
-			],
-			required: true
-		},
-		{
-			name: "Neutral",
-			hue: 9,
-			curve: [
-				0,  	0,
-				2,  	33,
-				3,  	80,
-				9,  	100
-			],
-			focusedTint: 4,
-			tints: [
-				{value: 0.056},
-				{value: 0.12},
-				{value: 0.36},
-				{value: 0.46},
-				{
-					value: 0.56,
-					...focusedPointerProps
-				},
-				{value: 0.78},
-				{value: 0.84},
-				{value: 0.88},
-				{value: 0.96}
-			],
-			required: true
-		}
-	]);
+	const [presets, setPresets] = useState(
+		URLPresets !== null
+		?
+		validateDecodedPresets(JSON.parse(atob(URLPresets)))
+		:
+		initPresets
+	);
 
-	const {hue, curve, tints} = presets[fc]; // CURRENT HUE, CURVE AND TINTS
+	const {hue, curve, tints, focusedTint} = presets[fc]; // CURRENT HUE, CURVE AND TINTS
 
 		// HUE POINTERS
 
 	const extractFocusedHue = useCallback(hueValues => {
 
-		modifyPreset(fc, {hue: hueValues[fc].value * 360})
+		modifyPreset(fc, {hue: hueValues[fc].value * 360});
 	}, [fc]);
 
-	const captureFocusedHuePointer = (e, {capturePointer, compileValue}) => {
+	const captureFocusedHuePointer = useCallback((e, {capturePointer, compileValue}) => {
 
 		capturePointer(fc);
 
 		modifyPreset(fc, {hue: compileValue(e) * 360});
-	};
+	}, [fc]);
 
 		// BASIC OPERATIONS WITH PRESETS
 
@@ -217,6 +263,7 @@ export const ThemePickerDemoPage = memo(props => {
 		setPresets(presets_);
 		setFocused(presets.length);
 		setNameEditorPosition(presets.length);
+		setURLPresets(presets_);
 	}, [presets.length, fc]);
 
 
@@ -231,53 +278,70 @@ export const ThemePickerDemoPage = memo(props => {
 
 		setPresets(presets_);
 		setFocused(fc === 0 ? 0 : fc - 1);
+		setURLPresets(presets_);
 	}, [presets.length]);
 
 
 	const spreadAmongPresets = useCallback(obj => {
 
-		setPresets(presets.map(p => Object.assign(p, obj)));
+		const presets_ = presets.map(p => Object.assign(p, obj));
+
+		setPresets(presets_);
+		setURLPresets(presets_);
 
 	}, [presets.length]);
 
 		// TINTS
 
+	const tintPointers = useMemo(() => tints.map((t, i) => {
+
+		if (i === focusedTint) {
+
+			return {
+				...focusedPointerProps,
+				value: t
+			};
+		} else {
+
+			return {value: t};
+		}
+	}), [fc, tints, focusedTint]);
+
+
+	const setTintsOfFocusedPreset = useCallback(
+		tints => modifyPreset(fc, {tints: tints.map(t => t.value)})
+	, [fc]);
+
+
 	const focusTintOfFocusedPreset = useCallback(index => {
 
-		const tints_ = [];
-		
-		for (let i = 0; i < tints.length; i++) {
-
-			if (i !== index)
-				tints_[i] = {value: tints[i].value};
-		}
-
-		tints_[index] = {
-			...focusedPointerProps,
-			value: tints[index].value
-		};
-
-		modifyPreset(fc, {tints: tints_});
-	}, [tints]);
+		modifyPreset(fc, {focusedTint: index});
+	}, [fc]);
 
 
 	const pushTintToFocusedPreset = useCallback((e, {value, capturePointer}) => {
 
-		const tints_ = [];
-		
-		for (let i = 0; i < tints.length; i++) {
+		const tints_ = Array.from(tints);
 
-			tints_[i] = {value: tints[i].value};
-		}
+		tints_.push(value);
 
-		tints_[tints.length] = {
-			...focusedPointerProps,
-			value
-		};
-
-		modifyPreset(fc, {tints: tints_});
+		modifyPreset(fc, {tints: tints_, focusedTint: tints.length});
 		capturePointer(tints.length);
-	}, [fc, tints.length]);
+	}, [fc, tints]);
+
+	
+	const popFocusedTintFromFocusedPreset = useCallback(() => {
+
+		const tints_ = [];
+		let i;
+
+		for (i = 0; i < focusedTint; i++) tints_[i] = tints[i];
+
+		for (i++; i < tints.length; i++) tints_[i - 1] = tints[i];
+
+		modifyPreset(fc, {tints: tints_, focusedTint: 0});
+
+	}, [fc, tints]);
 
 	// INPUT
 
@@ -310,7 +374,7 @@ export const ThemePickerDemoPage = memo(props => {
 
 		return Object.assign({}, _state, data);
 	}, {
-		menuVisibility: false,
+		visibility: false,
 		value: colorSchemes[0]
 	});
 
@@ -318,7 +382,7 @@ export const ThemePickerDemoPage = memo(props => {
 
 		return Object.assign({}, _state, data);
 	}, {
-		menuVisibility: false,
+		visibility: false,
 		value: colorSchemes[0]
 	});
 
@@ -332,6 +396,11 @@ export const ThemePickerDemoPage = memo(props => {
 
 		inputRef.current?.focus();
 	}, [nameEditorPosition]);
+
+	useEffect(() => {
+
+		setURLPresets(presets);
+	}, []);
 
 // PREPARATIONS BEFORE A RENDER
 
@@ -347,87 +416,19 @@ export const ThemePickerDemoPage = memo(props => {
 
 	huePointers[fc] = {...focusedPointerProps, value: presets[fc].hue / 360};
 
-	// RGBS
 
-	const rgbs = presets.map(({hue, curve, tints}) => {
-
-		const tints_ = Array.from(tints).sort((a, b) => a.value - b.value);
-
-		return tints_.map(tint => compileRGB(hue, curve, tint.value));
-	});
-
-	// FOCUSED TINT
-
-	let focusedTintValue;
-
-	const focusedTintIndex = -1; // FAST FIX!!!!!!!!!!!!!!!!!!!
-
-	// switch (tintPreviewScheme.value.toUpperCase()) {
-	// 	case "HSV": {
-	// 		const [h, s, v] = compileHSV(hue, curve, tints[focusedTintIndex]);
-	// 		focusedTintValue = `${h.toFixed(0)}, ${s.toFixed(1)}%, ${v.toFixed(1)}%`;
-	// 		break;
-	// 	}
-	// 	case "HSL": {
-	// 		const [h, s, l] = compileHSL(hue, curve, tints[focusedTintIndex]);
-	// 		focusedTintValue = `${h.toFixed(0)}, ${s.toFixed(1)}%, ${l.toFixed(1)}%`;
-	// 		break;
-	// 	}
-	// 	case "HEX": {
-	// 		focusedTintValue = RGBtoHex(...compileRGB(hue, curve, tints[focusedTintIndex]));
-	// 		break;
-	// 	}
-	// 	case "RGB": {
-	// 		focusedTintValue = compileRGB(hue, curve, tints[focusedTintIndex]).join(", ");
-	// 		break;
-	// 	}
-	// }
-
-	const compileAll = useCallback(() => {
-
-		let str = "";
-
-		switch (exportColorScheme) {
-
-			case "Hex":
-
-
-
-			case "HSV": case "HSL": case "RGB":
-
-				const prefix = exportColorScheme.toLowerCase();
-
-				for (let i = 0; i < presets.length; i++) {
-
-					str += presets[i].name + ":\n\r";
-		
-					const tints = presets[i].tints;
-		
-					for (let j = 0; j < tints.length; j++) {
-		
-						str += "\t" + prefix + "(" + exportColorScheme + tints[j] + ")\n\r";
-					}
-				}
-		}
-
-		return str;
-	}, [presets.length]);
+	const focusedTintColorCode = compileSingleColorCode(hue, curve, tints[focusedTint], tintPreviewScheme.value);
 
 	return (
 		<div
-			style={{
-				...CSSVariablesFromRGBs(rgbs[0], "color-pri"),
-				...CSSVariablesFromRGBs(rgbs[1], "color-sec"),
-				...CSSVariablesFromRGBs(rgbs[2], "color-acc"),
-				...CSSVariablesFromRGBs(rgbs[3], "color-neu")
-			}}
+			style={compileCSSVariables(presets)}
 			className="relative box-border w-100w h-100h p-40px justify-center overflow-x-hidden gap-2r bg-pri-4"
 		>
 			<div
 				style={{
-					backgroundImage: paletteGradient(rgbs[fc])
+					backgroundImage: compilePaletteGradient(presets, fc)
 				}}
-				className="-inset-x-50h inset-y-0 abs z-0 skew-x-[45deg] bg-[length:100%_2%]"
+				className="fix -inset-x-50h inset-y-0 z-0 skew-x-[45deg] bg-[length:100%_2%]"
 			></div>
 
 			<div>
@@ -476,8 +477,8 @@ export const ThemePickerDemoPage = memo(props => {
 			</div>
 
 			<div className="
-				fix bottom-0 right-0 grid grid-rows-[auto_auto_auto_auto] grid-cols-[1em_200px_2px_2em] gap-x-2r gap-y-1r z-1
-				before:Underlay before:bg-neu-9 text-2r p-2r before:clip-rabbet-l-015 before:text-4r
+				abs top-[25%] left-[50%] grid grid-rows-[auto_auto_auto_auto] grid-cols-[1em_200px_2px_2em] gap-x-2r gap-y-1r z-1 text-2r p-2r
+				before:Underlay before:bg-neu-9 before:clip-rabbet-01 before:text-4r
 			">
 				<div className="
 					row-start-1 row-end-2 col-start-1 col-end-5 flex flex-wrap items-center max-w-100 -mx-015 -mt-015 mb-1r clip-rabbet-015
@@ -499,6 +500,8 @@ export const ThemePickerDemoPage = memo(props => {
 
 										if (e.target.value === "")
 											modifyPreset(fc, {name: "new"});
+
+										setURLPresets(presets);
 									}}
 									className="leading-1e box-content h-1e py-03 -my-03 max-w-100 placeholder:text-neu-5"
 								/>
@@ -534,6 +537,7 @@ export const ThemePickerDemoPage = memo(props => {
 					setPointersBy={extractFocusedHue}
 					onPointerFocus={setFocused}
 					onFieldMouseDown={captureFocusedHuePointer}
+					onPointerRelease={() => setURLPresets(presets)}
 					interfaceSize={2}
 					className="w-1e h-100 row-start-2 row-end-3 col-start-1 col-end-2 tUxUIt-theme-picker-hue-gradient"
 				/>
@@ -542,17 +546,18 @@ export const ThemePickerDemoPage = memo(props => {
 					hue={hue}
 					ofCurve={curve}
 					setCurveBy={curve => modifyPreset(fc, {curve})}
-					ofPointers={tints.map(t => t.value)}
+					ofPointers={tints}
 					width="200"
 					height="200"
 					interfaceSize={2}
+					onControlRelease={() => setURLPresets(presets)}
 					className="z-10 row-start-2 row-end-3 col-start-2 col-end-3"
 				/>
 
 				<div className="abs z-10 w-06 h-06 hover:h-[30%] hover:w-[30%] row-start-2 bg-neu-1/25 -top-03 -right-03 row-end-3 col-start-2 col-end-3 rounded-[0.33333em_0.33333em_0.33333em_50%] hover:rounded-[0.33333em_0.33333em_0.33333em_100%] hover:bg-trns transition-all duration-300 overflow-hidden">
 					<div className="
 							abs row-start-2 row-end-3 col-start-2 col-end-3 top-06 right-06
-							Button-Box float-right text-pri-2 bg-pri-8/80 hover:bg-pri-8 clip-rabbet-015 w-fit leading-1e px-02 py-02
+							Button-Box float-right text-neu-2 bg-neu-8/80 hover:bg-neu-8 clip-rabbet-015 w-fit leading-1e px-02 py-02
 						"
 						onClick={() => spreadAmongPresets({curve})}
 					>{"<>"}</div>
@@ -569,10 +574,11 @@ export const ThemePickerDemoPage = memo(props => {
 
 				<VerticalPointersScale
 					zLayers={[0,1]}
-					ofPointers={tints}
-					setPointersBy={tints => modifyPreset(fc, {tints})}
+					ofPointers={tintPointers}
+					setPointersBy={setTintsOfFocusedPreset}
 					onFieldMouseDown={pushTintToFocusedPreset}
 					onPointerFocus={focusTintOfFocusedPreset}
+					onPointerRelease={() => setURLPresets(presets)}
 					interfaceSize={2}
 					className="abs w-2e h-100 row-start-2 row-end-3 col-start-4 col-end-5 cursor-copy"
 				/>
@@ -585,62 +591,55 @@ export const ThemePickerDemoPage = memo(props => {
 				">
 					<div className="
 							abs row-start-2 row-end-3 col-start-2 col-end-3 top-03
-							Button-Box float-right text-pri-2 bg-pri-8/80 hover:bg-pri-8 clip-rabbet-015 w-fit leading-1e px-02 py-02 mt-03
+							Button-Box float-right text-neu-2 bg-neu-8/80 hover:bg-neu-8 clip-rabbet-015 w-fit leading-1e px-02 py-02 mt-03
 						"
-						onClick={() => spreadAmongPresets({tints})}
+						onClick={() => spreadAmongPresets({tints, focusedTint})}
 					>{"<>"}</div>
 				</div>
 
 				<div className="row-start-3 row-end-4 col-start-1 col-end-4 justify-self-end z-10 text-neu-2">
-					<div
-						className="Button-Box inline-block py-02 px-01 leading-1e hover:before:bg-neu-8 before:Underlay before:clip-rabbet-015 me-02"
-						onClick={() => setTintPreviewScheme({menuVisibility: !tintPreviewScheme.menuVisibility})}
-					>
-						{tintPreviewScheme.value}
-						<p className="inline-block h-07 w-07 leading-12 overflow-hidden rotate-180">^</p>
-						{tintPreviewScheme.menuVisibility ? (
-							<div className="
-								abs top-100 -left-01 -right-01 z-10 bg-neu-8 clip-rabbet-015
-								before:Underlay before:bg-neu-9 before:inset-01 before:clip-rabbet-015
-							">
-								{colorSchemes.map(sch => (
-									<div
-										key={sch}
-										className="p-02 text-left text-neu-5 hover:underline hover:text-neu-2"
-										onClick={() => setTintPreviewScheme({value: sch})}
-									>{sch}</div>
+					<div className="inline-block">
+						<div
+							className="
+								Button-Box py-02 px-01 me-02 leading-1e
+								before:Underlay before:clip-rabbet-015
+								hover:before:bg-neu-8
+							"
+							onClick={() => setTintPreviewScheme({visibility: !tintPreviewScheme.visibility})}
+						>
+							{tintPreviewScheme.value}
+							<p className="inline-block h-07 w-07 leading-12 overflow-hidden rotate-180">^</p>
+						</div>
+						{tintPreviewScheme.visibility && (
+							<menu className="Menu abs z-10 mt-02 text-sec-9">
+								{colorSchemes.map(scheme => (
+									<li key={scheme} onClick={() => setTintPreviewScheme({
+										visibility: false,
+										value: scheme
+									})}>{scheme}</li>
 								))}
-							</div>
-						) : ""}
+							</menu>
+						)}
 					</div>
-					{focusedTintValue}
+					{focusedTintColorCode}
 					{clipboardCopyStatus ? (
 						<div
 							className="Button-Box float-right ml-02 -mr-03 text-neu-5 clip-rabbet-015 w-07 leading-09 px-03 py-02 hover:bg-neu-8 hover:text-neu-1"
-							onClick={() => copyToClipboard(focusedTintValue)}
+							onClick={() => copyToClipboard(focusedTintColorCode)}
 						>✓</div>
 					) : (
 						<div
-							className="Button-Box float-right ml-02 -indent-01 [text-shadow:_0.22222em_0.22222em_0_white] -mr-03 text-neu-5 clip-rabbet-015 w-07 leading-07 px-03 py-02 hover:bg-neu-8 hover:text-neu-1"
-							onClick={() => copyToClipboard(focusedTintValue)}
+							className="Button-Box float-right ml-02 -indent-01 text-shadow-neu-5 text-shadow-02 -mr-03 text-neu-1 clip-rabbet-015 w-07 leading-07 px-03 py-02 hover:bg-neu-8 hover:text-neu-1"
+							onClick={() => copyToClipboard(focusedTintColorCode)}
 						>□</div>
 					)}
 				</div>
 
-				{0 <= focusedTintIndex && focusedTintIndex < tints.length && tints.length > 9 ? (
+				{0 <= focusedTint && focusedTint < tints.length && tints.length > presets[fc].minTintsNumber ? (
 
 					<div
 						className="row-start-3 row-end-4 col-start-4 col-end-5 Button-Box text-sec-1 bg-sec-8 clip-rabbet-015 w-fit leading-07 px-03 py-02 hover:bg-sec-7 justify-self-center"
-						onClick={() => {
-							const tints_ = [];
-							let i;
-					
-							for (i = 0; i < focusedTintIndex; i++) tints_[i] = tints[i];
-					
-							for (i++; i < tints.length; i++) tints_[i - 1] = tints[i];
-
-							modifyPreset(fc, {tints: tints_});
-						}}
+						onClick={popFocusedTintFromFocusedPreset}
 					>x</div>
 				) : (
 					<div
@@ -655,36 +654,42 @@ export const ThemePickerDemoPage = memo(props => {
 							before:Underlay before:bg-neu-9 before:clip-rabbet-l-015
 							hover:before:bg-neu-8 hover:text-neu-4 active:translate-y-03 active:drop-none
 						"
-						onClick={() => navigator.clipboard.writeText(Math.floor(hue))}
+						onClick={() => {
+							const date = new Date();
+
+							downloadFile(
+								new Blob([compileColorCodesList(presets, exportColorScheme.value)], {type: "text/plaintext"}), 
+								`theme-${date.getFullYear()}-${date.getMonth()}-${date.getDay()}-${date.getHours()}-${date.getMinutes()}-${date.getSeconds()}.txt`
+							)
+						}}
 					>
 						Export colors
 					</div>
-					<div
-						className="
-							Button-Box leading-1e p-03 text-neu-6 drop-03 drop-neu-7
-							before:Underlay before:bg-neu-9 before:clip-rabbet-r-015
-							hover:before:bg-neu-8 hover:text-neu-1 active:translate-y-03 active:drop-none
-						"
-						onClick={() => setExportColorScheme({menuVisibility: !exportColorScheme.menuVisibility})}
-					>
-						{exportColorScheme.value}
-						<p className="
-							leading-07 h-07 w-07 float-right overflow-hidden rotate-180
-						">^</p>
-						{exportColorScheme.menuVisibility ? (
-							<div className="
-								abs top-100 -left-01 -right-01 z-10 bg-neu-8 clip-rabbet-015
-								before:Underlay before:bg-neu-9 before:inset-01 before:clip-rabbet-015
-							">
-								{colorSchemes.map(sch => (
-									<div
-										key={sch}
-										className="p-02 text-left text-neu-5 hover:underline hover:text-neu-2"
-										onClick={() => setExportColorScheme({value: sch})}
-									>{sch}</div>
+					<div className="inline-block">
+						<div
+							className="
+								Button-Box leading-1e p-03 text-neu-6 drop-03 drop-neu-7
+								before:Underlay before:bg-neu-9 before:clip-rabbet-r-015
+								hover:before:bg-neu-8 hover:text-neu-1 active:translate-y-03 active:drop-none
+							"
+							onClick={() => setExportColorScheme({visibility: !exportColorScheme.visibility})}
+						>
+							{exportColorScheme.value}
+							<p className="
+								leading-07 h-07 w-07 float-right overflow-hidden rotate-180
+							">^</p>
+						</div>
+
+						{exportColorScheme.visibility && (
+							<menu className="Menu abs z-10 mt-02 text-sec-9">
+								{colorSchemes.map(scheme => (
+									<li key={scheme} onClick={() => setExportColorScheme({
+										visibility: false,
+										value: scheme
+									})}>{scheme}</li>
 								))}
-							</div>
-						) : ""}
+							</menu>
+						)}
 					</div>
 				</div>
 			</div>

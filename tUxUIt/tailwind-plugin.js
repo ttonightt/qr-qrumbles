@@ -53,7 +53,7 @@ export default plugin(({addUtilities, matchUtilities, addVariant, matchComponent
 			filter: "var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)"
 		})
 	}, {
-		values: theme("drop"),
+		values: theme("shadow"),
 		type: "shadow"
 	});
 
@@ -64,6 +64,24 @@ export default plugin(({addUtilities, matchUtilities, addVariant, matchComponent
 	}, {
 		values: flattenColorPalette(theme("colors")),
 		type: "color"
+	});
+
+	matchUtilities({
+		"text-shadow": value => ({
+			"--tuxit-text-shadow-color": value
+		})
+	}, {
+		values: flattenColorPalette(theme("colors")),
+		type: "color"
+	});
+
+	matchUtilities({
+		"text-shadow": value => ({
+			textShadow: value + " var(--tuxit-text-shadow-color)"
+		})
+	}, {
+		values: flattenColorPalette(theme("shadow")),
+		type: "shadow"
 	});
 }, {
 	theme: {
@@ -76,10 +94,10 @@ export default plugin(({addUtilities, matchUtilities, addVariant, matchComponent
 				"r-015": "polygon(0 0, calc(100% - 0.16666em) 0, calc(100% - 0.16666em) 0.16666em, 100% 0.16666em, 100% calc(100% - 0.16666em), calc(100% - 0.16666em) calc(100% - 0.16666em), calc(100% - 0.16666em) 100%, 0 100%)",
 				"l-01": "polygon(0.11111em 0, 0.11111em 0.11111em, 0 0.11111em, 0 calc(100% - 0.11111em), 0.11111em calc(100% - 0.11111em), 0.11111em 100%, 100% 100%, 100% 0)",
 				"l-015": "polygon(0.16666em 0, 0.16666em 0.16666em, 0 0.16666em, 0 calc(100% - 0.16666em), 0.16666em calc(100% - 0.16666em), 0.16666em 100%, 100% 100%, 100% 0)",
-				"t-01": "polygon(0 0, 100% 0, 100% calc(100% - 0.11111em), calc(100% - 0.11111em) calc(100% - 0.11111em), calc(100% - 0.11111em) 100%, 0.11111em 100%, 0.11111em calc(100% - 0.11111em), 0 calc(100% - 0.11111em))",
-				"t-015": "polygon(0 0, 100% 0, 100% calc(100% - 0.16666em), calc(100% - 0.16666em) calc(100% - 0.16666em), calc(100% - 0.16666em) 100%, 0.16666em 100%, 0.16666em calc(100% - 0.16666em), 0 calc(100% - 0.16666em))",
-				"b-01": "polygon(0 0.11111em, 0.11111em 0.11111em, 0.11111em 0, calc(100% - 0.11111em) 0, calc(100% - 0.11111em) 0.11111em, 100% 0.11111em, 100% 100%, 0 100%)",
-				"b-015": "polygon(0 0.16666em, 0.16666em 0.16666em, 0.16666em 0, calc(100% - 0.16666em) 0, calc(100% - 0.16666em) 0.16666em, 100% 0.16666em, 100% 100%, 0 100%)",
+				"b-01": "polygon(0 0, 100% 0, 100% calc(100% - 0.11111em), calc(100% - 0.11111em) calc(100% - 0.11111em), calc(100% - 0.11111em) 100%, 0.11111em 100%, 0.11111em calc(100% - 0.11111em), 0 calc(100% - 0.11111em))",
+				"b-015": "polygon(0 0, 100% 0, 100% calc(100% - 0.16666em), calc(100% - 0.16666em) calc(100% - 0.16666em), calc(100% - 0.16666em) 100%, 0.16666em 100%, 0.16666em calc(100% - 0.16666em), 0 calc(100% - 0.16666em))",
+				"t-01": "polygon(0 0.11111em, 0.11111em 0.11111em, 0.11111em 0, calc(100% - 0.11111em) 0, calc(100% - 0.11111em) 0.11111em, 100% 0.11111em, 100% 100%, 0 100%)",
+				"t-015": "polygon(0 0.16666em, 0.16666em 0.16666em, 0.16666em 0, calc(100% - 0.16666em) 0, calc(100% - 0.16666em) 0.16666em, 100% 0.16666em, 100% 100%, 0 100%)",
 			},
 			"rabbet-prism": {
 				"01": "polygon(0 0.11111em, 0.11111em 0.11111em, 0.11111em 0, calc(100% - 0.11111em - 1rem) 0, 100% calc(0.11111em + 1rem), 100% calc(100% - 0.11111em), calc(100% - 0.11111em) calc(100% - 0.11111em), calc(100% - 0.11111em) 100%, calc(0.11111em + 1rem) 100%, 0 calc(100% - 0.11111em - 1rem))",
@@ -87,7 +105,7 @@ export default plugin(({addUtilities, matchUtilities, addVariant, matchComponent
 			}
 		},
 
-		drop: {
+		shadow: {
 			"none": ""
 		},
 

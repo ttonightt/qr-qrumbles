@@ -3,11 +3,11 @@ import {
 	createContext, useContext,
 	useLayoutEffect
 } from "react";
-
-import {useLoad} from "./utils/functions-hooks";
 import { createPortal } from "react-dom";
 
-// INNER UTILS
+import {useLoad} from "./utils/functions-hooks";
+
+// INTERIOR UTILS
 
 const TextMeasurer = {
 
@@ -21,6 +21,51 @@ const TextMeasurer = {
 };
 
 // MENUS & LISTS
+
+const MenuBoxContext = createContext();
+
+export const MenuBox = props => {
+
+	const ref = useRef();
+
+	const [position, setPosition] = useState({top: 0, left: 0});
+
+	useLayoutEffect(() => {
+
+		const {top, left} = ref.current.getBoundingClientRect();
+
+		setPosition({top, left});
+	}, []);
+	
+	return (
+		<MenuBoxContext.Provider value={position}>
+			<div
+				{...props}
+				ref={ref}
+			>
+			</div>
+		</MenuBoxContext.Provider>
+	);
+};
+
+export const Menu = props => {
+
+	const {top, left} = useContext(MenuBoxContext);
+
+	return createPortal((
+
+		<menu style={{
+			position: "absolute",
+			// boxSizing: "content-box",
+			display: "block",
+			zIndex: "10000",
+			top: top + "px",
+			left: left + "px"
+		}}>
+			{props.children}
+		</menu>
+	), document.body);
+};
 
 // SWITCHERS
 

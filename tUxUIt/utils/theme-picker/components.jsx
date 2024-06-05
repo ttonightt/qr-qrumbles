@@ -122,7 +122,7 @@ export const compileHSL = (hue, curve, tint) => {
 	return [hue, m ? (v - l) / m : 0, l];
 };
 
-export const RGBtoHex = (r, g, b) => ((r << 16) + (g << 8) + b).toString(16).padStart(6, "0");
+export const RGBtoHex = ([r, g, b]) => ((r << 16) + (g << 8) + b).toString(16).padStart(6, "0");
 
 const pureHueToRGB = hue => {
 
@@ -168,38 +168,63 @@ export const SVCurvePicker = props => {
 	const infc = props.interfaceSize > 0 ? parseInt(props.interfaceSize) : 2;
 	const poiR = 2 * infc;
 
+	const [metro, toggleMetro, isMetroTheSame] = useMetronome();
+
 	const ref = useRef();
 
-	const focusedPointer = useRef(-1);
+	const focus = useRef(-1);
+	const fc = focus.current;
 
-	const handleMouseMove = e => {
+	const handleControlMouseMove = e => {
 
 		const rect = ref.current.getBoundingClientRect();
 
 		const curve_ = Array.from(curve);
-		// x
-		curve_[focusedPointer.current * 2] = (Math.min(Math.max(e.clientX, rect.left), rect.right) - rect.left) / wc;
-		// y
-		curve_[(focusedPointer.current * 2) + 1] = (Math.min(Math.max(e.clientY, rect.top), rect.bottom) - rect.top) / hc;
+
+		if (fc % 3) {
+			// x
+			curve_[fc * 2] = (e.clientX - rect.left) / wc;
+			// y
+			curve_[(fc * 2) + 1] = (e.clientY - rect.top) / hc;
+		} else {
+			// x
+			curve_[fc * 2] = (Math.min(Math.max(e.clientX, rect.left), rect.right) - rect.left) / wc;
+			// y
+			curve_[(fc * 2) + 1] = (Math.min(Math.max(e.clientY, rect.top), rect.bottom) - rect.top) / hc;
+		}
 
 		props.setCurveBy(curve_);
 	};
 
-	const handleMouseDown = i => {
+	const handleControlMouseDown = i => {
 
-		focusedPointer.current = i;
-		document.documentElement.style.cursor = "grabbing";
-		document.body.style.setProperty("pointer-events", "none", "important");
-		window.addEventListener("mousemove", handleMouseMove);
-		window.addEventListener("mouseout", handleMouseMove);
+		focus.current = i;
+		document.documentElement.classList.add("tUxUIt-cursor-grabbing-modifier");
+		toggleMetro();
 	};
 
-	window.addEventListener("mouseup", () => {
-		document.documentElement.style.cursor = "";
-		document.body.style.setProperty("pointer-events", "");
-		window.removeEventListener("mousemove", handleMouseMove);
-		window.removeEventListener("mouseout", handleMouseMove);
-	});
+	const handleControlMouseUp = () => {
+
+		document.documentElement.classList.remove("tUxUIt-cursor-grabbing-modifier");
+		window.removeEventListener("mousemove", handleControlMouseMove);
+		window.removeEventListener("mouseup", handleControlMouseUp);
+
+		if (props.onControlRelease)
+			props.onControlRelease();
+	};
+
+	useEffect(() => {
+
+		if (isMetroTheSame()) return;
+
+		window.addEventListener("mousemove", handleControlMouseMove);
+		window.addEventListener("mouseup", handleControlMouseUp);
+
+		return () => { // <<<
+			window.removeEventListener("mouseup", handleControlMouseUp);
+			window.removeEventListener("mousemove", handleControlMouseMove);
+		};
+	}, [metro]);
 
 	return (
 		<svg
@@ -255,7 +280,17 @@ export const SVCurvePicker = props => {
 					))}
 				</mask>
 
-				<polygon points={`${-poiR + 1},${-poiR - 1} ${poiR + 1},0 ${-poiR + 1},${poiR + 1}`} id={"r-triangle-" + infc}/>
+				<polygon points={`${
+					-1.5 * infc
+				},${
+					-2.5 * infc
+				} ${
+					3 * infc
+				},0 ${
+					-1.5 * infc
+				},${
+					2.5 * infc
+				}`} id={"r-triangle-" + infc}/>
 			</defs>
 
 			<line x1={cx0} y1={cy0} x2={cx1} y2={cy1} stroke="white" strokeWidth={infc * 2 / 3}/>
@@ -293,7 +328,7 @@ export const SVCurvePicker = props => {
 				stroke="black"
 				cursor="grab"
 				strokeWidth={infc}
-				onMouseDown={e => handleMouseDown(0)}
+				onMouseDown={e => handleControlMouseDown(0)}
 			/>
 			<circle
 				cx={cx}
@@ -303,7 +338,7 @@ export const SVCurvePicker = props => {
 				stroke="black"
 				cursor="grab"
 				strokeWidth={infc}
-				onMouseDown={e => handleMouseDown(3)}
+				onMouseDown={e => handleControlMouseDown(3)}
 			/>
 
 			<rect
@@ -315,7 +350,7 @@ export const SVCurvePicker = props => {
 				stroke="black"
 				cursor="grab"
 				strokeWidth={infc}
-				onMouseDown={e => handleMouseDown(1)}
+				onMouseDown={e => handleControlMouseDown(1)}
 			/>
 			<rect
 				x={cx2 - poiR}
@@ -326,7 +361,7 @@ export const SVCurvePicker = props => {
 				stroke="black"
 				cursor="grab"
 				strokeWidth={infc}
-				onMouseDown={e => handleMouseDown(2)}
+				onMouseDown={e => handleControlMouseDown(2)}
 			/>
 		</svg>
 	);
@@ -366,7 +401,8 @@ export const VerticalPointersScale = memo(props => {
 
 	const scale = props.interfaceSize > 0 ? parseInt(props.interfaceSize) : 2;
 
-	const [fc, setFocus] = useState();
+	const focus = useRef(-1);
+	const fc = focus.current;
 
 	const [metro, toggleMetro, isMetroTheSame] = useMetronome();
 
@@ -400,7 +436,7 @@ export const VerticalPointersScale = memo(props => {
 
 	const handlePointerMouseDown = index => {
 
-		setFocus(index);
+		focus.current = index;
 		toggleMetro();
 
 		document.documentElement.classList.add("tUxUIt-cursor-grabbing-modifier");
@@ -422,11 +458,24 @@ export const VerticalPointersScale = memo(props => {
 		props.setPointersBy(values_);
 	};
 
+	const handlePointerBlur = () => {
+
+		console.log("blur");
+
+		if (props.onPointerBlur)
+			props.onPointerBlur();
+		window.removeEventListener("mousedown", handlePointerBlur);
+	};
+
 	const handlePointerMouseUp = () => {
 
 		document.documentElement.classList.remove("tUxUIt-cursor-grabbing-modifier");
 		window.removeEventListener("mousemove", handlePointerMouseMove);
-		// window.addEventListener("mousedown", unfocus);
+		window.removeEventListener("mouseup", handlePointerMouseUp);
+		window.addEventListener("mousedown", handlePointerBlur);
+
+		if (props.onPointerRelease)
+			props.onPointerRelease();
 	};
 
 	useEffect(() => {

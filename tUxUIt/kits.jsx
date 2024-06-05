@@ -16,3 +16,18 @@ export const useCounterKit = ({min, max, step, value}) => {
 		}
 	];
 };
+
+export const useListMenuKit = (initVisibility, initValue) => {
+
+	const [visibility, setVisibility] = useState(initVisibility);
+	const [value, setValue] = useState(initValue);
+
+	return [
+		visibility,
+		value,
+		bool => {
+			setVisibility(bool ?? !visibility);
+		},
+		setValue
+	];
+};
